@@ -1,0 +1,104 @@
+# Kubernetes api 版本
+apiVersion: v1
+# Pod 类型
+kind: Pod
+# Pod 元数据
+metedata:
+  # Pod 名称
+  name: string
+  # Pod 命名空间
+  namespace: string
+  # Pod 标签
+  labels:
+    - name: string
+  annotations:
+    - name: string
+# Pod 详细定义
+spec:
+  # Pod 重启策略
+  restartPolicy: [Always | Never | OnFailure]
+  # Pod 中容器定义
+  containers:
+    # 容器名
+    - name: string
+      # 镜像名
+      image: string
+      # 镜像拉取策略
+      imagePullPolicy: [Always | IfNotPresent | Never]
+      # 容器启动命令
+      command: [string]
+      # 容器启动命令参数
+      args: [string]
+      # 容器工作目录
+      workingDir: string
+      # 容器内的存储卷
+      volumeMounts:
+        - name: string
+          mountPath: string
+          readOnly: boolean
+      # 容器暴露的端口
+      ports:
+        - name: string
+          containerPort: int
+          hostPort: int
+          protocol: string
+      # 容器的环境变量
+      env:
+        - name: string
+          value: string
+      # 容器资源
+      resources:
+        limits:
+          cpu: string
+          memory: string
+        requests:
+          cpu: string
+          memory: string
+      # 容器存活探测
+      livenessProbe:
+        # exec 方式执行脚本
+        exec:
+          command: [string]
+        # httpGet 方式发送 HTTP 请求
+        httpGet:
+          path: string
+          port: number
+          host: string
+          scheme: string
+          HttpHeaders:
+            - name: string
+              value: string
+        # tcp 方式发送心跳请求
+        tcpSocket:
+          port: number
+        # 容器启动后首次探测推迟时间
+        initialDelaySeconds: 0
+        # 健康探测等待响应超时时间
+        timeoutSeconds: 0
+        # 健康探测周期
+        periodSeconds: 0
+        successThreshold: 0
+        failureThreshold: 0
+        securityContext:
+          privileged: false
+
+  nodeSelector: object
+  imagePullSecrets:
+    - name: string
+  hostNetwork: false
+  # 定义 Pod 的存储卷
+  volumes:
+    - name: string
+      emptyDir: {}
+      hostPath: string
+      path: string
+      secret:
+        secretName: string
+        items:
+          - key: string
+            path: string
+      configMap:
+        name: string
+        items:
+          - key: string
+            path: string
