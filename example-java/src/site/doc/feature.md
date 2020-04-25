@@ -24,7 +24,6 @@ TestInterface f = () ->{}
 - 如果接口上声明了 ```@FunctionalInterface``` 注解，那么编译器会按照函数式接口的定义来要求该接口
 - 如果接口只有一个抽象方法但并没有被 ```@FunctionalInterface``` 注解，那么编译器依旧会将该接口看做函数式接口
 - 如果接口的抽象方法重写了 java.lang.Object 的 public 方法则不会被认为是函数式接口
-- 函数式接口的实例可以通过 Lambda 表达式、方法引用和构造器引用创建
 
 ```java
 @FunctionalInterface
@@ -91,17 +90,27 @@ bf.andThen(value -> value * value).apply(1, 2);
 #### Predicate
 抽象方法 test 接收一个参数并返回一个 boolean 类型的结果
 ```java
-Predicate<Integer> p = v -> v.length() >= 5;
+Predicate<String> p = v -> v.length() >= 5;
 // "true"
 p.test("hello")  
 ```
-默认方法 and 传入一个 Predicate 类型参数，当两个 Predicate 应用 test 方法都为 true 时返回 true；or 当两个 Predicate 的 test 有一个为 true 则返回 true；negate 方法为取反：
+默认方法 and 传入一个 Predicate 类型参数并返回一个 Predicate 类型对象。返回的 Predicate 对象的 test 方法在调用时只有当前对象的 test 方法和参数对象的 test 方法都返回 true 时才会返回 true：
 ```java
 public void conditionFilter(List<Integer> list, Predicate<Integer> p1, Predicate<Integer> p2){
-    list.forEach(a -> p1.and(p2),negate().test(a) ? System.out.Println(a))
+    list.forEach(a -> p1.and(p2).negate().test(a) ? System.out.Println(a))
 }
 
 conditionFilter(Arrays.asList(1,2,3,4,5,6,7,8,9,10), item->item>5, item->item%2==0);
+```
+默认方法 negate 返回一个 Predicate 类型对象，返回的 Predicate 对象的 test 方法调用时会先调用当前对象的 test 方法，然后对结果取反：
+```java
+// "false"
+p.nagate().test("hello");
+```
+默认方法 or 传入一个 Predicate 类型参数并返回一个 Predicate 类型参数。返回的 Predicate 对象的 test 方法调用时，当前对象的 test 方法返回 true 或者参数对象的 test 方法返回 true 时都会返回 true：
+```java
+// "true"
+p.or(v -> v.length() < 10).test("hello");
 ```
 静态方法 isEqual 判断两个对象是否相等，内部是使用 equals 方法判断：
 ```java
