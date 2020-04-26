@@ -3,7 +3,7 @@
 
 在 Java 语言里面，类型的加载、连接和初始化过程都是在程序运行期间完成的，这种策略虽然会令类加载时稍微增加一些性能开销，但是会为 Java 应用程序提供高度的灵活性，Java 里天生可以动态扩展的语言特性就是依赖运行期动态加载和动态连接这个特点实现的。
 
-类从被加载到虚拟机内存开始到卸载出内存为止的整个生命周期包括：加载(Loading)、验证(Verification)、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)和卸载(Unloading)；其中验证、准备、解析统称为连接(Linking)。
+类从被加载到虚拟机内存开始到卸载出内存为止的整个生命周期包括：加载(Loading)、验证(Verification)、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)和卸载(Unloading)，其中验证、准备、解析统称为连接(Linking)。
 
 ### 类加载时机
 Java 虚拟机规范规定了类必须进行初始化的情况：
