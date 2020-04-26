@@ -1,3 +1,13 @@
+### 默认方法
+接口中可以定义默认方法作为实现类的默认实现，如果一个类实现的多个接口有相同的 default 方法则会抛出错误，此时实现类必须要重写默认方法。
+```java
+public class TestClass implements TestInterface1, TestInterface2{
+    @override
+    public void testMethod(){
+        TestInterface2.super.testMethod();
+    }
+}
+```
 ### Lambda 表达式
 Lambda 表达式的基本结构：
 ```
@@ -124,11 +134,14 @@ supplier.get();  // Hello world
 ```
 
 ### 方法引用
-方法引用实际是 Lambda 表达式的一种语法糖。方法引用分为 4 类：
+
+方法引用时 Lambda 表达式的一种语法糖，也是函数式接口的一个实例。方法引用使用 “::” 符号将类/对象和方法名分割开。
+
+方法引用的方法的参数列表和返回值类型必须和抽象方法中的参数列表和返回值类型相同。方法引用有 4 种形式：
 - 类名::静态方法名
 - 对象名::实例方法名
 - 类名::实例方法名，需要 Lambda 表达式的第一个参数是调用实例
-- 类名::new
+- 类名::new，调用的构造器需要根据函数式接口的类型
 
 ```java
 public class Student{
@@ -158,26 +171,67 @@ students.sort(comparator::compare);
 // 类名::实例方法名
 students.sort(Student::compareNew);
 ```
-#### 默认方法
-接口中可以定义默认方法作为实现类的默认实现，如果一个类实现的多个接口有相同的 default 方法则会抛出错误，此时实现类必须要重写默认方法。
-```java
-public class TestClass implements TestInterface1, TestInterface2{
-    @override
-    public void testMethod(){
-        TestInterface2.super.testMethod();
-    }
-}
-```
-### 流式编程
-流由 3 部分组成：
-- 数据源
-- 零个或多个中间操作
-- 终止操作
 
-流的特性：
+### 流式编程
+
+Stream 可以指定对集合进行的操作，可以执行非常复杂的查找、过滤和映射数据等操作。Stream 有三个特性：
 - 流不存储值，通过管道的方式获取值
 - 流不会修改底层的数据源
 - 流是惰性的；只有在启动终止操作时才对源数据执行计算，并且仅根据需要使用源元素
+
+流式编程由三部分组成：数据源、零个或多个中间操作、终止操作。
+
+#### Stream 创建
+JDK 1.8 的 Collection 接口新增了两个用于创建 Stream 的方法：
+- stream：创建一个串行流，流中的数据处理是串行的
+- parallelStream：创建一个并行流，流中的数据是并行处理的
+
+```java
+```
+
+除了 Collection 接口提供了创建 Stream 的方法，Arrays 也提供了一个静态方法 stream 用于从数组创建 Stream：
+```java
+Arrays.stream(new int[]{1,2,3,4});
+```
+另外，新增的 Stream 接口的 of 方法可以从可变参数中创建 Stream：
+```java
+Stream.of("java", "scala", "rust")
+```
+
+
+#### Stream 操作
+
+Stream 操作分为中间操作和终止操作，Stream 创建之后可以经过一系列的中间处理后通过终止操作完成 Stream 的转换。
+中间处理的过程是惰性的，直到终止操作才会真正执行，Stream 中间操作不会改变原始的数据源。
+
+Java 提供的 Stream 中间操作 API 可以分为 3 类：筛选、映射、排序。
+
+筛选：
+- ```filter```：传入一个 Predict 类型的函数式接口，过滤不符合函数式接口的元素
+- ```limit```：传入一个 long 类型的参数 maxSize，Stream 中值保留前不大于 maxSize 个元素
+- ```skip```：传入一个 long 类型的参数 n，Stream 中的前 n 个元素被丢弃
+- ```distinct```：过滤掉 Stream 中的重复数据，内部使用 hashCode 和 equals 方法判断重复
+
+映射：
+- ```map```：接收一个 Lambda 表达式参数，这个参数会应用在 Stream 中的每个元素上，并将其映射成一个新的元素
+- ```flatMap```：
+
+排序：
+- ```sorted```：接收一个 Comparator 类型的函数式接口参数，内部根据该函数式接口的 compare 方法实现 Stream 内元素的排序
+
+Stream API 提供了 3 类终止操作：查找、规约、收集。
+
+查找：
+- ```allMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否所有的元素都符合 test 方法
+- ```anyMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否有元素符合 test 方法
+- ```noneMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否没有元素符合 test 方法
+- ```findFirst```：返回 Stream 中的第一个元素，
+- ```findAny```
+- ```count```
+- ```max```
+
+
+
 ```java
 // 根据数据创建流
 Stream stream = Stream.of("hello", "world");
