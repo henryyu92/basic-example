@@ -8,19 +8,5 @@
     <groupId>org.mooc</groupId>
     <artifactId>dubbo-consummer</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.imooc</groupId>
-            <artifactId>dubbo-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>2.1.6.RELEASE</version>
-        </dependency>
-    </dependencies>
-
 
 </project>

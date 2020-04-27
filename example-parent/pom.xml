@@ -9,16 +9,5 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <netty.version></netty.version>
-        <lettuce.version></lettuce.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-
-        </dependencies>
-    </dependencyManagement>
-
 
 </project>

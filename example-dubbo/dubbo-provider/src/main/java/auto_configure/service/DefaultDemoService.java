@@ -2,10 +2,6 @@ package auto_configure.service;
 
 import api.HelloService;
 
-/**
- * @author Administrator
- * @date 2019/6/7
- */
 
 public class DefaultDemoService implements HelloService {
 

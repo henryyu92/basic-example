@@ -7,10 +7,6 @@ import org.apache.dubbo.config.ServiceConfig;
 
 import java.util.concurrent.CountDownLatch;
 
-/**
- * @author Administrator
- * @date 2019/6/7
- */
 
 
 public class DubboAutoConfigurationProviderBootstrap {

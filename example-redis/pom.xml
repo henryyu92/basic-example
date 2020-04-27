@@ -15,13 +15,4 @@
 
     <artifactId>example-redis</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>5.0.1.RELEASE</version>
-        </dependency>
-    </dependencies>
-
-
 </project>
