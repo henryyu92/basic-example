@@ -1,5 +1,7 @@
 ### 默认方法
-接口中可以定义默认方法作为实现类的默认实现，如果一个类实现的多个接口有相同的 default 方法则会抛出错误，此时实现类必须要重写默认方法。
+JDK 8 接口中可以定义默认方法作为实现类的默认实现，默认方法使用 default 关键字修饰。
+
+当类中的方法和默认方法相同时，类中的方法会覆盖接口中的默认方法，如果一个类实现的多个接口有相同的 default 方法则会抛出错误，此时实现类必须要重写默认方法。
 ```java
 public class TestClass implements TestInterface1, TestInterface2{
     @override
@@ -8,6 +10,9 @@ public class TestClass implements TestInterface1, TestInterface2{
     }
 }
 ```
+### 静态方法
+JDK 8 接口中可以定义静态方法，静态方法使用关键字 static 修饰，
+
 ### Lambda 表达式
 Lambda 表达式的基本结构：
 ```
@@ -225,10 +230,18 @@ Stream API 提供了 3 类终止操作：查找、规约、收集。
 - ```allMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否所有的元素都符合 test 方法
 - ```anyMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否有元素符合 test 方法
 - ```noneMatch```：接收一个 Predicate 类型的函数式接口参数，返回判断 Stream 中是否没有元素符合 test 方法
-- ```findFirst```：返回 Stream 中的第一个元素，
-- ```findAny```
-- ```count```
-- ```max```
+- ```findFirst```：返回 Stream 中的第一个元素
+- ```findAny```：返回 Stream 中的任意一个元素
+- ```count```：返回 Stream 中元素的个数
+- ```max```：接收一个 Comparator 函数式接口类型参数，返回 Stream 中最大的元素
+- ```min```：接收一个 Comparator 函数式接口类型参数，返回 Stream 中最小的元素
+- ```forEach```：接收一个 Comsumer 函数式接口类型参数，对 Stream 中的每个元素应用 Comumer 函数式接口参数的 accept 方法
+
+规约：
+- ```reduce```：将
+
+收集：
+- ```collect```：
 
 
 
