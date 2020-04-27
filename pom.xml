@@ -7,8 +7,11 @@
     <groupId>org.imooc</groupId>
     <artifactId>java-example</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <packaging>pom</packaging>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
 
 
     <modules>
@@ -18,6 +21,7 @@
         <module>example-redis</module>
         <module>example-netty</module>
         <module>example-java</module>
+        <module>example-zookeeper</module>
     </modules>
 
 </project>

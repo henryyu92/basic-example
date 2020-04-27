@@ -14,9 +14,5 @@
     <artifactId>example-netty</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-        
-    </dependencies>
-
 
 </project>

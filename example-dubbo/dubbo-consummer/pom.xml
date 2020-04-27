@@ -5,7 +5,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.mooc</groupId>
+    <parent>
+        <groupId>org.mooc</groupId>
+        <artifactId>example-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../example-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>dubbo-consummer</artifactId>
 
 
