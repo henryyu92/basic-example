@@ -17,19 +17,16 @@ import java.util.concurrent.Executors;
  */
 public class BioServer {
 
-    private InetSocketAddress address;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
+    private Integer port;
     private volatile boolean started = false;
 
-    public BioServer(InetSocketAddress address){
-        this.address = address;
+    public BioServer(Integer port){
+        this.port = port;
         start();
     }
 
-    public BioServer(String host, Integer port){
-        this(new InetSocketAddress(host, port));
-    }
 
     /**
      * 启动服务端
@@ -38,12 +35,16 @@ public class BioServer {
         if (!started){
 
             started = true;
-            try(ServerSocket serverSocket = new ServerSocket()){
-                serverSocket.bind(address);
+            // 创建 ServerSocket 监听端口
+            try(ServerSocket serverSocket = new ServerSocket(port)){
                 while (started){
+                    // 线程阻塞
+                    System.out.println("连接线程阻塞： " + Thread.currentThread().getName());
                     Socket socket = serverSocket.accept();
-                    System.out.println("建立连接。。。。");
-                    executor.execute(new TimeServerHandler(socket));
+                    System.out.println("建立连接。。。。remote address: " + socket.getRemoteSocketAddress());
+                    executor.execute(()->{
+                        handler(socket);
+                    });
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -59,50 +60,46 @@ public class BioServer {
         }
     }
 
-    public static void run(String host, Integer port){
-        new BioServer(host, port).start();
-    }
+    public void handler(Socket socket){
+        try(BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-    public static void main(String[] args) {
-        BioServer.run("localhost", 8888);
-    }
+            String currentTime;
 
-
-
-    class TimeServerHandler implements Runnable{
-
-        private Socket socket;
-        public TimeServerHandler(Socket socket){
-            this.socket = socket;
-        }
-        public void run(){
-
-            try(BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
-                String body;
-                String currentTime;
-                while ((body = in.readLine()) != null) {
-                    System.out.println("The time server receive order: " + body);
-                    currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
-                    try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-                        out.println(currentTime);
-                        out.flush();
-                    }
+            while (true) {
+                System.out.println("线程读取数据阻塞: " + Thread.currentThread().getName());
+                String body = in.readLine();
+                if (body == null || body.length() <= 0){
+                    break;
                 }
-            }catch (SocketException e){
-                System.out.println(e.getMessage());
-            }catch (Exception e){
-                e.printStackTrace();
-            }finally {
-                if (!socket.isClosed()){
-                    try {
-                        socket.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                System.out.println("The time server receive order: " + body);
+                currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+                try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                    out.println(currentTime);
+                    out.flush();
+                }
+            }
+        }catch (SocketException e){
+            System.out.println(e.getMessage());
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if (!socket.isClosed()){
+                try {
+                    socket.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
     }
+
+    public static void run(Integer port){
+        new BioServer(port).start();
+    }
+
+    public static void main(String[] args) {
+        BioServer.run(8888);
+    }
+
 }
