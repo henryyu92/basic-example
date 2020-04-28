@@ -1,4 +1,8 @@
 package rpc;
 
-public class RpcStub {
+/**
+ * RPC 代理
+ */
+public interface RpcStub {
+
 }

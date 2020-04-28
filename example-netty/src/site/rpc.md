@@ -1,7 +1,7 @@
 ## RPC
 RPC(Remote Procedure Call) 远程过程调用，是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。典型的 RPC 框架包括 Dubbo，Thrift，gRPC 等，其底层通信框架一般都选用 Netty。
 
-RPC 中网络协议和网络 IO 模型是透明的，传输层使用的是 TCP/UDP 还是 HTTP 协议对上层调用者来说是透明的；RPC 一般应该具有跨语言能力，RPC 通过网络调用远程计算机上的程序，无论远程程序使用什么语言开发都应调用成功。
+RPC 中网络协议和网络 I/O 模型是透明的，传输层使用的是 TCP/UDP 还是 HTTP 协议对上层调用者来说是透明的；RPC 一般应该具有跨语言能力，RPC 通过网络调用远程计算机上的程序，无论远程程序使用什么语言开发都应调用成功。
 
 RPC 框架一般包含 4 个部分：Client, Proxy/Stub, Message Protocol, Transfer Protocol：
 ```
@@ -27,7 +27,7 @@ RPC 框架一般包含 4 个部分：Client, Proxy/Stub, Message Protocol, Trans
     | Transfer Protocol |                       | Transfer Protocol |
     +-------------------+                       +-------------------+
 ```
-- Client：RPC 调用的发起方，一般而言对下层的通信细节无感知
+- Client：RPC 调用的发起方，一般而言对下层的通信细节无感知，通常对于有多种实现的业务来说可以通过注册中心获取所有的实现，从中选择需要调用的实现类
 - Service：远程服务方法的具体实现，只和业务相关，对底层的通信细节无感知
 - Proxy/Stub：PRC 代理存在于客户端，主要用于管理网络传输协议和消息的处理
 - Message Protocol：客户端和服务端都存在，用于对网络传输的消息进行编码和解码，通过自定义消息格式及其编解码算法可以针对特殊场景大大增强性能
@@ -43,7 +43,7 @@ RPC 框架一般包含 4 个部分：Client, Proxy/Stub, Message Protocol, Trans
 - 服务管理方式：在高并发下，Selector/Processor 可以使用单线程运行服务具体实现，也可以采用每一个请求一个独立的线程运行，还可以采用线程池的方式来运行具体的服务实现
 
 ### Thrift
-
+Thrift 是一款跨语言的 RPC 框架，采用 C/S 模式实现。Thrift 通过代码生成工具将 thrift 文件生成不同语言的服务端和客户但端代码，从而实现对跨语言的支持。
 
 
 ### Hessian
