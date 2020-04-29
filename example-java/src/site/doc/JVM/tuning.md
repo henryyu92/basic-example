@@ -75,7 +75,7 @@ jps | grep TestMain
 #### jstat
 用于监视虚拟机各种运行状态信息，可以显示本地或远程虚拟机进程中的类加载、内存、垃圾收集等运行数据
 ```shell
-jstat [option vmid [interval][s|ms] [count]]
+jstat [option] vmid [interval][s|ms] [count]]
   - option		表示查询的虚拟机信息
     -calss		监视类装载、卸载数量、总空间以及类装载所耗费的时间
     -gc			监视 Java 堆状况，包括 Eden区、两个 Survivor 区、老年代、永久代等的容量，已使用空间、GC 时间合计等信息

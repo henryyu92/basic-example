@@ -1,5 +1,6 @@
 ### 队列同步器
-队列同步器 (AbstractQueuedSynchronizer) 是用来构建同步组件的基础框架，使用一个 int 成员变量表示同步状态，通过内置的 FIFO 队列完成资源获取线程的排队工作。
+
+队列同步器 (AbstractQueuedSynchronizer) 是用来构建同步组件的基础框架，AQS 使用一个 int 成员变量 state 表示同步状态，通过内置的 FIFO 队列完成资源获取线程的排队工作。
 
 同步器主要使用的方式是继承，同步器提供了 3 个方法来访问和修改同步状态：
 - ```int getState()```：获取当前同步状态
@@ -84,7 +85,10 @@ public class Mutext implements Lock {
 }
 ```
 #### 同步队列
-同步器依赖内部的同步队列（一个 FIFO 双向队列）来完成同步状态的管理。当线程获取同步状态失败时，同步器会将当前线程以及等待状态构造成一个节点并将其加入到同步队列，同时会阻塞当前线程；当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。同步队列中的节点用来保存获取同步状态失败线程的引用、等待状态以及前驱和后继结点：
+
+AbstractQueuedSynchronizer 依赖内部的同步队列（一个 FIFO 双向队列）来完成同步状态的管理。当线程获取同步状态失败时，AbstractQueuedSynchronizer 会将当前线程以及等待状态构造成一个节点并将其加入到同步队列，同时会阻塞当前线程；当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。
+
+同步队列中的节点用来保存获取同步状态失败线程的引用、等待状态以及前驱和后继结点：
 ```java
 static final class Node {
     // 当前节点等待状态
@@ -101,12 +105,10 @@ static final class Node {
     //...
 }
 ```
-同步器包含两个节点类型的引用：
-- 指向队列的头节点 head 
-- 指向队列的尾节点 tail
+AQS 包含两个节点类型的引用：指向队列的头节点 head 和  指向队列的尾节点 tail
 ```java
 public abstract class AbstractQueuedSynchronizer{
-    // 队列头节点(表示获取锁的节点)
+    // 队列头节点
     private transient volatile Node head;
     // 队列尾节点
     private transient volatile Node tail;
@@ -114,9 +116,11 @@ public abstract class AbstractQueuedSynchronizer{
     private volatile int state;
 }
 ```
-当一个线程获取同步状态失败而加入同步队列时，同步器使用 CAS 设置尾节点引用指向该节点；队列首节点是获取同步状态成功的节点，当首节点释放同步状态时，将首节点引用指向下一个节点并断开与下一个节点的关联。
+当一个线程获取同步状态失败而加入同步队列时，AQS 使用 CAS 设置 tail 节点引用指向该节点；队列首节点是获取同步状态成功的节点，当首节点释放同步状态时，将 head 节点引用指向下一个节点并断开与下一个节点的关联。
+
 #### 独占式同步状态获取
-同步器使用 acquire 方法获取同步状态，该方法对中断不敏感，也就是说如果线程获取同步状态失败进入同步队列之后对其进行中断操作不会导致节点从队列移除。
+
+AQS 使用 acquire 方法获取同步状态，该方法对中断不敏感，也就是说如果线程获取同步状态失败进入同步队列之后对其进行中断操作不会导致节点从队列移除。
 ```java
 public final void acquire(int arg) {
     if (!tryAcquire(arg) &&
@@ -124,7 +128,9 @@ public final void acquire(int arg) {
         selfInterrupt();
 }
 ```
-acquire 方法首先调用同步器子类重写的 tryAcquire 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 addWaiter 方法构造独占式节点并加入到同步队列中，之后调用 acquireQueued 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
+acquire 方法中首先调用 AQS 子类重写的 tryAcquire 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 addWaiter 方法构造独占式节点并加入到同步队列中，之后调用 acquireQueued 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
+
+addWaiter 方法将当前线程包装成一个 Node 节点加入到同步队列中，加入同步队列使用的是 CAS 方式：
 ```java
 private Node addWaiter(Node mode) {
     // 构造队列节点
@@ -144,7 +150,7 @@ private Node addWaiter(Node mode) {
     return node;
 }
 ```
-addWaiter 方法构造节点之后判断尾结点是否空，如果是则直接入队否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将尾结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq() 方法将当前节点入队。
+addWaiter 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
 ```java
 private Node enq(final Node node) {
     // 无限循环直到入队成功
@@ -166,7 +172,7 @@ private Node enq(final Node node) {
     }
 }
 ```
-enq 方法是通过死循环的方式将线程节点加入等待队列，如果队列不存在则初始化队列，否则进行入队操作直到当前线程被设置为尾结点才返回；使用 compareAndSetTail 方法保证只有一个节点被设置为尾结点，通过死循环和 CAS 使得并发入队变得串行化了。
+enq 方法是通过死循环的方式将线程节点加入等待队列，如果队列不存在则初始化队列，否则进行入队操作直到当前线程被设置为 tail 节点才返回；使用 compareAndSetTail 方法保证只有一个节点被设置为 tail 结点，通过死循环和 CAS 使得并发入队变得串行化了。
 
 阻塞线程进入同步队列后就调用 acquireQueued 方法使每个节点自旋（死循环）判断前驱节点是否是 head 节点（已经获取到同步状态）并且尝试获取同步状态，如果成功则将自己设置为 head 节点返回，否则就进入等待状态直到被 pre 节点中断唤醒；
 ```java
@@ -202,7 +208,8 @@ private final boolean parkAndCheckInterrupt() {
 ```
 
 #### 独占式同步状态释放
-通过调用同步器的 release 方法释放同步状态，使得其他线程能够获取同步状态；该方法在释放了同步状态之后会唤醒其后继节点。release 方法释放同步状态后，如果 head 节点不为空且等待状态不为 0 则唤醒 head 节点的后继节点：
+
+通过调用 AQS 的 release 方法释放同步状态，使得其他线程能够获取同步状态；该方法在释放了同步状态之后会唤醒其后继节点。release 方法释放同步状态后，如果 head 节点不为空且等待状态不为 0 则唤醒 head 节点的后继节点：
 ```java
 public final boolean release(int arg) {
     // 释放同步状态
@@ -218,7 +225,8 @@ public final boolean release(int arg) {
 ```
 
 #### 共享式同步状态获取
-同步队列器作为 Java 中锁的基础组件，不仅提供了独占式的获取同步状态，也提供了共享式获取同步状态。共享式获取同步状态由同步器的 acquireShared 方法提供，该方法与独占式获取同步状态的区别在于获取同步状态时会判断同步状态的值：
+
+AQS 作为 Java 中锁的基础组件，不仅提供了独占式的获取同步状态，也提供了共享式获取同步状态。共享式获取同步状态由 AQS 的 acquireShared 方法提供，该方法与独占式获取同步状态的区别在于获取同步状态时会判断同步状态的值：
 ```java
 public final void acquireShared(int arg) {
     if (tryAcquireShared(arg) < 0)
