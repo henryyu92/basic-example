@@ -62,7 +62,14 @@ Buffer 本质上是一个可以读写数据的内存块，Channel 的数据读�
 - ```limit```：Buffer 的当前终点，不能对超过终点位置进行读写
 - ```capacity```：Buffer 可以容纳的最大元素个数，在 Buffer 创建的时候指定
 
+NIO 提供了 MappedByteBuffer 可以让文件直接在堆外内存映射，对文件的修改同步由  NIO 完成。
+
+NIO 还支持通过多个 Buffer 完成读写操作
+
 ### Channel
+Channel 可以同时进行读写，只能从 Buffer 中读取或者写入数据。
+
+Channel 提供了 FileChannle、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类，其中 FileChannel 用于文件的数据读写，DatagramChannel 用于 UDP 的数据读写，ServerSocketChannle 和 SocketChannel 用于 TCP 的数据读写。
 
 
 ### Selector

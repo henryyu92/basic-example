@@ -1,12 +1,18 @@
-### Condition
-Condition 对象是由 Lock 对象调用 newCondition 方法创建出来的，也就是说 Condition 对象是依赖 Lock 对象的。一般都会将 Condition 对象作为成员变量，当 Lock 对象调用 await 方法后当前线程会释放锁并在此等待，而其他线程调用 Condition 对象的 signal 方法(signal 方法不会释放锁)通知当前线程后，当前线程才从 await 方法返回并且返回前已经获取了锁。
+## Condition
+
+Condition 接口提供了类似 Object 的监视器方法，与 Lock 配合可以实现 等待/通知 模型。Condition 接口定义了 等待 和 通知两种类型的方法，当前线程调用这些方法时需要获取到 Condition 对象关联的锁。
+
+
+Condition 对象是由 Lock 对象调用 newCondition 方法创建出来的，也就是说 Condition 对象是依赖 Lock 对象的。一般都会将 Condition 对象作为成员变量，当调用 await 方法后当前线程会释放锁并在此等待，而其他线程调用 Condition 对象的 signal 方法通知当前线程后，当前线程才从 await 方法返回并且返回前已经获取了锁。
 ```java
 Lock lock = new ReentrantLock();
 Condition condition = lock.newCondition();
 
 public void conditionWait() throw InterruptedException{
+    // 获取到锁
     lock.lock();
     try{
+        // 释放锁并在此等待
         condition.await();
     }finally{
         lock.unlock();
@@ -14,71 +20,27 @@ public void conditionWait() throw InterruptedException{
 }
 
 public void conditionSignal() throw InterruptedException{
+    // 获取到锁
     lock.lock();
     try{
+        // 通知等待在 condition 的线程可以竞争锁，此时并未释放锁
         condition.signal();
     }finally{
         lock.unlock();
     }
 }
 ```
-#### 有界队列中的 Condition 
-在添加数据时，如果数组数量等于数组长度时表示数组已满则释放锁进入等待状态，如果数组不满则添加元素到数组中并通知等待在 NotEmpty 的线程数组已经有新元素可以获取；在删除元素时，如果数组为空则需要释放锁并阻塞当前线程，否则在添加完数据后需要通知阻塞的插入线程可以插入数据；在添加和删除方法中使用 while 循环而非 if 判断是防止过早或意外的通知，只有符合条件才能跳出循环：
-```java
-public class BoundedQueue<T>{
-    private Object[] items;
-    private int addIndex, removeIndex, count;
-    private Lock lock = new ReentrantLock();
-    private Condition notEmpty = lock.newCondition();
-    private Condition notFull = lock.newCondition();
+ConditionObject 是 AbstracQueuedSynchronizer 的内部类，同时也实现了 Condition 接口，Java 中通过 AQS 框架实现的锁的 newCondition 方法返回的都是 ConditionObject 对象。
 
-    public BoundedQueue(int size){
-        items = new Object[size];
-    }
+### 等待队列
 
-    public void add(T t) throw InterruptedException {
-        lock.lock();
-        try{
-            while(count == items.length){
-                notFull.await();
-            }
-            items[addIndex] = t;
-            if(++addIndex == items.length){
-                addIndex = 0;
-            }
-            ++count;
-            notEmpty.signal();
-        }finally{
-            lock.unlock();
-        }
-    }
+每个 Condition 对象都包含一个等待队列，当线程调用 Condition 对象的 await 方法，该线程就会加入等待队列并等待，直到其他线程调用 Condition 对象的 signal 方法将其移出队列。
 
-    public T remove() throw InterruptedException{
-        lock.lock();
-        try{
-            while(count == 0){
-                notEmpty.await();
-            }
-            Object x = items[removeIndex];
-            if(++removeIndex == items.length){
-                --count;
-            }
-            removeIndex = 0;
-            notFull.signal();
-
-            return (T)x;
-        }finally{
-            lock.unlock();
-        }
-    }
-}
-```
-ConditionObject 是 Condition 接口的实现类，是同步器 AbstracQueuedSynchronizer 的内部类，可以从 ConditionObject 分析 Condition 的等待队列、等待和通知：
-#### 等待队列
 等待队列是一个 FIFO 的队列，在队列中的每个节点都包含了一个线程引用，该线程就是在 Condition 对象上等待的线程；如果一个线程调用了```await()```方法，那么该线程将会释放锁、构造成节点加入等待队列并进入等待状态。
 
 Condition 拥有首节点(firstWaiter)和尾节点(nextWaiter)的引用，新增节点只需要将原有的尾节点的 nextWaiter 指向它并且更新尾节点即可，尾节点的更新不需要使用 CAS 保证是因为调用```await()```方法的线程必定是获取了锁的线程，也就是说该过程是由锁来保证线程安全的。
-#### 等待
+
+### 等待
 调用```await()```方法会使当前线程进入等待队列并且释放锁，同时线程状态变为等待状态；当从```await()```方法返回时，当前线程一定获取了 Condition 相关联的锁。
 ```java
 public final void await() throws InterruptedException {
@@ -117,7 +79,8 @@ return findNodeFromTail(node);
 }
 ```
 调用该方法的线程是成功获取了锁的线程，也就是同步队列中的首节点，该方法会将当前线程构造成节点并加入等待队列中，然后释放同步状态并唤醒同步队列中的后继节点，然后当前线程会进入等待状态。当等待队列中的节点被唤醒，则唤醒节点的线程开始尝试获取同步状态；如果不是通过其他线程调用 ```Condition.signal()``` 方法唤醒而是对等待线程进行中断则会抛出 ```InterruptedException```。
-#### 通知
+
+### 通知
 调用 ```Condition.signal()``` 方法将会唤醒在等待队列中等待时间最长的节点(首节点)，在唤醒节点之前，会将节点移到同步队列中。
 ```java
 public final void signal() {
