@@ -41,6 +41,12 @@ public class ChannelMain {
         }
     }
 
+    /**
+     * 使用 Buffer 可以将多个 Channel 串联起来形成一个 Pipeline
+     * @param src
+     * @param dest
+     * @throws Exception
+     */
     public static void fileChannelCopy(String src, String dest) throws Exception{
         try(FileInputStream in = new FileInputStream(src);
             FileOutputStream out = new FileOutputStream(dest)){
@@ -66,6 +72,12 @@ public class ChannelMain {
         }
     }
 
+    /**
+     * transferFrom/transferTo 方法可以直接从一个 Channel 将数据转移到另外一个 Channel
+     * @param src       sourceChannel
+     * @param dest      destinationChannel
+     * @throws Exception
+     */
     public static void fileChannelTransfor(String src, String dest) throws Exception{
         try(FileInputStream in = new FileInputStream(src);
             FileOutputStream out = new FileOutputStream(dest)){
@@ -74,6 +86,8 @@ public class ChannelMain {
             FileChannel destChannel = out.getChannel();
 
             destChannel.transferFrom(srcChannel, 0, srcChannel.size());
+
+            srcChannel.transferTo(0, srcChannel.size(), destChannel);
         }
     }
 }
