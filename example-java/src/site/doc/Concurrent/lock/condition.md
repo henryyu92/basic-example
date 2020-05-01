@@ -1,9 +1,9 @@
 ## Condition
 
-Condition 接口提供了类似 Object 的监视器方法，与 Lock 配合可以实现 等待/通知 模型。Condition 接口定义了 等待 和 通知两种类型的方法，当前线程调用这些方法时需要获取到 Condition 对象关联的锁。
+Condition 接口提供了类似 Object 的监视器方法，与 Lock 配合可以实现 等待/通知 模型。Condition 接口定义了 等待 和 通知两种类型的方法，线程调用这些方法前需要获取到 Condition 对象关联的锁。
 
 
-Condition 对象是由 Lock 对象调用 newCondition 方法创建出来的，也就是说 Condition 对象是依赖 Lock 对象的。一般都会将 Condition 对象作为成员变量，当调用 await 方法后当前线程会释放锁并在此等待，而其他线程调用 Condition 对象的 signal 方法通知当前线程后，当前线程才从 await 方法返回并且返回前已经获取了锁。
+Condition 对象是由 Lock 对象调用 newCondition 方法创建出来的，也就是说 Condition 对象是依赖 Lock 对象的。一般都会将 Condition 对象作为成员变量，线程获取到锁并调用 await 方法后当前线程会释放锁并在此等待，而其他线程调用 Condition 对象的 signal 方法通知当前线程后，当前线程才从 await 方法返回并且返回前已经获取了锁。
 ```java
 Lock lock = new ReentrantLock();
 Condition condition = lock.newCondition();
@@ -36,9 +36,9 @@ ConditionObject 是 AbstracQueuedSynchronizer 的内部类，同时也实现了 
 
 每个 Condition 对象都包含一个等待队列，当线程调用 Condition 对象的 await 方法，该线程就会加入等待队列并等待，直到其他线程调用 Condition 对象的 signal 方法将其移出队列。
 
-等待队列是一个 FIFO 的队列，在队列中的每个节点都包含了一个线程引用，该线程就是在 Condition 对象上等待的线程；如果一个线程调用了```await``方法，那么该线程将会释放锁、构造成节点加入等待队列并进入等待状态。
+等待队列是一个 FIFO 的队列，在队列中的每个节点都包含了一个线程引用，该线程就是在 Condition 对象上等待的线程；如果一个线程调用了 ```await``` 方法，那么该线程将会释放锁、构造成节点加入等待队列并进入等待状态。
 
-Condition 拥有首节点(firstWaiter)和尾节点(lastWaiter)的引用，新增节点只需要将原有的尾节点的 lastWaiter 指向它并且更新尾节点即可，尾节点的更新不需要使用 CAS 保证是因为调用```await```方法的线程必定是获取了锁的线程，也就是说该过程是由锁来保证线程安全的。
+Condition 拥有头节点 (firstWaiter) 和尾节点 (lastWaiter) 的引用，新增节点只需要将原有的尾节点的 lastWaiter 指向它并且更新尾节点即可，尾节点的更新不需要使用 CAS 保证是因为调用 ```await``` 方法的线程必定是获取了锁的线程，也就是说该过程是由锁来保证线程安全的。
 ```java
 public class ConditionObject implements Condition{
     // Condition 等待队列的首节点
@@ -195,7 +195,7 @@ final boolean transferForSignal(Node node) {
     Node p = enq(node);
     int ws = p.waitStatus;
     if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
-        LockSupport.unpark(node.thread);
+        LockSupport.unpark(node.example.thread);
     return true;
 }
 ```

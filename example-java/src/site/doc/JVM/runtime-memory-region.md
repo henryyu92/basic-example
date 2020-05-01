@@ -13,7 +13,7 @@ Java 虚拟机栈(Java Virtual Machine Stacks)也是线程私有的，它的生�
 
 ```java
 // -Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError -Xss128k
-// Exception in thread "main" java.lang.StackOverflowError
+example.threadlowError
 public class StackOOM{
   static int stackLength = 1;
   public static void main(String[] args){
@@ -38,7 +38,7 @@ Java 堆(Java Heap)一般是 Java 虚拟机所管理的内存中最大的一块�
 Java 堆可以处于物理上不连续的内存空间中，只要逻辑上是连续的即可。如果堆内存不足以分配实例并且堆无法扩展则会抛出 OutOfMemoryError：
 ```java
 // -Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError
-// Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+// Exception in example.thread "main" java.lang.OutOfMemoryError: Java heap space
 public class HeapOOM{
   public static void main(String[] args){
     List<Object> list = new ArrayList<>();

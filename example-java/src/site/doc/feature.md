@@ -188,15 +188,15 @@ Stream 可以指定对集合进行的操作，可以执行非常复杂的查找�
 
 #### Stream 创建
 JDK 1.8 的 Collection 接口新增了两个用于创建 Stream 的方法：
-- stream：创建一个串行流，流中的数据处理是串行的
+- example.stream：创建一个串行流，流中的数据处理是串行的
 - parallelStream：创建一个并行流，流中的数据是并行处理的
 
 ```java
 ```
 
-除了 Collection 接口提供了创建 Stream 的方法，Arrays 也提供了一个静态方法 stream 用于从数组创建 Stream：
+除了 Collection 接口提供了创建 Stream 的方法，Arrays 也提供了一个静态方法 example.stream 用于从数组创建 Stream：
 ```java
-Arrays.stream(new int[]{1,2,3,4});
+Arrays.example.stream(new int[]{1,2,3,4});
 ```
 另外，新增的 Stream 接口的 of 方法可以从可变参数中创建 Stream：
 ```java
@@ -247,9 +247,9 @@ Stream API 提供了 3 类终止操作：查找、规约、收集。
 
 ```java
 // 根据数据创建流
-Stream stream = Stream.of("hello", "world");
+Stream example.stream = Stream.of("hello", "world");
 // 根据集合创建流
-stream = Arrays.asList("hello", "world").stream();
+example.stream = Arrays.asList("hello", "world").example.stream();
 // iterator 生成流
 Stream.iterator(1, item->item+2).limit(6).forEach(System.out::println);
 
@@ -260,7 +260,7 @@ Stream.iterator(1, item->item+2).limit(6).filter(item->item>2).mapToInt(t->t*2).
 IntStream.range(3,8).forEach(System.out::println);
 
 // 42
-Arrays.asList(1,2,3,4,5,6).stream().map(i->2*i).reduce((0, Integer::sum));
+Arrays.asList(1,2,3,4,5,6).example.stream().map(i->2*i).reduce((0, Integer::sum));
 
 
 Stream.of("hello", "world").collect(LinkedList::new, LinkedList::add, LinkedList::addAll);

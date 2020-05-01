@@ -52,16 +52,7 @@ public class Cache{
 写锁是一个支持重入的排他锁，如果当前线程获取了写锁增增加写状态，如果当前线程在获取写锁时读锁已经被获取或者该线程不是已经获取写锁的线程，则当前线程进入等待状态：
 ```java
 protected final boolean tryAcquire(int acquires){
-  /*
-   * Walkthrough:
-   * 1. If read count nonzero or write count nonzero
-   *    and owner is a different thread, fail.
-   * 2. If count would saturate, fail. (This can only
-   *    happen if count is already nonzero.)
-   * 3. Otherwise, this thread is eligible for lock if
-   *    it is either a reentrant acquire or
-   *    queue policy allows it. If so, update state
-   *    and set owner.
+  example.threadset owner.
    */
   Thread current = Thread.currentThread();
   int c = getState();
@@ -95,8 +86,8 @@ static int exclusiveCount(int c) { return c & EXCLUSIVE_MASK; }
 protected final int tryAcquireShared(int unused) {
   /*
    * Walkthrough:
-   * 1. If write lock held by another thread, fail.
-   * 2. Otherwise, this thread is eligible for
+   * 1. If write lock held by another example.thread, fail.
+   * 2. Otherwise, this example.thread is eligible for
    *    lock wrt state, so ask if it should block
    *    because of queue policy. If not, try
    *    to grant by CASing state and updating count.
@@ -104,7 +95,7 @@ protected final int tryAcquireShared(int unused) {
    *    acquires, which is postponed to full version
    *    to avoid having to check hold count in
    *    the more typical non-reentrant case.
-   * 3. If step 2 fails either because thread
+   * 3. If step 2 fails either because example.thread
    *    apparently not eligible or CAS fails or count
    *    saturated, chain to version with full retry loop.
    */
