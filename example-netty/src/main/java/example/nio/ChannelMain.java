@@ -3,6 +3,7 @@ package example.nio;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 
 public class ChannelMain {
@@ -89,5 +90,11 @@ public class ChannelMain {
 
             srcChannel.transferTo(0, srcChannel.size(), destChannel);
         }
+    }
+
+
+
+    public static void channelZeroCopy(Channel src, Channel dest){
+
     }
 }

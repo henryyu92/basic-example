@@ -119,3 +119,31 @@ Selector 是一个多路复用器，Channel 将事件注册到 Selector 上后�
 Selector 上可以注册多个 Channel 的多个事件，一个 Channel 也可以注册到多个 Selector 上。Channel 注册到 Selector 上会对应一个 SelectionKey，当 Channle 上有事件发生时可以通过 ```selectedKeys``` 获取到对应的 ```SelectionKey```，然后通过 ```SelectionKey``` 得到对应的 Channel，之后就可以通过 Channel 获取到数据：
 ```java
 ```
+
+SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
+- OP_ACCEPT：有新的网络连接，16
+- OP_CONNECT：连接已建立，8
+- OP_READ：读操作，1
+- OP_WRITE：写操作，4
+
+Java 中常用的零拷贝有 mmap（内存映射）和 sendFile。 mmap 通过内存映射，将文件映射到内核缓冲区，用户空间和内核空间可以共享内核空间的数据，减少用户空间到内核空间的数据拷贝(4 次减少到 3 次)。sendFile 是数据不经过用户态，直接从内核缓冲区进入到 SocketBuffer，在减少数据拷贝的同时也减少了状态上下文切换。
+
+mmap 适合小数据量读写，sendFile 适合大文件传输；mmap 需要 4 次上下文切换，3 次数据拷贝，sendFile 需要 3 次上下文切换，最少 2 次数据拷贝；sendFile 可以利用 DMA 方式，减少 CPU 拷贝， mmap 则不能，必须从内核拷贝到 socket 缓冲区
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://www.52im.net/thread-306-1-1.html
