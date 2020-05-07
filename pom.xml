@@ -37,6 +37,7 @@
         <module>example-netty</module>
         <module>example-java</module>
         <module>example-zookeeper</module>
+        <module>example-algorithm</module>
     </modules>
 
 </project>
