@@ -1,54 +1,27 @@
 ### 读写锁
+
 读写锁在同一个时刻可以允许多个读线程访问，但是在写线程访问时所有的读线程和其他写线程均阻塞。读写锁维护了一个写锁和一个读锁，通过分离读锁和写锁使得并发性能相比一般的排他锁有了很大提升。
 
-```ReentrantReadWriteLock``` 是读写锁的实现，它提供了支持公平性、重进入和锁降级的特性，```ReentrantReadWriteLock``` 还提供了一些便于监控内部工作状态的方法：
-- ```int getReadLockCount()```：当前读锁被获取的次数，该次数大于等于获取读锁的线程数(同一个线程可能多次获取读锁)
-- ```int getReadHoldLock()```：当前线程获取读锁的次数，使用 Threadcal 保存当前线程获取的次数
-- ```boolean isWriteLocked```：判断写锁是否获取
-- ```int getWriteHoldCount()```：当前线程获取写锁的次数
+```ReentrantReadWriteLock``` 是读写锁的实现，它提供了支持公平性、重进入和锁降级的特性，通过 ```ReentrantReadWriteLock``` 可以分析读写锁的读写状态设计、写锁的获取释放、读锁的获取释放以及锁降级。
 
-读写锁使用示例：
+#### 读写状态
+
+读写锁依赖于 AQS 框架实现同步功能，其读写状态就是 AQS 的同步状态。读写锁将整型的同步状态按位分成两部分，高 16 位表示读状态低 16 位表示写状态，读状态和写状态的变化使用位运算，读状态使用```c >>> 16``` 获取(整型同步状态的高 16 未)，写状态通过```c & ((1 << 16) - 1)```获取(整型同步状态的低 16 位)，这样就实现了读写锁的同步状态的表示。
+
 ```java
-public class Cache{
-    static Map<String, Object> map = new HashMap<>();
-    static ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-    static Lock r = rwl.readLock();
-    static Lock w = rwl.writeLock();
+static final int SHARED_SHIFT   = 16;
+static final int SHARED_UNIT    = (1 << SHARED_SHIFT);
+static final int MAX_COUNT      = (1 << SHARED_SHIFT) - 1;
+static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
-    public static final Object get(String key){
-        r.lock();
-        try{
-            return map.get(key);
-        }finally{
-            r.unlock();
-        }
-    }
-
-    public static final void put(String key, Object value){
-        w.lock();
-        try{
-            map.put(key, value);
-        }finally{
-            w.unlock();
-        }
-    }
-
-    public static final void clear(){
-        w.lock();
-        try{
-            map.clear();
-        }finally{
-            w.unlock();
-        }
-    }
-}
+/** Returns the number of shared holds represented in count  */
+static int sharedCount(int c)    { return c >>> SHARED_SHIFT; }
+/** Returns the number of exclusive holds represented in count  */
+static int exclusiveCount(int c) { return c & EXCLUSIVE_MASK; }
 ```
-上述示例使用 ```HashMap``` 作为缓存的实现，使用读锁和写锁保证线程安全。在读操作时使用读锁使得并发访问该方法时不会被阻塞，在写操作时需要获取写锁从而时其他线程获取读锁和写锁均被阻塞。
 
-通过 ReentrantReadWriteLock 分析读写锁的读写状态设计、写锁的获取释放、读锁的获取释放以及锁降级。
-#### 读写状态设计
-读写锁同样依赖自定义同步器来实现同步功能，而读写状态就是其同步器的同步状态。读写锁将整型的同步状态按位分成两部分，高 16 位表示读状态低 16 位表示写状态，读状态和写状态的变化使用位运算，读状态使用```c >>> 16``` 获取(整型同步状态的高 16 未)，写状态通过```c & ((1 << 16) - 1)```获取(整型同步状态的低 16 位)，这样就实现了读写锁的同步状态的表示。
 #### 写锁获取释放
+
 写锁是一个支持重入的排他锁，如果当前线程获取了写锁增增加写状态，如果当前线程在获取写锁时读锁已经被获取或者该线程不是已经获取写锁的线程，则当前线程进入等待状态：
 ```java
 protected final boolean tryAcquire(int acquires){
