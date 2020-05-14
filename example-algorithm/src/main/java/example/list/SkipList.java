@@ -9,7 +9,10 @@ import java.util.ArrayList;
 public class SkipList<T> {
 
     /**
-     * 跳跃表节点包含一个值 value 和多层 level，每层都指向一个跳跃表节点
+     * 跳跃表节点包含三个属性：
+     *  - value     节点存储的值
+     *  - level     节点的层数
+     *  - list      节点的每层都指向一个跳跃表节点(可相同)
      * @param <T>
      */
     class SkipListNode<T>{
