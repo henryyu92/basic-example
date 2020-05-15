@@ -8,7 +8,7 @@ Redis 中的数据是以 K-V 的模型存储的，Redis 支持 String, List, Set
 
 SDS 的数据结构：
 ```c
-struct sdshdr{
+struct sdshdr {
     // buf 中已经使用的字节数量
     int len;
 
@@ -53,7 +53,11 @@ zlbytes|zltail|zllen|entry|entry|...|zlend
 previous_entry_length|encoding|content
 -|-|-
 
-- ```previous_entry_length```：前一个 Entry 的长度，占用 1 个或者 5 个字节，当前一个 Entry 小于 254 字节时占用 1 个字节，当前一个 Entry 大于 254 则占用 5 个字节，其中第一个字节是 0xFE，后面四个字节存储具体大小。
+- ```previous_entry_length```：前一个 Entry 的长度，占用 1 个或者 5 个字节。如果前一个 Entry 小于 254 字节时占用 1 个字节，如果前一个 Entry 大于 254 则占用 5 个字节，其中第一个字节是 0xFE，后面四个字节存储具体大小
+- ```encoding```：Entry 的编码，
+- ```content```：Entry 保存的值，可以是字节数据或者整数，值的数据类型和长度由 encoding 决定
+
+压缩列表是一个连续的内存块，节点的更新会使 ```previous_entry_length``` 属性重新分配，从而导致后续的节点的 ```previous_entry_length``` 都需要重新分配，即连锁更新。
 
 #### 压缩列表的节点
 压缩列表的每个节点可以保存一个字节数组或一个整数值，其中字节数组有三种(63,16383,4294967295 字节)长度，整数值有六种(4,8,24 字节,int16_t,int32_t,int64_t)长度。
