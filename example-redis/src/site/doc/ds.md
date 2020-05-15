@@ -54,23 +54,41 @@ previous_entry_length|encoding|content
 -|-|-
 
 - ```previous_entry_length```：前一个 Entry 的长度，占用 1 个或者 5 个字节。如果前一个 Entry 小于 254 字节时占用 1 个字节，如果前一个 Entry 大于 254 则占用 5 个字节，其中第一个字节是 0xFE，后面四个字节存储具体大小
-- ```encoding```：Entry 的编码，
+- ```encoding```：Entry 的编码，表示 content 存储的数据类型，占用 1 个或者 5 个字节
 - ```content```：Entry 保存的值，可以是字节数据或者整数，值的数据类型和长度由 encoding 决定
 
-压缩列表是一个连续的内存块，节点的更新会使 ```previous_entry_length``` 属性重新分配，从而导致后续的节点的 ```previous_entry_length``` 都需要重新分配，即连锁更新。
+Redis 使用结构体 zlentry 缓存解码后的压缩列表元素：
+```c
+typedef struct zlentry {
 
-#### 压缩列表的节点
-压缩列表的每个节点可以保存一个字节数组或一个整数值，其中字节数组有三种(63,16383,4294967295 字节)长度，整数值有六种(4,8,24 字节,int16_t,int32_t,int64_t)长度。
+    // previous_entry_length 占用的字节数
+    unsigned int prevrawlensize;
 
-每个压缩列表节点由三部分组成：
-- prevrawlen 表示 ziplist 中前一个 entry 的长度。压缩列表从表尾到表头的遍历就是使用节点的起始位置和 prevrawlen 实现的。如果前一个 entry 占用字节小于 254 那么就只用一个字节表示；如果前一个 entry 占用字节大于 254，则使用 5 个字节表示，第一个字节为 254，后面四个字节为一个整型数值存储前一个 entry 占用的字节数
-- len 表示当前所有 entry 的数据长度
-- encoding 表示 entry 的数据的编码
-- content 属性负责保存节点的值，节点值可以是一个字节数组或者整数，值得的类型和长度由节点的 encoding 决定
-#### 连锁更新
-添加新节点或者删除节点导致 previous_entry_length 属性需要重新分配从而导致后续的 previous_entry_length 属性重新分配产生的连续多次空间扩展操作称为连锁更新。
+    // previous_entry_length 存储的内容
+    unsigned int prevrawlen;
+
+    // encoding 占用的字节数
+    unsigned int lensize;
+
+    // 存储数据占用的字节数
+    unsigned int len;
+    // 存储数据的数据类型
+    unsigned char encoding;
+
+    // previous_entry_length + encoding 占用的字节数
+    unsigned int headersize;
+
+    // Entry 的首地址
+    unsigned char *p;
+}zlentry;
+```
+
+数据插入或删除需要分为三步：计算长度、重新分配空间 和 复制数据。
+
+压缩列表是一个连续的内存块，节点的更新会使 ```previous_entry_length``` 属性占用的字节数变化而需要重新分配空间，而前一个 Entry 的 ```previous_entry_length``` 的变化引起后面 Entry 的 ```previous_entry_length``` 字节数变化再次引起空间重新分配，这种情况为连锁更新。
 
 连锁更新在最坏的情况下需要对压缩列表执行 N 次空间重分配操作，而每次空间重分配的最坏复杂度为 O(N)，因此连锁更新的最坏复杂度为 O(N^2)。实际情况中连锁更新发生的可能性较小，且连锁更新节点数量不多对性能不会造成很大影响，实际中对 ziplist 操作的平均时间复杂度为 O(N) 
+
 
 ### quickList
 

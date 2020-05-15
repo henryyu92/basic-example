@@ -38,6 +38,7 @@
         <module>example-java</module>
         <module>example-zookeeper</module>
         <module>example-algorithm</module>
+        <module>example-etcd</module>
     </modules>
 
 </project>
