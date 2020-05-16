@@ -9,6 +9,7 @@
         <groupId>org.mooc</groupId>
         <artifactId>example-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../example-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>example-mongo</artifactId>

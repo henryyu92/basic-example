@@ -30,7 +30,7 @@ public class NettyServer {
                     .channel(NioServerSocketChannel.class)// NioServerSocketChannel 作为 Server Channel 实现
                     .option(ChannelOption.SO_BACKLOG, 128)// 设置线程队列得到的连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true) // 设置保持活动连接状态
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<SocketChannel>() { // 设置事件处理器
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new NettyServerHandler());
@@ -46,7 +46,6 @@ public class NettyServer {
         ChannelFuture future = bootstrap.bind(6668).sync();
 
         // 对关闭通道进行监听
-
         future.channel().closeFuture().sync();
     }
 }

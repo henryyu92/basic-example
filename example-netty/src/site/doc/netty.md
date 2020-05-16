@@ -42,7 +42,7 @@ Netty 基于 Reactor 模型，相对于阻塞式 IO 模型，Reactor 模型使�
 Boss Group 维护 Selector 只关注 Accept 事件，当接收到 Accept 事件获取到对应的 SocketChannel 封装成 NIOSocketChannel 并注册到 Workder，Worker 线程监听到 Channel 的事件后就分发到 Handler 处理
 
 
-Netty 抽象出 Boss Group 专门负责接收客户端的连接，Worker Group 专门负责网络的读写；Boss Group 和 Worker Group 类型都是 NioEventLoopGroup，这个 LoopGroup 中含有多个事件循环，每个事件循环是 NioEventLoop；NioEventLoop 表示一个不断循环的执行处理任务的线程，每个 NioEventLoop 都有一个 Selector 用于监听绑定的 Soceket；NioEventLoopGroup 可以有多个线程，即可以包含有多个 NioEventLoop
+Netty 抽象出 BossGroup 专门负责接收客户端的连接，WorkerGroup 专门负责网络的读写；BossGroup 和 WorkerGroup 类型都是 NioEventLoopGroup，这个 LoopGroup 中含有多个事件循环，每个事件循环是 NioEventLoop；NioEventLoop 表示一个不断循环的执行处理任务的线程，每个 NioEventLoop 都有一个 Selector 用于监听绑定的 Soceket；NioEventLoopGroup 可以有多个线程，即可以包含有多个 NioEventLoop
 
 每个 Boss NioEventLoop 轮询 accept 事件，与 Client 建立连接生成 NioSocketChannel，并将其注册到某个 Workder NioEventLoop 上的 Selector；然后处理任务队列上的任务
 
@@ -63,3 +63,6 @@ Netty 抽象出两组线程池，Boss Group 专门负责接收客户端连接，
 Netty 的 IO 操作都是异步的，调用者不能立刻获得结果，而是通过 Future-Listener 机制主动获取结果或者通过通知机制获得 IO 操作结果。
 
 Netty 的异步模型是建立在 future 和 callback 之上的，
+
+
+
