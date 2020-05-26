@@ -79,12 +79,6 @@ Netty 的异步模型是建立在 future 和 callback 之上的，callback 就�
 ChannelFuture 表示 Netty 处理的结果，可以对 ChannelFuture 添加监听器，当事件发生是会执行监听器的回调函数
 
 
-
-#### Channel
-
-Channel 是 Netty 通信组件中用于执行网络 IO 的组件，通过 Channel 可以获得当前连接的状态，通过 Channel 可以获取网络连接的配置参数。Channel 提供异步的网络操作，异步调用意味着任何的 IO 调用将立即返回，并且不保证在调用结束时所请求的 IO 操作已经完成。调用立即返回 ChannelFuture ，通过注册监听器到 ChannelFuture 可以在 IO 操作完成时调用回调函数。不同的协议对应的 Channel 类型是不同的。
-
-
 #### Selector
 
 Netty 基于 Selector 对象实现 IO 多路复用，通过 Selector 一个线程可以监听多个连接的 Channel 事件。当向一个 Selector 中注册 Channel 后，Selector 内部的机制就可以自动不断的查询这些注册的 Channel 是否有已就绪的 IO 事件，这样就可以使用一个线程管理多个 Channel。
@@ -104,7 +98,7 @@ ChannelOption.SO_KEEPALIVE：一直保持连接活动状态
 #### EventLoopGroup 和 NioEventLoopGroup
 
 EventLoopGroup 是一组 EventLoop 的抽象，Netty 为了更好的利用多核 CPU 资源，一般会有多个 EventLoop 同时工作，每个 EventLoop 维护着一个 Selector 实例。
-
+ 
 EventLoopGroup 提供 next 接口，可以从组里面按照一定规则获取其中一个 EventLoop 来处理任务，在 Netty 服务器端编程中，一般需要提供两个 EventLoopGroup
 一个服务器端口即一个 ServerSocketChannel 对应一个 Selector 和一个 EventLoop 线程，BossEventLoop 负责接收客户端的连接并将 SocketChannel 交给 WorkerEventLoop 来进行 IO 处理。
 

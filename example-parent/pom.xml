@@ -18,6 +18,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring.versino>2.2.2.RELEASE</spring.versino>
+        <netty.version>4.1.49.Final</netty.version>
+        <protobuf.version>3.9.2</protobuf.version>
     </properties>
 
     <dependencyManagement>
@@ -26,7 +28,13 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.1.49.Final</version>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
             </dependency>
 
             <!-- Redis -->
