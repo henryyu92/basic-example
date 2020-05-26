@@ -110,7 +110,7 @@ public class ThreadBreak {
     }
 }
 ```
-### Deamon 线程
+### Daemon 线程
 Daemon 线程主要用作程序中后台调度以及支持性工作，调用```Thread.setDaemon(true)```可以将线程设置为 Daemon 线程，设置 Daemon 线程需要在线程启动之前设置。
 ```java
 public class DaemonThread {
@@ -175,20 +175,20 @@ LockSupport 工具类定义了一组公共静态方法，这些方法提供了�
 ```java
 // 消费者获取对象锁
 synchronized(lock){
-    // 条件不满足时等待
-    while(condition){
-	    lock.wait();
-    }
-    // 条件满足后执行
-    doSomething();
+  // 条件不满足时等待
+  while(condition){
+    lock.wait();
+  }
+  // 条件满足后执行
+  doSomething();
 }
 
 // 生产者获取对象锁
 synchronized(lock){
-    // 改变条件使条件满足
-    change_condition();
-    // 通知等待在此对象上的线程
-    lock.notifyAll();
+  // 改变条件使条件满足
+  change_condition();
+  // 通知等待在此对象上的线程
+  lock.notifyAll();
 }
 ```
 使用等待/通知模型让两个线程交替打印奇偶数：

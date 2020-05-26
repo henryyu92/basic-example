@@ -58,7 +58,9 @@ Java 程序计数器、虚拟机栈、本地方法栈的生命周期都会伴随
 - ParNew + CMS/Serial Old
 - Parallel Scavenge + Serial Old/Parallel Old
 #### Serial 收集器
-Serial 垃圾收集器使用单线程进行垃圾收集，也就是说在进行垃圾收集时，必须暂停所有的工作线程直到垃圾收集结束。
+Serial 垃圾收集器采用复制垃圾收集算法，使用单线程进行垃圾收集，也就是说 Serial 垃圾收集器使用一个线程收集垃圾，并且在进行垃圾收集时，必须暂停所有的工作线程直到垃圾收集结束。
+
+![Serial 收集器](../../resources/serial.png)
 
 Serial 收集器相关 JVM 参数：
 - ```-XX:+UseSerialGC```：表示新生代使用 Serial 收集器进行垃圾收集
@@ -67,10 +69,13 @@ Serial 收集器相关 JVM 参数：
 #### ParNew 收集器
 ParNew 垃圾收集器是 Serial 垃圾收集器的多线程版本，除了使用多线程进行垃圾收集之外，其余行为（包括控制参数、收集算法等）和 Serial 收集器完全一样。是大多数运行在 server 端模式的虚拟机中首选的新生代收集器，因为除了 Serial 收集器，只有 ParNew 收集器可以和 CMS 收集器配合工作。ParNew 收集器是使用了 -XX:+UseConcMarkSweepGC 后默认的新生代垃圾收集器。
 
+![ParNew 收集器](../../resources/parNew.png)
+
 ParNew 收集器相关 JVM 参数：
 - ```-XX:+UseParNewGC```：表示新生代使用 ParNew 收集器进行垃圾收集
 - ```-XX:PretenureSizeThreshold=n```：设置直接晋升到老年代的对象大小，设置这个参数后，大于这个参数的对象直接在老年代分配，如 -XX:PretenureSizeThreshold=3145728(而不是 3m)
 - ```-XX:MaxTenuringThreshold=15```：设置对象经过多少次 minor gc 之后进入老年代，默认 15
+- ```-XX:ParallelGCThreads=10```：指定 ParNew 收集器进行垃圾收集的线程数，默认和 CPU 核数相同
 
 #### Parallel Scavenge 收集器
 Parallel Scavenge 收集器也是使用复制算法，也是并行的多线程收集器，它和其他收集器的区别在于其他收集器是尽可能的缩短垃圾收集时用户线程的停顿时间，而 Parallel Scavenge 收集器的目标是达到一个可控的吞吐量(用户线程执行时间/(用户线程执行时间 + 垃圾收集时间))，从而高效的利用 CPU 时间。
@@ -87,8 +92,11 @@ Serial Old 是 Serial 收集器的老年代版本，它同样是一个单线程�
 #### Parallel Old 收集器
 Parallel Old 是 Parallel Scavenge 的老年代版本，使用多线程和“标记-整理”算法；在注重 CPU 性能和吞吐量的环境中，优先使用 Parallel Scavenge + Parallel Old 组合，能达到吞吐量最优化。
 
+![Parallel Old 收集器](../../resources/parallel_old.png)
+
 Parallel Old 收集器相关 JVM 参数：
-- ```-XX:UseParallelOldGC```：老年代使用 Parallel Old 收集器进行垃圾收集
+- ```-XX:+UseParallelOldGC```：老年代使用 Parallel Old 收集器进行垃圾收集
+
 #### CMS(Concurrent Mark Sweep) 收集器
 CMS 收集器是一种以获取最短回收停顿时间为目标的收集器。CMS 收集器是基于“标记-清除”算法实现，具体分为四个阶段：
 - 初始标记（CMS initial mark） - **初始标记需要 “Stop The World”**，它仅仅是标记一下 GC Root 能直接关联到的对象，速度很快；
@@ -97,6 +105,8 @@ CMS 收集器是一种以获取最短回收停顿时间为目标的收集器。C
 - 并发清除（CMS concurrent sweep）- 并发清除阶段是清除被标记的对象，可以和用户线程一起工作
 
 并发标记和并发清除这两个阶段比较耗时，但是由于可以和用户线程一起工作，因此 CMS 收集器的内存回收时间很短暂。
+
+![CMS 收集器](../../resources/cms.png)
 
 CMS 垃圾收集器也有明显的缺点：
 - CMS 收集器对 CPU 资源非常敏感，因为它会占用一部分线程，会导致应用程序变慢(线程之间切换)，降低总吞吐量；CMS 默认启动的回收线程为 （CPU 数量 + 3）/4
@@ -108,6 +118,8 @@ CMS 收集器相关 JVM 参数：
 - ```-XX:CMSInitiatingOccupancyFraction=68```：设置触发 CMS 垃圾收集的老年代内存空间比例(即老年代内存空间使用比例高于这个参数时会触发 GC)，默认 68%；
 - ```-XX:+UseCMSCompactAtFullCollection```：设置 CMS 收集器在 Full GC(老年代 GC) 之后进行一次内存碎片的合并整理过程，该过程无法并发，所以需要停顿的时间会变长；默认是开启
 - ```-XX:CMSFullGCsBeforeCompaction=0```：设置执行多少次 Full GC 之后进行次带压缩的 Full GC，默认为 0，即每次 Full GC 时都进行了碎片整理
+- ```-XX:ParallelCMSThreads=10```：设置 CMS 垃圾收集的线程数，默认为 CPU 核数
+
 #### G1 垃圾收集器
 G1 收集器将整个 Java 堆划分为多个大小相等的独立区域(Region)，新生代和老年代都是一部分 Region。G1 收集器跟踪各个 Region 里面垃圾堆积的价值大小(回收所获得的空间大小以及回收所需要的时间的经验值)在后台维护一个优先列表，每次根据允许的垃圾收集时间优先回收价值最大的 Region，这样 G1 收集器就能够避免在整个 Java 堆中进行安全域的垃圾收集，从而可以建立可预测的停顿时间模型。
 

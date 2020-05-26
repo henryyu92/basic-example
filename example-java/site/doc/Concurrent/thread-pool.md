@@ -205,4 +205,4 @@ Executor 框架的任务执行结果使用 ```Future``` 接口表示，Java 中 
 FutureTask 的 ```get``` 方法阻塞的获取到任务执行的结果，在任务还没有执行完之前，该方法一直阻塞。除此之外 FutureTask 还提供了 ```cancel``` 方法取消任务的执行，以及 ```isDone``` 和 ```isCancel``` 方法判断任务的状态。
 
 
-*[Back](../)*
+*[Back](../../)*

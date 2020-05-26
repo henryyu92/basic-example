@@ -13,8 +13,9 @@
 - ```6248K->4896K(19456K)```：表示 GC 前 Java 堆已使用容量->GC 后 Java 堆已使用容量(Java 堆总容量，不含其中一个 survivor)
 - ```0.0014864 secs```：表示该区域 GC 所用时间
 - ```[Times: user=0.00 sys=0.00, real=0.00 secs]```：表示用户态消耗的 GPU 时间、内核消耗 CPU 时间(不包含 I/O)和总时间(包括I/O)
-### 内存调优
-#### Trace 跟踪参数
+### GC 信息
+
+#### GC 跟踪
 - ```-XX:+PrintGC```：打印 GC 信息
 - ```-XX:+PrintGCDetails```：打印 GC 详细信息
 - ```-XX:+PrintGCTimeStamps```：打印 GC 停顿耗时
@@ -29,7 +30,6 @@
 - ```-XX:OnOutOfMemoryError=/path/of/shell```：OOM 时执行的脚本
 - ```-XX:+TraceClassLoading```：打印类加载信息
 - ```-XX:+TraceClassUnloading```：打印类卸载信息
-- ```-XX:+PrintConcurrentLocks```：打印 java.util.current 包中锁的状态
 
 ```shell
 -XX:+PrintGCDetails \
@@ -41,17 +41,18 @@
 -XX:+HeapDumpPath=d:/a.dump \
 -XX:OnOutOfMemoryError=D:/tools/jdk1.7_40/bin/printstack.bat %p
 ```
-#### 内存设置参数
-- ```-Xmx```：设置堆的最大值，如 -Xmx256m
-- ```-Xms```：设置堆的最小值，推荐堆最小值和最大值一致，避免堆的收缩
-- ```-Xmn```：设置新生代大小
+
+### 内存设置参数
+- ```-Xmx2g```：设置堆的最大值，如 -Xmx2g
+- ```-Xms2g```：设置堆的最小值，推荐堆最小值和最大值一致，避免堆的收缩
+- ```-Xmn256m```：设置新生代大小
 - ```-XX:NewRatio=3/8```：新生代(eden+2*s)和老年代的比值，官方推荐新生代站总推内存的 3/8
 - ```-XX:SurvivorRatio=8```：表示 eden 占新生代的 80%
-- ```-Xss```：设置Java栈的最大值，如 -Xss128k
+- ```-Xss128```：设置Java栈的最大值，如 -Xss128k
 - ```-XX:MaxDirectMemorySize=n```：设置直接内存大小，默认和堆大小一致
 
 ```shell
--Xmx2g -Xms2g -XX:NewRatio=1/2 -XX:SurvivorRatio=9
+-Xmx2g -Xms2g -Xss128k -XX:NewRatio=1/2 -XX:SurvivorRatio=9
 ```
 
 #### 垃圾收集器常用参数
@@ -143,7 +144,7 @@ jps | grep TestMain |
 #### iostat
 
 ### CPU 负载过高异常排查
-- 定位高负载进程：使用 top 命令查看 load average 确认服务器负载较重并找到占用 CPU 较高的 pid
+- 定位高负载进程：使用 top 命令查看 ```load average``` 确认服务器负载较重并找到占用 CPU 较高的 pid
 - 查看进程下对应的线程使用 CPU 情况，使用 ```top -Hp <pid>``` 可以查看 pid 进程下所有线程的 CPU 使用情况，确定导致 CPU 负载过高的线程
 - 将线程 id 转换为十六进制 ```printf '%x\n' 线程id```
 - 将堆栈信息 dump 下来并查看对应线程的信息，使用 ```jstack <pid> | grep 线程 id``` 查看堆栈中线程id(jstack 中的 nid)对应的线程状态
