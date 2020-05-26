@@ -92,27 +92,27 @@ typedef struct zlentry {
 
 ### quickList
 
-quickList 由 List 和 ZipList 结合而成，是 Redis 中 List 数据类型的底层实现。
+quickList 由 List 和 ZipList 结合而成，是 Redis 中 List 数据类型的底层实现。考虑到双向链表在保存大量数据时需要更多额外内存保存指针并容易产生大量内存碎片，以及 ziplist 的插入和删除的高时间复杂度，Redis 将双向链表和 ziplist 结合成为 quicklist。
 
-
-考虑到双向链表在保存大量数据时需要更多额外内存保存指针并容易产生大量内存碎片，以及 ziplist 的插入和删除的高时间复杂度，Redis 将双向链表和 ziplist 结合成为 quicklist
+quickList 是一个双向链表，但是链表中的每个节点是 ziplist 结构，因此可以将 quickList 看作是用双向链表将若干个小型的 ziplist 连接到一起组成的数据结构。
 
 ```c
 typedef struct quicklist{
+    // 首节点
     quicklistNode *head;
+    // 尾节点
     quicklistNode *tail;
+    // 元素个数，可由 list-max-ziplist-size 设置
     unsigend long count;
+    // 节点个数
     unsigend int len;
+    // ziplist 的长度
     int fill:16;
+    // 压缩程度，可由参数 list-compress-depth 设置
     unsigned int compress:16;
 }quicklist;
 ```
-- head 表示 quicklist 的头结点
-- tail 表示 quicklist 的尾节点
-- len 表示 quicklist 的节点的数量
-- count 表示 ziplist 中所有 entry 的数量，可由 ```list-max-ziplist-size``` 设置
-- fill 表示节点压缩深度，可由 ```list-compress-depth``` 设置
-- compress 保存压缩程度，0 表示不压缩
+quickListNode 是 quickList 中的一个节点，节点包含了 ziplist 数据结构：
 
 ```c
 typedef struct quicklistNode{
@@ -129,6 +129,7 @@ typedef struct quicklistNode{
     ...
 }quicklistNode;
 ```
+插入元素时首先查看 quickList 的 head 节点是否可以插入，如果可以插入就将元素插入到 ziplist 中，否则新建一个 quicklistNode 节点并插入数据。
 
 ### 字典
 字典是一种用于保存键值对的抽象数据结构，在 Redis 中用于哈希键和数据库的底层实现。
@@ -255,6 +256,7 @@ typedef struct zskiplist{
 - header 和 tail 指针分别指向跳跃表的表头和表尾节点，通过这两个指针使得定位表头节点和表尾节点的复杂度为 O(1)
 - length 属性记录节点的数量，可以在 O(1) 复杂度内返回跳跃表的长度
 - level 属性用于在 O(1)复杂度内获取跳跃表中层高最大的那个节点的层数量，表头节点的层高并不计算在内
+
 ### 整数集合
 整数集合(intset)是集合键的底层实现，Reids 使用整数集合保存类型为 int16_t, int32_t 或者 int64_t 的整数值，并且保证集合中不会出现重复元素。
 
@@ -288,4 +290,4 @@ typedef struct intset{
 整数集合不支持降级操作，一旦对底层数组进行了升级操作，encoding 就会一直保持升级后的状态。
 
 
-**[Back](../)**
+**[Back](../../)**
