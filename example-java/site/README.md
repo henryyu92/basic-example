@@ -32,5 +32,3 @@
 * [事务](doc/mysql/transaction.md)
 * [日志](doc/mysql/log.md)
 * [调优](doc/mysql/tuning.md)
-
-**[Back](../../../)**
