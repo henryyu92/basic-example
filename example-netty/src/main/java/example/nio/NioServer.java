@@ -17,7 +17,7 @@ public class NioServer {
             server.configureBlocking(false);
 
             Selector selector = Selector.open();
-
+            // 注册 Channel
             server.register(selector, SelectionKey.OP_ACCEPT);
             while (true){
                 if (selector.select(1000) == 0){

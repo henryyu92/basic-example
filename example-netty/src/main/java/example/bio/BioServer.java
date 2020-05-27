@@ -28,7 +28,7 @@ public class BioServer {
 
 
     /**
-     * 启动服务端
+     * 启动服务端，Main 线程作为 Acceptor 线程，线程池作为链路处理线程
      */
     public void start(){
         if (!started){
@@ -42,7 +42,7 @@ public class BioServer {
                     Socket socket = serverSocket.accept();
                     System.out.println("建立连接。。。。remote address: " + socket.getRemoteSocketAddress());
                     executor.execute(()->{
-                        handler(socket);
+                        handle(socket);
                     });
                 }
             }catch (Exception e){
@@ -59,7 +59,7 @@ public class BioServer {
         }
     }
 
-    public void handler(Socket socket){
+    public void handle(Socket socket){
         try(BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             String currentTime;

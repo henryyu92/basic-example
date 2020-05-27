@@ -8,34 +8,52 @@ Java 的网络模型支持三种 I/O 模型：
 
 ### BIO
 
+BIO 使用独立的 Acceptor 线程负责监听客户端的连接，客户端请求时为每个客户端创建连接并创建新的线程处理链路，处理完成之后通过字节流返回给客户端，然后断开连接销毁线程。
+
+```
+                +--------------+
+ +--------+     |              |<---> Thread
+ | Client |---->|              |
+ +--------+     |              |<---> Thread
+                |   Acceptor   |
+ +--------+     |              |<---> Thread
+ | Client |---->|              |
+ +--------+     |              |<---> Thread
+                +--------------+
+```
+BIO 的问题在与对于每个连接都需要创建新的线程来处理链路，当客户端较多且为长连接时，线程数数会急剧膨胀，造成系统性能急剧下降。
+
+Socket 是阻塞的，且是以流的形式读写的，当一个连接由于网络问题数据传输比较慢，则在读取数据期间线程一直处于空闲。
 
 ### NIO
 
-BIO 以流的方式处理数据，而 NIO 以块的方式处理数据，效率会有很大提升；BIO 是阻塞的，而 NIO 是非阻塞的；NIO 基于 Channel 和 Buffer 进行操作，数据总是从 Channel 读取到 Buffer 中或者从 Buffer 写入到 Channel 中，使用 Selector 监听注册的多个通道的事件使得可以使用一个线程就可以监听多个客户端
+NIO 是基于 Selector、Channel 和 Buffer 处理网络连接和读写。其中 Selector 是多路复用的 Acceptor，所有 Channel 都会向 Selector 注册并被监听，当有连接或者读写事件发生时才会处理；Channel 是一个双向数据管道，Socket 中的数据通过 Channel 进行读写；ByteBuffer 是一个缓冲，数据都是通过 Buffer 才能从 Channel 中读写。
 
 ```
-                                                   +------------+
-                                                   |  Selector  |
-                                                   +------------+
-                                                         ^
-                                                         | Register
-                                                +-------------------+
-  +---------+ read/write +--------+  read/write |   +-----------+   | read/write +--------+ read/write +---------+
-  | Handler |<---------->| Buffer |<----------->|   |  Channel  |   |<---------->| Buffer |<---------->| Handler |
-  +---------+            +--------+             |   +-----------+   |            +--------+            +---------+
-                                                |                   |
-  +---------+ read/write +--------+  read/write |   +-----------+   | read/write +--------+ read/write +---------+
-  | Handler |<---------->| Buffer |<----------->|   |  Channel  |   |<---------->| Buffer |<---------->| Handler |
-  +---------+            +--------+             |   +-----------+   |            +--------+            +---------+
-                                                |                   |
-  +---------+ read/write +--------+  read/write |   +-----------+   | read/write +--------+ read/write +---------+
-  | Handler |<---------->| Buffer |<----------->|   |  Channel  |   |<---------->| Buffer |<---------->| Handler |
-  +---------+            +--------+             |   +-----------+   |            +--------+            +---------+
-                                                +-------------------+
-
-
+           r/w           r/w             register +----------+
+  Handler <-----> Buffer <-----> Channle -------->|          |
+                                                  |          |
+           r/w           r/w             register |          |
+  Handler <-----> Buffer <-----> Channle -------->| Selector |
+                                                  |          |
+           r/w           r/w             register |          |
+  Handler <-----> Buffer <-----> Channle -------->|          |
+                                                  +----------+
 ```
-每个 Channel 都对应一个 Buffer；Selector 对应一个线程，一个线程对应多个 channel；Selector 根据 channel 的不同事件在各个 Channel 上切换；
+Selector 作为 Acceptor 线程监听注册的 Channel 的连接以及读写事件，当发生事件时才需要进行创建连接、读取数据等操作；Selector 是基于 epoll 实现，当对应的 Channel 上有事件发生才会触发。
+
+每个 Channel 都有一个对应的 Buffer 与之交换数据，从 Channel 中读取数据使用 read 方法，往 Channel 中写数据使用 write 方法。 
+
+#### Channel
+
+Channel 是 NIO 的数据管道，网络数据通过 Channel 读取和写入，和流不同的是 Channel 是双工的，即 Channel 可以同时进行读写操作。
+
+Channel 有 FileChannel、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类：
+- ```FileChannel```：用于文件的数据读写，通过文件流的 getChannel 方法将流转换成 Channel，或者直接调用静态方法 ```FileChannel#open``` 以 Channel 的方式读写文件
+- ```DatagramChannel```：用于 udp 协议的数据读写
+- ```ServerSocketChannel 和 SocketChannel```：用于 tcp 协议的数据读写
+
+Channel 只能从 Buffer 中读取或者写入数据。
 
 #### Buffer
 
@@ -46,23 +64,14 @@ Buffer 本质上是一个可以读写数据的内存块，Channel 的数据读�
 - ```limit```：Buffer 的当前终点，不能对超过终点位置进行读写
 - ```capacity```：Buffer 可以容纳的最大元素个数，在 Buffer 创建的时候指定
 
-除了 Java 基本类型对应的 Buffer 外，NIO 提供了 ```MappedByteBuffer``` 让文件直接映射在堆外内存。
 ```java
 ```
 
-对文件的修改同步由  NIO 完成。
+ByteBuffer 是 Buffer 常用的实现类，其有堆内分配和对外分配两种方式，使用 ```ByteBuffer#allocate``` 方法返回的是堆内分配的 ByteBuffer，使用 ```ByteBuffer#allocateDirect``` 方法返回的是堆外分配的 ByteBuffer。
 
-NIO 还支持通过多个 Buffer 完成读写操作
-```java
-```
+Java 中常用的零拷贝有 mmap（内存映射）和 sendFile。 mmap 通过内存映射，将文件映射到内核缓冲区，用户空间和内核空间可以共享内核空间的数据，减少用户空间到内核空间的数据拷贝(4 次减少到 3 次)。sendFile 是数据不经过用户态，直接从内核缓冲区进入到 SocketBuffer，在减少数据拷贝的同时也减少了状态上下文切换。
 
-#### Channel
-
-和 Java 传统 I/O Stream 不同，Channel 是双工的，可以同时进行读写。因为 Channel 是全双工的，所以能更好的映射底层操作系统的 API。
-
-Channel 只能从 Buffer 中读取或者写入数据。
-
-Channel 提供了 FileChannle、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类，其中 FileChannel 用于文件的数据读写，DatagramChannel 用于 UDP 的数据读写，ServerSocketChannle 和 SocketChannel 用于 TCP 的数据读写。
+mmap 适合小数据量读写，sendFile 适合大文件传输；mmap 需要 4 次上下文切换，3 次数据拷贝，sendFile 需要 3 次上下文切换，最少 2 次数据拷贝；sendFile 可以利用 DMA 方式，减少 CPU 拷贝， mmap 则不能，必须从内核拷贝到 socket 缓冲区
 
 
 #### Selector
@@ -78,9 +87,5 @@ SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
 - OP_CONNECT：连接已建立，8
 - OP_READ：读操作，1
 - OP_WRITE：写操作，4
-
-Java 中常用的零拷贝有 mmap（内存映射）和 sendFile。 mmap 通过内存映射，将文件映射到内核缓冲区，用户空间和内核空间可以共享内核空间的数据，减少用户空间到内核空间的数据拷贝(4 次减少到 3 次)。sendFile 是数据不经过用户态，直接从内核缓冲区进入到 SocketBuffer，在减少数据拷贝的同时也减少了状态上下文切换。
-
-mmap 适合小数据量读写，sendFile 适合大文件传输；mmap 需要 4 次上下文切换，3 次数据拷贝，sendFile 需要 3 次上下文切换，最少 2 次数据拷贝；sendFile 可以利用 DMA 方式，减少 CPU 拷贝， mmap 则不能，必须从内核拷贝到 socket 缓冲区
 
 ### AIO

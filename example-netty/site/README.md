@@ -1,6 +1,6 @@
 ### 网络编程
 
-- [Unix I/O 模型](doc/io.md)
+- [I/O 模型](doc/io.md)
 - [网络协议](doc/protocol.md)
 - [Java 网络编程](doc/socket.md)
 - [Reactor 模型](doc/reactor.md)
