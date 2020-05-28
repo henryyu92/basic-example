@@ -11,7 +11,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>dubbo-consummer</artifactId>
+    <artifactId>consumer</artifactId>
 
 
 </project>

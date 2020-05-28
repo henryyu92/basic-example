@@ -16,14 +16,18 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>dubbo-api</module>
-        <module>dubbo-provider</module>
-        <module>dubbo-consummer</module>
+        <module>client</module>
+        <module>provider</module>
+        <module>consumer</module>
     </modules>
 
-
-
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+    </dependencies>
+    
 
 
 </project>
