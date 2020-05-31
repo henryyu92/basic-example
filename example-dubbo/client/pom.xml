@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>client</artifactId>
+    <packaging>jar</packaging>
 
 
 </project>
