@@ -7,6 +7,8 @@
 
 ### Netty
 
-- [Netty 核心组件](doc/component.md)
-- [Netty 编解码](doc/codec.md)
+- [核心组件](doc/component.md)
+- [编解码](doc/codec.md)
+
+### RPC
 - [Netty RPC](doc/rpc.md)
