@@ -36,7 +36,7 @@ SDS 通过未使用空间实现了空间预分配和惰性空间释放两种优�
 
 ### 压缩列表
 
-压缩列表 (ZipList) 本质上是一个字节数组，是 Redis 为了节约内存而涉及的一种线性数据结构，ZipList 可以包含多个节点 (Entry) ，每个 Entry 可以是一个字节数组或一个整数。Redis 的有序集合、Hash、列表等数据类型的底层实现都直接或间接的使用了 ZipList。
+压缩列表 (ZipList) 本质上是一个字节数组，是 Redis 为了节约内存而设计的一种线性数据结构，ZipList 包含多个节点 (Entry) ，每个 Entry 可以是一个字节数组或一个整数。Redis 的有序集合、Hash、列表等数据类型的底层实现都直接或间接的使用了 ZipList。
 
 zlbytes|zltail|zllen|entry|entry|...|zlend
 -|-|-|-|-|-|-
@@ -44,7 +44,7 @@ zlbytes|zltail|zllen|entry|entry|...|zlend
 压缩列表是一块连续内存，其各个组成部分为：
 - ```zlbytes```：压缩列表占用的内存字节数，在对压缩列表进行内存重分配或者计算 zlend 时使用，占 4 个字节
 - ```zltail```：ZipList 最后一个 Entry 相对于压缩列表的起始地址的偏移量(字节数)，占 4 个字节。无需遍历整个压缩列表可以确定表尾节点的地址，从而使得 push 和 pop 操作的时间复杂度为 O(1)
-- ```zllen```：压缩列表包含的 Entry 数量，占 2 个字节，当压缩列表中的 Entry 超过 2^16-1 需要遍历整个压缩列表才能获取到元素
+- ```zllen```：压缩列表包含的 Entry 数量，占 2 个字节，当压缩列表中的 Entry 超过 2^16-1 需要遍历整个压缩列表才能获取到元素个数
 - ```entry```：压缩列表的节点，可以是字节数组或者整数，节点的长度由节点保存的内容决定
 - ```zlend```：标记压缩列表的末端，固定为 0xFF
 
@@ -83,8 +83,6 @@ typedef struct zlentry {
 }zlentry;
 ```
 
-数据插入或删除需要分为三步：计算长度、重新分配空间 和 复制数据。
-
 压缩列表是一个连续的内存块，节点的更新会使 ```previous_entry_length``` 属性占用的字节数变化而需要重新分配空间，而前一个 Entry 的 ```previous_entry_length``` 的变化引起后面 Entry 的 ```previous_entry_length``` 字节数变化再次引起空间重新分配，这种情况为连锁更新。
 
 连锁更新在最坏的情况下需要对压缩列表执行 N 次空间重分配操作，而每次空间重分配的最坏复杂度为 O(N)，因此连锁更新的最坏复杂度为 O(N^2)。实际情况中连锁更新发生的可能性较小，且连锁更新节点数量不多对性能不会造成很大影响，实际中对 ziplist 操作的平均时间复杂度为 O(N) 
@@ -94,7 +92,7 @@ typedef struct zlentry {
 
 quickList 由 List 和 ZipList 结合而成，是 Redis 中 List 数据类型的底层实现。考虑到双向链表在保存大量数据时需要更多额外内存保存指针并容易产生大量内存碎片，以及 ziplist 的插入和删除的高时间复杂度，Redis 将双向链表和 ziplist 结合成为 quicklist。
 
-quickList 是一个双向链表，但是链表中的每个节点是 ziplist 结构，因此可以将 quickList 看作是用双向链表将若干个小型的 ziplist 连接到一起组成的数据结构。
+quickList 是一个双向链表，链表中的每个节点是 ziplist 结构，因此可以将 quickList 看作是用双向链表将若干个小型的 ziplist 连接到一起组成的数据结构。
 
 ```c
 typedef struct quicklist{
@@ -129,61 +127,71 @@ typedef struct quicklistNode{
     ...
 }quicklistNode;
 ```
-插入元素时首先查看 quickList 的 head 节点是否可以插入，如果可以插入就将元素插入到 ziplist 中，否则新建一个 quicklistNode 节点并插入数据。
+
+quickList 中的操作需要首先从双向链表中找到对应的 ZipList，对于数据量不大的情况 ziplist 操作的时间复杂度为 O(1)，双向链表获取头尾节点的时间复杂度也为 O(1)，因此 quickList 的 push 和 pop 操作的时间复杂度为 O(1)。
+
 
 ### 字典
-字典是一种用于保存键值对的抽象数据结构，在 Redis 中用于哈希键和数据库的底层实现。
 
-Reids 字典所使用的哈希表由 dictht 结构定义：
+字典是一种用于保存键值对的抽象数据结构，可以根据键以 O(1) 的时间复杂度取出或插入键值。
+
+Redis 字典实现依赖的数据结构主要包含三部分：字典、Hash 表、Hash 表节点。其中哈希表由 dictht 结构定义：
 ```c
 typedef struct dictht{
+    // 每个元素指向一个 Hash 表节点
     dictEntry **table;
+    // Hash 表的节点数量
     unsigned long size;
+    //用于计算键对应的 Hash 表节点，值为 size-1
     unsigned long sizemask;
+    // 哈希表中已存在的节点数
     unsigned long used;
 }dictht;
 ```
-- table 属性是一个数组，数组中每个元素都是指向 dictEntry 的指针，每个 dictEntry 结构保存着一个键值对
-- size 属性记录了哈希表的大小，即 table 数组的大小
-- used 属性记录了哈希表目前已有节点的数量
-- sizemask 属性的值总是等于 size-1，和哈希值一起决定一个键应该被放到 table 数组的哪个索引上面
-
 哈希表节点使用 dictEntry 结构表示，每个 dictEntry 结构都保存着一个键值对：
 ```c
-typedef struct dictEntry{
+typedef struct dictEntry {
+    // 键
     void *key;
+    // 值，可以是指针、uint64_t 整数或 int64_t 整数
     union{
         void *val;
         uint64_t u64;
         int64_t s64;
     }v;
+    // 下一个哈希表节点的指针，使用单链表解决哈希冲突
     struct dictEntry *next;
 }dictEntry;
 ```
-- key 属性保存着键值对中的键
-- v 属性保存着键值对中的值，可以是一个指针、一个 uint64_t 整数或一个 int64_t 整数
-- next 属性是指向另一个哈希表节点的指针，可以将多个哈希值相同的键值对连接在一起，以此解决哈希冲突问题
-
-Reids 中字典是由 dict 结构表示：
+Redis 字典的实现是对 Hash 表的封装，其数据结构用 dict 表示：
 ```c
-typedef struct dict{
+typedef struct dict {
+    // 指向 dictType 结构的指针，每个 dictType 结构保存了一簇用于操作特定类型键值对的函数
+    // Redis 会为用途不同的字典设置不同的类型特定函数
     dictType *type;
+
+    // 保存了需要传给类型特定函数的可选参数
     void *privdata;
+
+    // Hash 表数组，每次只使用其中一个，另一个用于 rehash
     dictht ht[2];
+
+    // 没有进行 rehash 时为 -1，否则记录 rehash 的进度
     int rehashidx;
 }dict;
 ```
-- type 属性是指向 dictType 结构的指针，每个 dictType 结构保存了一簇用于操作特定类型键值对的函数，Redis 会为用途不同的字典设置不同的类型特定函数
-- privdata 属性保存了需要传给类型特定函数的可选参数
-- ht 属性是一个包含两个项的数组，数组中的每个项都是一个 dictht 哈希表，一般情况下字典使用 ht[0] 哈希表，当对 ht[0] 哈希表进行 rehash 是使用 ht[1] 哈希表
-- rehashidx 记录了 rehash 目前的进度，如果目前没有在进行 rehash 则为 -1
 #### 哈希算法
+
 当要将一个新的键值对添加到字典中时，Reids 会先根据键值对的键计算出哈希值和索引值，然后根据索引值将包含新键值对的哈希表节点放到哈希表数组的指定索引中。
 
 Reids 计算哈希值和索引值时先使用字典设置的哈希函数计算 key 得到哈希值，然后使用哈希表的 sizemask 和哈希值做位与运算得到索引值。Redis 使用 MurmurHash 算法来计算哈希值，该算法优点在于即使输入的键是有规律的，算法仍然可以给出一个很好的随机分布性并且计算速度和很快。
+
 #### 键冲突
+
 当有两个或以上数量的键被分配到哈希表数组的同一个索引上面时，Redis 使用链地址法解决键冲突。每个哈希表节点都有一个 next 指针指向下一个节点，多个节点可以用 next 指针构成一个单向链表，被分配到同一个索引上的多个节点可以用这个单向链表连接起来从而解决了键冲突问题。因为 dictEntry 节点组成的链表没有指向链表表尾的指针，所以为了速度考虑总是将新结点添加到链表的表头位置。
+
 #### rehash
+
 为了让哈希表的负载因子(load factor)维持在一个合理的范围内，当哈希表保存的键值对数量太多或者太少时，需要对哈希表的大小进行相应的扩展或者收缩。
 
 哈希表的扩展或收缩是通过执行 rehash 操作完成的，Reids 对字典的哈希表执行 rehash 步骤：
@@ -205,75 +213,57 @@ rehash 过程中将 ht[0] 中的键值对 rehash 到 ht[1] 不是一次性完成
 
 在渐进 rehash 过程中，字典的删除、查找、更新等操作都需要在两个哈希表上进行；新增的键值对会保存到 ht[1] 中，这样保证 ht[0] 包含的键值对随着 rehash 操作的执行而最终变为空
 
-### 跳跃表
-跳跃表(skiplist)通过在每个节点中维持多个指向其他节点的指针，从而达到快速访问节点的目的。跳跃表支持平均 O(logN) 最坏 O(N) 复杂度的节点查找。
+#### 跳跃表
 
-Redis 使用跳跃表作为有序集合键的底层实现，由 zskiplistNode 和 zskiplist 两个结构定义，其中 zskiplistNode 用于表示跳跃表节点，zskiplist 用于保存跳跃表节点的相关信息。
-#### 跳跃表节点
+跳跃表是一个分层的有序链表，每层都有指向下一个节点的指针，因此跳跃表的查询性能可以达到 O(lgN)。跳跃表由多个节点组成，Redis 中的跳跃表节点使用 zskiplistNode 结构体定义：
 ```c
-typedef struct zskiplistNode{
-    struct zskiplistLevel{
-        struct zskiplistNode *forward;
-        unsigned int span;
-    }level[];
-    struct zskiplistNode *backward;
+typedef struct zskiplistNode {
+    // 存储字符串类型的数据
+    sds els;
+    // 排序的分值
     double score;
-    robj *obj;
+    // 后退指针，只能指向当前节点的前一个节点
+    struct zskiplistNode *backward;
+    // 跳跃表的层，每个节点上的层数随机
+    struct zskiplistLevel {
+        // 指向本层下一个节点，尾节点的 forward 指针指向 NULL
+        struct zskiplistNode *forward;
+        // forward 节点与当前接待你之间的元素个数
+        unsigned int span;
+    } level[];
 }zskiplistNode;
 ```
-##### 层
-跳跃表节点的 level 数组可以包含多个元素，每个元素都包含一个指向其他节点的指针，通过这些层可以加快访问其他节点的速度。一般来说，层的数量越多，访问其他节点的速度就越快。
-
-每次创建一个新跳跃表节点的时候，根据幂次定律(越大的数出现的概率越小)随机生成一个介于 1 和 32 之间的值作为 level 数组的大小，这个大小就是层的“高度”。
-##### 前进指针
-每个层都有一个指向表尾方向的前进指针(level[i].forward 属性)，用于从表头向表尾方向访问节点。
-
-从表头向表尾方向，遍历跳跃表种所有节点：
-- 首先访问跳跃表的第一个节点(表头)，然后根据层的前进指针和跨度移动到表中的下一个节点
-- 当移动的指针指向 null 时表明到达了跳跃表的表尾，于是结束遍历
-##### 跨度
-跨度(level[i].span 属性)用于记录两个节点之间的距离：
-- 两个节点之间的跨度越大表示相距得越远
-- 指向 null 的所有前进指针的跨度都是 0
-##### 后退指针
-节点的后退指针(backward)用于从表尾向表头方向访问节点。和前进指针不同，每个节点只有一个后退指针，所以每次只能后退至前一个节点。
-##### 分值和成员
-节点的分值(socre 属性)是一个 double 类型的浮点数，跳跃表中的所有节点都按照分值从小到大来排序。
-
-节点的成员对象(obj 属性)是一个指针，它指向一个字符串对象，而字符串对象则保存着一个 SDS 值。
-
-在同一个跳跃表中，各个节点保存的成员对象必须是唯一的，但是不同节点保存的分值可以是相同的，分值相同的节点将按照成员对象在字典序中的大小来进行排序，成员对象较小的节点会排在前面(靠近表头方向)，而成员对象较大的节点则会排在后面(靠近表尾的方向)。
-
-#### 跳跃表
-使用一个 zskiplist 结构持有跳跃表节点可以方便地对整个跳跃表进行处理，比如快速访问跳跃表的表头节点和表尾节点，快速获取跳跃表节点的数量等信息。zskiplist 结构定义：
+Redis 使用 zskiplist 结构体实现跳跃表结构，zskiplist 中的节点即为 zskiplistNode：
 ```c
 typedef struct zskiplist{
+    // 跳跃表的头、尾节点
     struct zskiplistNode *header, *tail;
+    // 跳跃表长度
     unsigned long length;
+    // 跳跃表的高度，即所有节点中层数的最大值
     int level;
 }zskiplist;
 ```
-- header 和 tail 指针分别指向跳跃表的表头和表尾节点，通过这两个指针使得定位表头节点和表尾节点的复杂度为 O(1)
-- length 属性记录节点的数量，可以在 O(1) 复杂度内返回跳跃表的长度
-- level 属性用于在 O(1)复杂度内获取跳跃表中层高最大的那个节点的层数量，表头节点的层高并不计算在内
+通过跳跃表的属性可以在 O(1) 的时间复杂度内获取到头、尾节点以及跳跃表的高度。由于底层使用了跳跃表结构，所以 Redis 中 ZSet 数据结构操作的时间复杂度一般为 O(lgN)。
+
+跳跃表中各个节点保存的成员对象必须是唯一的，但是不同节点保存的分值可以是相同的，分值相同的节点将按照成员对象在字典序中的大小来进行排序，成员对象较小的节点会排在前面(靠近表头方向)，而成员对象较大的节点则会排在后面(靠近表尾的方向)。
 
 ### 整数集合
-整数集合(intset)是集合键的底层实现，Reids 使用整数集合保存类型为 int16_t, int32_t 或者 int64_t 的整数值，并且保证集合中不会出现重复元素。
+
+整数集合(intset)是一个有序的、存储整形数据的结构。Reids 使用整数集合保存类型为 int16_t, int32_t 或者 int64_t 的整数值，并且保证集合中不会出现重复元素。
 
 整数集合使用 intset 结构表示：
 ```c
-typedef struct intset{
+typedef struct intset {
+    // 编码类型，不同的编码决定 contens 中保存不同类型的值
     uint32_t encoding;
+    // 元素的个数，即 contents 的长度
     uint32_t length;
+    // 存储整形数据的数组，数据从小到大排序，不包含重复项
     int8_t contents[];
 }intset;
 ```
-- contents 数组是整数集合的底层实现：整数集合的每个元素都是 contents 数组中的一个数组项(item)，各个项在数组中按值的大小从小到大有序地排列，并且数组中不包含任何重复项
-- length 属性记录了整数集合包含的元素数量，也就是 contents 数组的长度
-- encoding 属性决定 contents 数组保存的真实数据类型：
-  - INTSET_ENC_INT16 表示 contents 数组里每个项都是一个 int16_t 类型的整数值
-  - INTSET_ENC_INT32 表示 contents 数组里每个项都是一个 int32_t 类型的整数值
-  - INTSET_ENC_INT64 表示 contents 数组里每个项都是一个 int64_t 类型的整数值
+
 
 #### 升级
 当添加新元素到整数集合且新元素的类型比现有元素的集合类型都要长时，整数集合需要先进行升级(upgrade)，然后才能将新元素添加到整数集合里面。升级整数集合并添加新元素分为三步：
@@ -290,4 +280,4 @@ typedef struct intset{
 整数集合不支持降级操作，一旦对底层数组进行了升级操作，encoding 就会一直保持升级后的状态。
 
 
-**[Back](../../)**
+**[Back](../)**
