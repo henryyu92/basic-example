@@ -3,7 +3,7 @@ package example.tree;
 /**
  * 树结点
  */
-public class TreeNode<T> {
+public class TreeNode<T extends Comparable<T>> {
     private T value;
     private TreeNode<T> left;
     private TreeNode<T> right;

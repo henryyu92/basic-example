@@ -1,11 +1,13 @@
 package example.tree;
 
+import sun.tools.jstat.Jstat;
+
 import java.util.*;
 
 /**
  * 二叉树
  */
-public class BinaryTree<T> {
+public class BinaryTree<T extends Comparable<T>> {
 
     private TreeNode<T> root;
 
@@ -170,7 +172,29 @@ public class BinaryTree<T> {
             System.out.print(help.pop().value() + " ");
         }
 
+    }
 
+    public void postOrderNonRecur2(){
+        if (root == null){
+            return;
+        }
+
+        Stack<TreeNode<T>> stack = new Stack<>();
+        stack.push(root);
+
+        TreeNode<T> h = null;
+        while (!stack.isEmpty()){
+            TreeNode<T> node = stack.peek();
+            if (node.left() != null && node.left() != h && node.right() != h){
+                stack.push(node.left());
+            }else if(node.right() != null && node.right() != h){
+                stack.push(node.right());
+            }else{
+                // 结点出栈
+                System.out.print(stack.pop().value() + " ");
+                h = node;
+            }
+        }
     }
 
     /**
