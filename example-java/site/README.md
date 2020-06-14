@@ -2,7 +2,7 @@
 * [运行时数据区域](doc/JVM/runtime-memory-region.md)
 * [垃圾收集](doc/JVM/gc.md)
 * [内存分配](doc/JVM/memory-allocate.md)
-* [JVM 监控 & 调优](doc/JVM/tuning.md)
+* [监控调优](doc/JVM/tuning.md)
 ### 类加载
 * [类加载机制](doc/ClassLoader/class-load.md)
 * [类加载器](doc/ClassLoader/loader.md)
@@ -29,6 +29,7 @@
 
 ### 新特性
 * [新特性](doc/feature.md)
+* [try-with-resource](doc/try_with_resource.md)
 
 ### MySQL
 * [索引](doc/mysql/index.md)

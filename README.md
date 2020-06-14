@@ -1,5 +1,6 @@
-# Java
 
-- [java](./example-java/site)
-- [redis](./example-redis/site)
-- [netty](./example-netty/site)
+* [java](./example-java/site)
+
+* [redis](./example-redis/site)
+
+* [netty](./example-netty/site)
