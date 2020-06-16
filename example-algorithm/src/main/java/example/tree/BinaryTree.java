@@ -1,7 +1,5 @@
 package example.tree;
 
-import sun.tools.jstat.Jstat;
-
 import java.util.*;
 
 /**
@@ -140,7 +138,7 @@ public class BinaryTree<T extends Comparable<T>> {
 
     /**
      * 非递归后序遍历
-     *    使用两个栈
+     * 使用两个栈
      */
     public void postOrderNonRecur() {
         if (root == null) {
@@ -152,30 +150,30 @@ public class BinaryTree<T extends Comparable<T>> {
 
         stack.push(root);
 
-        while (!stack.isEmpty()){
+        while (!stack.isEmpty()) {
             // 根节点先入 help 栈
             TreeNode<T> node = stack.pop();
             help.push(node);
 
             // 左子树入 stack 栈
-            if (node.left() != null){
+            if (node.left() != null) {
                 stack.push(node.left());
             }
 
             // 右子树入 stack 栈
-            if (node.right() != null){
+            if (node.right() != null) {
                 stack.push(node.right());
             }
         }
 
-        while (!help.isEmpty()){
+        while (!help.isEmpty()) {
             System.out.print(help.pop().value() + " ");
         }
 
     }
 
-    public void postOrderNonRecur2(){
-        if (root == null){
+    public void postOrderNonRecur2() {
+        if (root == null) {
             return;
         }
 
@@ -183,13 +181,13 @@ public class BinaryTree<T extends Comparable<T>> {
         stack.push(root);
 
         TreeNode<T> h = null;
-        while (!stack.isEmpty()){
+        while (!stack.isEmpty()) {
             TreeNode<T> node = stack.peek();
-            if (node.left() != null && node.left() != h && node.right() != h){
+            if (node.left() != null && node.left() != h && node.right() != h) {
                 stack.push(node.left());
-            }else if(node.right() != null && node.right() != h){
+            } else if (node.right() != null && node.right() != h) {
                 stack.push(node.right());
-            }else{
+            } else {
                 // 结点出栈
                 System.out.print(stack.pop().value() + " ");
                 h = node;
@@ -200,23 +198,23 @@ public class BinaryTree<T extends Comparable<T>> {
     /**
      * 按层遍历：使用队列
      */
-    public void levelTraversal(){
+    public void levelTraversal() {
 
-        if (root == null){
+        if (root == null) {
             return;
         }
 
         Queue<TreeNode<T>> queue = new LinkedList<>();
         queue.offer(root);
 
-        while (!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             // 结点出队列后，将左子结点和右子结点入队列
             TreeNode<T> node = queue.poll();
             System.out.print(node.value() + " ");
-            if (node.left() != null){
+            if (node.left() != null) {
                 queue.offer(node.left());
             }
-            if (node.right() != null){
+            if (node.right() != null) {
                 queue.offer(node.right());
             }
         }
@@ -224,7 +222,8 @@ public class BinaryTree<T extends Comparable<T>> {
     }
 
     /**
-     * 添加结点
+     * 添加结点需要按层遍历，找到结点插入的位置
+     *
      * @param value
      * @return
      */
@@ -238,21 +237,93 @@ public class BinaryTree<T extends Comparable<T>> {
         Queue<TreeNode<T>> queue = new LinkedList<>();
         queue.offer(root);
 
-        while (!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             TreeNode<T> n = queue.poll();
-            if (n.left() == null){
+            if (n.left() == null) {
                 n.setLeft(node);
                 return true;
             }
             queue.offer(n.left());
 
-            if (n.right() == null){
+            if (n.right() == null) {
                 n.setRight(node);
                 return true;
             }
             queue.offer(n.right());
         }
         return false;
+    }
+
+    /**
+     * 使用前序遍历和中序遍历构建二叉树
+     *
+     * @param preOrder
+     * @param inOrder
+     * @return
+     */
+    public TreeNode<T> buildTree1(T[] preOrder, T[] inOrder) {
+        if (preOrder == null || inOrder == null || preOrder.length == 0 || inOrder.length == 0) {
+            return null;
+        }
+        if (preOrder.length != inOrder.length) {
+            throw new IllegalArgumentException("");
+        }
+        return preInOrder(preOrder, inOrder, 0, preOrder.length - 1, 0, inOrder.length - 1);
+    }
+
+    public TreeNode<T> preInOrder(T[] preOrder, T[] inOrder, int pstart, int pend, int istart, int iend) {
+
+        if (pstart > pend) {
+            return null;
+        }
+
+        TreeNode<T> root = new TreeNode<>(preOrder[pstart]);
+        // 找到中序中子树根结点的位置，将树分为左子树和右子树
+        for (int i = istart; i <= iend; i++) {
+            if (preOrder[pstart].equals(inOrder[i])) {
+                TreeNode<T> left = preInOrder(preOrder, inOrder, pstart + 1, pstart + i - istart, istart, i - 1);
+                root.setLeft(left);
+                TreeNode<T> right = preInOrder(preOrder, inOrder, pstart + i - istart + 1, pend, i + 1, iend);
+                root.setRight(right);
+            }
+        }
+        return root;
+    }
+
+    /**
+     * 根据后序遍历和中序遍历构建二叉树
+     *
+     * @param postOrder
+     * @param inOrder
+     * @return
+     */
+    public TreeNode<T> buildTree2(T[] postOrder, T[] inOrder) {
+        if (postOrder == null || inOrder == null || postOrder.length == 0 || inOrder.length == 0) {
+            return null;
+        }
+        if (postOrder.length != inOrder.length) {
+            throw new IllegalArgumentException("");
+        }
+        return postInOrder(postOrder, inOrder, 0, postOrder.length - 1, 0, inOrder.length - 1);
+    }
+
+    public TreeNode<T> postInOrder(T[] postOrder, T[] inOrder, int pstart, int pend, int istart, int iend) {
+        if (pstart > pend) {
+            return null;
+        }
+
+        TreeNode<T> root = new TreeNode<>(postOrder[pend]);
+        // 在中序遍历中找到子树的根结点位置
+        for (int i = istart; i <= iend; i++) {
+            if (postOrder[pend].equals(inOrder[i])) {
+                TreeNode<T> left = postInOrder(postOrder, inOrder, pstart, pstart + i - istart - 1, istart, i - 1);
+                root.setLeft(left);
+                TreeNode<T> right = postInOrder(postOrder, inOrder, pstart + i - istart, pend - 1, i + 1, iend);
+                root.setRight(right);
+            }
+        }
+
+        return root;
     }
 
 
@@ -263,7 +334,7 @@ public class BinaryTree<T extends Comparable<T>> {
         Random r = new Random(System.currentTimeMillis());
 
         BinaryTree<Integer> tree = new BinaryTree<>();
-        for (int i = 0; i < SIZE; i++){
+        for (int i = 0; i < SIZE; i++) {
             array[i] = r.nextInt(100);
             tree.add(array[i]);
         }
@@ -295,6 +366,19 @@ public class BinaryTree<T extends Comparable<T>> {
         System.out.print("后序遍历 非递归============");
         tree.postOrderNonRecur();
 
+        System.out.println();
+        Integer[] pre = new Integer[]{97, 33, 46, 32, 61, 23, 45, 21, 1, 22};
+        Integer[] in = new Integer[]{32, 46, 61, 33, 45, 23, 97, 1, 21, 22};
+        Integer[] post = new Integer[]{32, 61, 46, 45, 23, 33, 1, 22, 21, 97};
+        Integer[] t = new Integer[]{97, 33, 21, 46, 23, 1, 22, 32, 61, 45};
+
+        TreeNode<Integer> root = tree.buildTree1(pre, in);
+        tree.root = root;
+        tree.levelTraversal();
+
+        System.out.println();
+        tree.root = tree.buildTree2(post, in);
+        tree.levelTraversal();
     }
 
 }
