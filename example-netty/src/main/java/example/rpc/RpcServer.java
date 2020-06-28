@@ -34,22 +34,23 @@ public class RpcServer {
 
         ServerSocket serverSocket = new ServerSocket();
         serverSocket.bind(new InetSocketAddress("localhost", 6666));
-        while (true){
+        while (true) {
             pool.execute(new ServiceTask(serverSocket.accept()));
         }
 
     }
 
-    class ServiceTask implements Runnable{
+    class ServiceTask implements Runnable {
 
         private Socket socket;
 
-        public ServiceTask(Socket socket){
+        public ServiceTask(Socket socket) {
             this.socket = socket;
         }
+
         @Override
         public void run() {
-            try(ObjectInputStream in = new ObjectInputStream(socket.getInputStream())){
+            try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
                 // 反序列化
                 String serviceName = in.readUTF();
@@ -64,25 +65,25 @@ public class RpcServer {
                 Object result = method.invoke(serviceImpl.newInstance(), args);
 
                 // 结果序列化
-                try(ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())){
+                try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
                     out.writeObject(result);
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
 
-    public void registServeice(Class serviceInterface, Class impl){
-        synchronized (registry){
+    public void registServeice(Class serviceInterface, Class impl) {
+        synchronized (registry) {
             List<Class> classes = registry.get(serviceInterface.getName());
-            if (classes == null || classes.size() <= 0){
+            if (classes == null || classes.size() <= 0) {
                 classes = new ArrayList<>();
                 classes.add(impl);
                 registry.put(serviceInterface.getName(), classes);
-            }else{
+            } else {
                 classes.add(impl);
             }
         }
