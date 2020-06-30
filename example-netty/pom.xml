@@ -70,11 +70,6 @@
             <scope>provided</scope> <!-- not needed at runtime -->
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>javax.annotation</groupId>-->
-<!--            <artifactId>javax.annotation-api</artifactId>-->
-<!--            <version>1.3.1</version>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
