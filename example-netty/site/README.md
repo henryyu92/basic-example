@@ -12,4 +12,6 @@
 - [编解码](doc/codec.md)
 
 ### RPC
-- [Netty RPC](doc/rpc.md)
+- [RPC](doc/rpc.md)
+- [gRPC](doc/grpc.md)
+- [Thrift](doc/thrift.md)
