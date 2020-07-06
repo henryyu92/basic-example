@@ -1,7 +1,5 @@
 package example.leetcode.tree;
 
-import com.sun.source.tree.Tree;
-
 /**
  * @see <a href="https://leetcode-cn.com/problems/validate-binary-search-tree/"/>
  */

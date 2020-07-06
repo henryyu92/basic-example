@@ -8,7 +8,6 @@ import java.util.List;
  */
 public class LeetCode_257 {
 
-
     public List<String> binaryTreePath(TreeNode root){
         return null;
     }
