@@ -1,7 +1,5 @@
 package example.divide;
 
-import java.awt.*;
-
 /**
  * 最大利润
  */
