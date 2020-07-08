@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.mooc</groupId>
-    <artifactId>example-parent</artifactId>
+    <artifactId>basic-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -23,6 +23,17 @@
         <protobuf.version>3.9.2</protobuf.version>
         <dubbo.version>2.7.7</dubbo.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <url>http://maven.aliyun.com/nexus/content/repositories/central/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>

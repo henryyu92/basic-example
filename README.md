@@ -1,6 +1,10 @@
 
-* [java](./example-java/site)
+* [java](./basic-java/site)
 
-* [netty](./example-netty/site)
+* [netty](./basic-netty/site)
 
-* [redis](./example-redis/site)
+* [redis](./basic-redis/site)
+
+* [docker](./basic-docker)
+
+* [k8s](./basic-k8s)
