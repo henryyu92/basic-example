@@ -5,4 +5,4 @@
 
 * [redis](./basic-redis/site)
 
-* [docker](./basic-cloud)
+* [cloud](./basic-cloud)
