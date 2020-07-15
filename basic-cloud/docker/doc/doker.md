@@ -3,32 +3,6 @@
 - 容器：Docker 容器类似于一个轻量级的沙箱，Docker 利用容器来运行和隔离应用。容器是从镜像创建的应用运行实例，可以启动、停止、删除，容器之间是彼此隔离、互不相见的。
 - 仓库：Docker 仓库类似于代码仓库，是 Docker 集中存放镜像的地方。
 
-## Docker 安装
-```shell
-#!/bin/bash
-# 移除旧版本 docker
-yum -y remove docker docker-client \
-              docker-client-latest \
-              docker-common \
-              docker-latest \
-              docker-latest-logrotate \
-              docker-logrotate \
-              docker-selinux \
-              docker-engine-selinux \
-              docker-engine
-# 安装依赖
-yum -y install yum-utils device-mapper-persistent-data lvm2
-# 添加 repo 源
-yum-config-mapper --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-# 安装 containerd.io，出现 containerd.io >= 1.2.2 错误时有用
-yum -y install wget
-wget https://download.docker.com/linux/centos7/x86_64/edge/Package/containerd.io-1.2.6-3.3.el7.x86_64.rpm
-# 安装 docker-ce
-yum -y install docker-ce
-# 启动 docker 并设置开机启动
-systemclt start docker
-systemctl enable docker
-```
 ## Docker 常用命令
 ### Docker 镜像
 - ```docker images```：列出本地机器上已有的镜像的基本信息.
