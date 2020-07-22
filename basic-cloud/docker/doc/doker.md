@@ -1,9 +1,3 @@
-## Docker 核心概念
-- 镜像：Docker 镜像类似于虚拟机镜像，可以将它理解为一个只读的模板。镜像是创建 Docker 容器的基础。
-- 容器：Docker 容器类似于一个轻量级的沙箱，Docker 利用容器来运行和隔离应用。容器是从镜像创建的应用运行实例，可以启动、停止、删除，容器之间是彼此隔离、互不相见的。
-- 仓库：Docker 仓库类似于代码仓库，是 Docker 集中存放镜像的地方。
-
-## Docker 常用命令
 ### Docker 镜像
 - ```docker images```：列出本地机器上已有的镜像的基本信息.
   - repository：表示镜像来自的仓库
@@ -14,17 +8,21 @@
 - ```docker pull NAME[:TAG]```：从镜像仓库中拉取镜像，其中 NAME 是镜像的名字(严格讲需要添加镜像仓库地址作为前缀，默认使用官方 Docker Hub 服务忽略前缀)，TAG 是镜像的标签(用于表示镜像的版本信息，默认 latest)
 - ```docker image inspect IMAGE```：获取镜像的详细信息，返回 JSON 格式的信息
 - ```docker tag IMAGE NEW_IMAGE```：为本地镜像添加任意的新标签。添加标签后会多出一个镜像，该镜像的 ID 和之前的镜像 ID 相同意味着二者实际上指向了同一个镜像文件
-- ```docker rmi [IMAGE...]```：删除镜像
-  - -f：强制删除镜像，即使有容器依赖它
+- ```docker image rm [IMAGE...]```：删除一个或多个镜像，如果镜像有多个标签则只是删除对应的标签而不会将镜像真正删除，如果镜像已经创建了容器则不能删除镜像
+  - -f：强制删除镜像，即使镜像已经创建了容器
 - ```docker image prune```：清理没有被使用的镜像或临时的镜像
-- ```docker commit CONTAINER```：从已有容器创建镜像
+- ```docker container commit CONTAINER```：从容器创建镜像
+  -c：提交的时候执行的 dockerfile 指令，包括 cmd, entrypoint, env, expose, label, onbuild, user, volume, workdir 等
 - ```docker build [OPTIONS] PATH|URL|-```：编译 Dockerfile 文件创建新的镜像
-- ```docker save [OPTIONS] IMAGE [IMAGE...]```：将镜像文件以 tar 包的形式导出到本地文件系统
+- ```docker image save [OPTIONS] IMAGE [IMAGE...]```：将镜像文件以 tar 包的形式导出到本地文件系统
   - -o：导出到指定文件中
-- ```docker load [OPTIONS] IMAGE```：将指定的 tar 文件加载为镜像
+- ```docker image load [OPTIONS] IMAGE```：将指定的 tar 格式的镜像文件加载为镜像
   - -i：从指定文件中加载
 - ```docker push NAME[:TAG]```：将本地镜像上传到远程镜像仓库，默认是 Docker Hub 仓库
 ### Docker 容器
+
+容器是镜像的一个运行时实例，镜像是静态的只读文件，而容器带有运行时需要的可写文件层。
+
 - ```docker create [OPTIONS] IMAGE [COMMAND] [ARG...]```：创建一个容器，新建的容器处于停止状态
 - ```docker start [OPTIONS] CONTAINER [CONTAINER...]```：启动容器
 - ```docker run [OPTIONS] IMAGE [COMMAND] [ARG...]```：创建并运行容器，等价于先执行 docker create 再执行 docker start 命令。使用 docker run 来创建并启动容器时，Docker 在后台运行的标准操作包括：
