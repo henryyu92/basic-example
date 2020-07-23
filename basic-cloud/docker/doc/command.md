@@ -121,18 +121,66 @@ docker inspect 1612e054a847
     ...
   }
 ]
-``` 
+```
+容器是由镜像创建的，使用命令 `docker create IMAGE [COMMAND] [ARG...]` 可以由镜像创建容器。`docker create` 命令有很多可选项：
+- `-e env_list` 设置容器的环境变量
+- `-h hostname` 设置容器的主机名
+- `-p port` 设置容器暴露给主机的端口
+- `-v volumn` 设置容器挂载的数据卷
+- `--name container_name` 设置容器的名称，如果没有设置则会默认生成一个
 
-- ```docker create [OPTIONS] IMAGE [COMMAND] [ARG...]```：创建一个容器，新建的容器处于停止状态
-- ```docker start [OPTIONS] CONTAINER [CONTAINER...]```：启动容器
-- ```docker run [OPTIONS] IMAGE [COMMAND] [ARG...]```：创建并运行容器，等价于先执行 docker create 再执行 docker start 命令。使用 docker run 来创建并启动容器时，Docker 在后台运行的标准操作包括：
-  - 检查本地是否存在指定的镜像，不存在则从公有仓库下载
-  - 利用镜像创建一个容器并启动该容器
-  - 分配一个文件系统给容器并在只读的镜像层外面挂载一层可读写层
-  - 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
-  - 从网桥的地址池配置一个 IP 地址给容器
-  - 执行用户指定的应用程序
-  - 执行完毕后容器被自动终止
+`COMMAND` 是容器启动时执行的命令，`ARG` 是执行命令是需要传入的参数。
+```shell script
+docker create  \
+--name docker-hello \
+-p 8100:8100 -p 127.0.0.1:9100:9100/tcp \
+-e JAVA_HOME='/var/lib/jdk' \
+-h docker-hello \
+-v '/var/data' \
+hello-world:latest \
+'/hello' \
+&& docker ps -a | grep hello
+```
+使用 `docker create` 命令创建的容器处于停止状态，使用 `docker start CONTAINER [CONTAINER...]` 命令可以启动处于停止状态的容器，选项 -i 可以开启容器的交互。
+```shell script
+docker start -i docker-hello
+```
+`docker run IMAGE [COMMAND] [ARG...]` 命令是 `docker create` 和 `docker start` 命令的结合。`docker run` 命令首先会检查本地仓库是否含有这个镜像，如果本地仓库没有这个镜像的话会从远程仓库拉取镜像，然后由该镜像启动容器。
+
+`docker run` 命令也有很多可选参数，除了和 `docker create` 相同的可选参数外，还提供了一些新的选项：
+- `-it` 分配一个伪终端用于和容器交互
+- `-d` 使容器在后台运行
+```shell script
+docker run \
+--name docker-run-hello \
+-p 8100:8100 -p 127.0.0.1:9100:9100/tcp \
+-e JAVA_HOME='/var/lib/jdk' \
+-h docker-hello \
+-v '/var/data' \
+hello-world:latest '/hello' \
+&& docker ps -a | grep hello
+```
+容器启动后会等到容器中的应用进程执行完毕后才会退出，使用命令 `docker pause CONTAINER [CONTAINER...]` 可以时运行中的容器暂停：
+```shell script
+docker pause `docker ps | grep hello | awk '{print $1}'`
+```
+容器还可以通过 `docker unpause CONTAINER [CONTAINER...]` 来恢复暂停的容器中的所有进程：
+```shell script
+docker unpause $(docker ps -a | grep hello | awk '{print $1}')
+```
+使用命令 `docker stop CONTAINER [CONTAINER...]` 可以停止运行中的容器，选项 -t 可以设置等待指定时长(单位: ms)后杀掉进程：
+```shell script
+docker ps -a | grep hello | awk '{print $1}' | xargs docker stop -t 2000
+```
+`docker restart CONTAINER [CONTAINER...]` 命令可以重启容器，选项 -t 可以设置等待指定时长之后重启：
+```shell script
+docker ps -a | grep hello | awk '{print $1}' | xargs docker restart -t 2000
+```
+命令 `docker rm CONTAINER [CONTAINER...]` 可以删除处于停止或者退出(进程执行完毕)状态的容器，选项 -f 可以强制删除处于运行状态的容器，选项 -v 会移除容器关联的匿名数据卷
+```shell script
+docker rm -v docker-hello && docker ps -a | grep docker-hello
+```
+
 - ```docker logs [OPTIONS] CONTAINER```：查看容器的输出日志
   - -f
   - -tail
@@ -141,13 +189,9 @@ docker inspect 1612e054a847
   - -d：在容器后台执行命令
   - -e：指定环境变量
   - -t：分配伪终端
-- ```docker pause CONTAINER [CONTAINER...]```：暂停运行中的容器
-- ```docker unpause CONTAINER [CONTAINER...]```：恢复运行暂停的容器
-- ```docker stop CONTAINER [CONTAINER...]```：终止运行中的容器
+- ``````：终止运行中的容器
   - -t：
 - ```docker kill CONTAINER```：直接发送 SIGKILL 信号来强行终止容器
-- ```docker restart CONTAINER```：重启运行态的容器
-- ```docker rm  CONTAINER [CONTAINER...]```：删除处于终止或退出状态的容器。默认情况下只能删除已经处于终止或退出状态的容器，使用 -f 参数可以删除处于运行状态的容器
 - ```docker export CONTAINER```：以 tar 包的形式导出容器的文件系统
 - ```docker import file|URL|- [REPOSITORY[:TAG]]```：将导出的 tar 文件导入创建镜像
 - ```docker top CONTAINER```：查看容器内运行的进程
