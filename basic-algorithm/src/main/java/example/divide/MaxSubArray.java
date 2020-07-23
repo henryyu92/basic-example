@@ -122,8 +122,9 @@ public class MaxSubArray {
     }
 
     /**
-     * 线性时间复杂度算法：
-     * 从左制由依次处理 arr[1, j] 的最大子数组并保存，当数组处理完时就可得整个数组的最大子数组
+     * 线性时间复杂度算法：如果已知 arr[1..j] 的最大子数组，则 arr[1..j+1] 的最大子数组要么是 arr[1..j] 的最大子数组，要么是子数组 arr[i..j+1] (1 <= i<= j+1)
+     *
+     * 如果 sum(arr[i..j]) + arr[j+1] > arr[j+1] 则说明包含 j+1 的最大子数组为 arr[i..j+1]，否则为 arr[j+1]
      *
      * @param arr
      * @return
@@ -133,12 +134,13 @@ public class MaxSubArray {
             return null;
         }
 
-        // arr[1, j] 上的最大子数组
+        // arr[1..j] 的最大子数组
         Pair max = new Pair(0, 0, arr[0]);
-        // arr[1, j] 上包含 j 的最大子数组
+        // arr[1..j] 上包含 j 的最大子数组
         Pair include = new Pair(0, 0, arr[0]);
 
         for (int i = 1; i < arr.length; i++){
+            //
             int sum = arr[i] + include.maxValue;
             if (sum > arr[i]){
                 include = new Pair(include.left, i, sum);
@@ -146,7 +148,6 @@ public class MaxSubArray {
                 include = new Pair(i, i, arr[i]);
             }
 
-            // arr[i, j+1] 的最大子数组为 arr[i, j+1]
             if (sum > max.maxValue){
                 max = new Pair(include.left, include.right, sum);
             }

@@ -3,7 +3,7 @@ package example.leetcode.array;
 import java.util.Arrays;
 
 /**
- * LeetCode 238：给定一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。
+ * LeetCode 238：给定一个长度为 n 的整数数组 arr，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 arr 中除 arr[i] 之外其余各元素的乘积。
  * 时间复杂度：O(n)，不能使用除法
  */
 public class LeetCode_238 {
@@ -71,6 +71,7 @@ public class LeetCode_238 {
             for (int i = 0; i < arr.length; i++){
                 System.out.print(arr[i] + " ");
             }
+            System.out.println("]");
         }
     }
 
