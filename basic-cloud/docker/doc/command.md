@@ -136,7 +136,7 @@ docker create  \
 -p 8100:8100 -p 127.0.0.1:9100:9100/tcp \
 -e JAVA_HOME='/var/lib/jdk' \
 -h docker-hello \
--v '/var/data' \
+-v /local/data:/container/data \
 hello-world:latest \
 '/hello' \
 && docker ps -a | grep hello
@@ -156,7 +156,7 @@ docker run \
 -p 8100:8100 -p 127.0.0.1:9100:9100/tcp \
 -e JAVA_HOME='/var/lib/jdk' \
 -h docker-hello \
--v '/var/data' \
+-v /local/data:/container/data \
 hello-world:latest '/hello' \
 && docker ps -a | grep hello
 ```
@@ -180,29 +180,73 @@ docker ps -a | grep hello | awk '{print $1}' | xargs docker restart -t 2000
 ```shell script
 docker rm -v docker-hello && docker ps -a | grep docker-hello
 ```
+容器运行时可以通过命令 `docker logs CONTAINER` 来查看容器的日志，可选项 -f 可以动态的查看日志， -t 可以显示日志的时间戳， --tail 则可以设置显示尾部行数：
+```shell script
+docker ps | grep docker-hello | awk '{print $1}' | xargs docker logs -tf --tail 100
+```
+`docker port CONTAINER` 命令可以查看容器的端口映射
+```shell script
+docker ps -a | grep docker-hello | awk '{print $1}'  | xargs docker port
 
-- ```docker logs [OPTIONS] CONTAINER```：查看容器的输出日志
-  - -f
-  - -tail
-- ```docker attach [OPTIONS] CONTAINER```：将本地的标准input、output和 error 流 attach 到运行中的容器。当多个流 attach 到同一个容器时，所有的流是同步的，某一个阻塞了其他的都无法操作了
-- ```docker exec [OPTIONS] CONTAINER COMMAND [ARG...]```：在运行中的容器内直接执行任意命令
-  - -d：在容器后台执行命令
-  - -e：指定环境变量
-  - -t：分配伪终端
-- ``````：终止运行中的容器
-  - -t：
-- ```docker kill CONTAINER```：直接发送 SIGKILL 信号来强行终止容器
-- ```docker export CONTAINER```：以 tar 包的形式导出容器的文件系统
-- ```docker import file|URL|- [REPOSITORY[:TAG]]```：将导出的 tar 文件导入创建镜像
-- ```docker top CONTAINER```：查看容器内运行的进程
-- ```docker stats [CONTAINER...]```：实时展示容器内的资源使用统计
-- ```docker cp```：在容器和主机之间复制文件，```docker cp CONTAINER:SRC_PATH DEST_PATH|-``` 表示将容器内的文件复制到主机；```docker cp SRC_PATH|- CONTAINER:DEST_PATH``` 表示从主机复制文件到容器内
-- ```docker port CONTAINER```：查看容器的端口映射情况
-- ```docker update [OPTIONS] CONTAINER [CONTAINER...]```：更新容器的一些运行时配置
 
-## 容器仓库
-仓库是集中存放镜像的地方，注册服务器是存放仓库的具体服务器，一个注册服务器上可以有很多仓库，每个仓库可以有多个镜像。
-### 搭建私有仓库
+8100/tcp -> 0.0.0.0:8100
+9100/tcp -> 127.0.0.1:9100
+```
+除了查看容器运行时日志外，还可以通过 `docker top CONTAINER` 命令来查看容器内进程的信息：
+- uid
+- pid
+- ppid
+- c
+- stime
+- tty
+- time
+- cmd
+```shell script
+docker top docker-hello
 
-## Docker 架构
-Docker 采用 C/S 架构，包括客户端和服务器两大核心组件
+
+UID      PID      PPID      C      STIME      TTY      TIME      CMD
+```
+使用 `docker stats [CONTAINER...]` 可以查看容器内进程的资源使用情况，包括 CPU, 内存, 网络 IO, 磁盘 IO：
+```shell script
+docker stats | grep docker-hello
+
+CONTAINER ID     NAME     CPU %     MEM USAGE / LIMIT     MEM %     NET I/O     BLOCK I/O     PIDS
+```
+使用 `docker kill CONTAINER [CONTAINER...]` 命令可以强行终止容器
+```shell script
+docker ps | grep docker-hello | awk '{print $1}'  | xargs docker kill
+```
+如果需要和容器进行交互则可以使用 `docker exec CONTAINER COMMAND [ARG...]` 命令在运行中的容器内直接执行命令，这个命令有多个可选项：
+- `-d` 表示容器执行的命令在后台执行
+- `-it` 表示分配一个交互式的伪终端
+- `e k=v` 设置容器中的环境变量
+```shell script
+docker exec -it -e GO_ROOT=/usr/bin/go docker-hello '/hello'
+``` 
+`docker cp` 命令则可以使容器和宿主机之间复制文件
+```shell script
+# 容器向宿主机拷贝文件
+docker cp docker-hello:/data/logs /data/logs
+
+# 宿主机向容器拷贝文件
+docker cp /data/logs  docker-hello:/data/logs
+```
+`docker update CONTAINER [CONTAINER...]` 可以更新容器的运行时配置，可选项包括 CPU 的配置以及内存的配置
+```shell script
+docker update --cpus 10 --memory 1024 docker-hello
+```
+容器也可以通过 `docker export CONTAINER` 命令以 tar 包的形式导出容器的文件系统，使用选项 -o 指定导出的文件目录：
+```shell script
+docker export -o ~/docker-hello.tar docker-hello
+```
+
+### Repository
+
+仓库是集中存放镜像的地方，注册服务器是存放仓库的具体服务器，一个注册服务器上可以有很多仓库，每个仓库可以有多个镜像。在使用 `docker pull` 命令拉取镜像时可以指定镜像的注册服务器，格式为 `<image_registry_server>/<repository>:<tag>`。
+
+Docker 提供了 registry 镜像用于创建私有仓库，可以使用如下命令来在本地创建仓库：
+```shell script
+# 仓库的容器存放在 /var/lib/registry 下，可以通过 -v 来绑定到本地目录
+docker run --name registry -d -p 5000:5000 -v /opt/data/registry:/var/lib/registry registry:2
+```
