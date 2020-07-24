@@ -1,8 +1,8 @@
 
-* [java](./basic-java/site)
+* [**java**](basic-java/site)
 
-* [netty](./basic-netty/site)
+* [**netty**](./basic-netty/site)
 
-* [redis](./basic-redis/site)
+* [**redis**](./basic-redis/site)
 
-* [cloud](./basic-cloud)
+* [**cloud**](./basic-cloud)
