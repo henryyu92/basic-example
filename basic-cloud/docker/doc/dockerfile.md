@@ -2,10 +2,36 @@
 
 Dockerfile 是一个文本格式的配置文件，可以使用 Dockerfile 快速创建自定义的镜像。
 
-Dockerfile 是由一行行指令语句组成，并且支持以 # 开头的注释行。Dockerfile 中指令分为配置指令和操作指定。
+```shell script
+echo '
+# 基础镜像
+FROM openjdk:8
+# 维护信息
+LABEL: test
+# 配置指令
+WORKDIR /usr/src/javaapp/
+ADD ./Hello.java .
+# 操作指令
+RUN javac Hello.java
+CMD ["java", "Hello"]' > Dockerfile && docker build -t hello .
+```
+Dockerfile 首先使用 `FROM` 指令指明基础镜像，然后使用 `LABEL` 指令说明维护者信息，接下来就是镜像操作指令执行镜像构建的过程，最后会跟随执行指令表明容器启动时执行的命令。
+
 ### 配置指令
-- ```ARG <name>[=<default_value>]```：定义创建镜像过程中使用的变量。Docker 内置了一些镜像创建变量：HTTP_PROXY, HTTPS_PROXY, FTP_PROXY, NO_PROXY
-- ```FROM <image> [AS <name>]```：指定创建镜像的基础镜像，任何 Dockerfile 中第一条指令必须为 FROM 指令，并且同一个 Dockerfile 中每个镜像只能有一个 FROM 指令
+
+Dockerfile 的配置指令主要是用来配置镜像的属性，包括基础镜像、环境变量、工作空间、数据卷挂载等信息。
+
+`ARG` 指令用于定义容器创建过程中使用的变量，在执行 `docker build` 时通过 `-build-arg` 来为变量赋值。`ARG` 指令的格式为：
+```shell script
+ARG <name>[=<default_value>]
+```
+Docker 内置了一些镜像在创建时可以直接使用的变量，包括 `HTTP_PROXY`, `HTTPS_PROXY`, `FTP_PROXY`, `NO_PROXY`。
+
+`FROM` 指令指定该镜像创建时需要的基础镜像，任何 Dockerfile 中第一条指令必须为 FROM 指令，并且同一个 Dockerfile 中每个镜像只能有一个 FROM 指令。`FROM` 指令的格式为：
+```shell script
+FROM <image>:<tag>
+```
+
 - ```LABLE <key>=<value> [key=value ...]```：为生成的镜像添加元数据标签信息
 - ```EXPOSE <port> [port/protocol ...]```：声明镜像内服务监听的端口，该声明不会自动完成端口映射
 - ```ENV <key>=<value>```：指定环境变量，在镜像生成过程中和容器中可用
