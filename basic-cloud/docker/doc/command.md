@@ -68,7 +68,7 @@ REPOSITORY             TAG                 IMAGE ID            CREATED          
 ```
 `docker save IMAGE [IMAGE...]`可以从本地的镜像仓库将镜像导出到宿主机，使用 -o 选项可以指定以 tar 包的形式导出到指定的目录。
 ```shell script
-docker save -o ~/hello-world.jar hello-world | ls -ha ~/ | grep hello-world
+docker save -o ~/hello-world.jar hello-world && ls -ha ~/ | grep hello-world
 
 
 hello-world.jar
@@ -250,3 +250,12 @@ Docker 提供了 registry 镜像用于创建私有仓库，可以使用如下命
 # 仓库的容器存放在 /var/lib/registry 下，可以通过 -v 来绑定到本地目录
 docker run --name registry -d -p 5000:5000 -v /opt/data/registry:/var/lib/registry registry:2
 ```
+Registry 的配置文件默认为 `/etc/docker/registry/config.yml`，默认的仓库地址为 `/var/lib/registry`,registry 容器在创建时使用 -v 参数可以挂载到本地磁盘：
+```shell script
+docker run -d \
+--name registry \
+-p 5000:5000 \
+-v /home/user/registry/config.yml:/etc/docker/registry/config.yml \
+-v /home/user/registry/lib:/var/lib/registry \
+registry:2
+``` 
