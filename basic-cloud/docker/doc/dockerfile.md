@@ -7,7 +7,7 @@ echo '
 # 基础镜像
 FROM openjdk:8
 # 维护信息
-LABEL: test
+LABEL user=test
 # 配置指令
 WORKDIR /usr/src/javaapp/
 ADD ./Hello.java .
@@ -31,16 +31,34 @@ Docker 内置了一些镜像在创建时可以直接使用的变量，包括 `HT
 ```shell script
 FROM <image>:<tag>
 ```
+`LABLE` 指令用于为镜像添加元数据标签信息，可以多次使用 `LABEL` 指令为镜像生成多个标签，`LABEL` 指令的语法为：
+```shell script
+LABLE <key>=<value> [key=value ...]
+```
+`EXPOSE` 指令声明镜像内进程监听的端口，该指令只是声明监听的端口，并不会完成端口的映射，端口映射需要在启动容器时使用 -p 选项指定。`EXPOSE` 指令的语法格式为：
+```shell script
+EXPOSE <port> [port/protocol ...]
+```
+`ENV` 指令指定容器中的环境变量，命令设置的环境变脸可以在运行时使用 `docker run --env` 进行设定，语法格式为：
+```shell script
+ENV <key>=<value> [key=value ...]
+```
+`VOLUME` 命令为运行的容器创建一个数据卷挂载点，在运行时使用可以 `-v` 选项重新指定，语法格式为：
+```shell script
+VOLUME ["/volume/data/path"]
+```
+`USER` 指令可以指定运行容器的用户，在运行 `RUN` 指令时也会以该用户来运行，语法格式为：
+```shell script
+USER <user_name>
+```
+`WORKDIR` 指令配置 `RUN`, `CMD`, `ENTRYPOINT` 指令的工作目录，语法格式为：
+```shell script
+WORKDIR /path/to/workdir
+```
 
-- ```LABLE <key>=<value> [key=value ...]```：为生成的镜像添加元数据标签信息
-- ```EXPOSE <port> [port/protocol ...]```：声明镜像内服务监听的端口，该声明不会自动完成端口映射
-- ```ENV <key>=<value>```：指定环境变量，在镜像生成过程中和容器中可用
 - ```ENTRYPOINT```：指定镜像的默认入口命令，入口命令会在启动容器时作为根命令执行，所有的传入值作为该命令的参数。每个 Dockerfile 中只能有一个 ENTRYPOINT ，当指定多个时只有最后一个生效
   - ```ENTRYPOINT ["executable", "param1", "param2"]```：exec 命令调用执行
   - ```ENTRYPOINT command param1 param2```：shell 中执行
-- ```VOLUME ["/valume/data/path"]```：创建一个数据卷挂载点
-- ```USER <user_name>```：指定运行容器时的用户名或 UID
-- ```WORKDIR /path/to/workdir```：为 RUN, CMD, ENTRYPOINT 指令配置工作目录
 - ```ONBUILD [INSTRUCTION]```：指定当基于所生成镜像创建子镜像时，自动执行的操作命令
 - ```STOPSIGNAL signal```：指定所创建镜像启动的容器接收退出的信号值
 - ```HEALTHCHECK```：配置所启动容器如何进行健康检查
