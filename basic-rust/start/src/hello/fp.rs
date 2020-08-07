@@ -16,7 +16,7 @@ pub fn format_print(){
              subject="the quick brown fox",
              verb="jumps over");
 
-    // 指定格式
+    // : 用于指定格式
     println!("{} of {:b} people know binary, the other half doesn't", 1, 2);
 
     println!("{number:>width$}", number="你", width=6);    // 向右靠齐，指定总字符数
@@ -211,31 +211,28 @@ fn fmt_format(){
     }
 }
 
-mod test{
-    use crate::hello::fp::{fmt_debug, fmt_display, fmt_multi_element, format_print, fmt_format};
 
-    #[test]
-    fn test_format_print(){
-        format_print()
-    }
+#[test]
+fn test_format_print(){
+    format_print()
+}
 
-    #[test]
-    fn test_fmt_debug(){
-        fmt_debug()
-    }
+#[test]
+fn test_fmt_debug(){
+    fmt_debug()
+}
 
-    #[test]
-    fn test_fmt_display(){
-        fmt_display()
-    }
+#[test]
+fn test_fmt_display(){
+    fmt_display()
+}
 
-    #[test]
-    fn test_fmt_multi_element(){
-        fmt_multi_element()
-    }
+#[test]
+fn test_fmt_multi_element(){
+    fmt_multi_element()
+}
 
-    #[test]
-    fn test_fmt_format(){
-        fmt_format()
-    }
+#[test]
+fn test_fmt_format(){
+    fmt_format()
 }
