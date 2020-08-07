@@ -55,3 +55,6 @@ Thrift 是一款跨语言的 RPC 框架，采用 C/S 模式实现。Thrift 通�
 
 
 https://blog.csdn.net/yjp198713/article/details/79410521
+
+
+https://www.cnblogs.com/ASPNET2008/p/6859211.html
