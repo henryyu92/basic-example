@@ -1,11 +1,78 @@
-# gopl
-
-- [类型](#类型)
-- [函数](#函数)
-- [方法](#方法)
-- [接口](接口)
-
 ## 程序结构
+
+### 变量
+
+### 类型
+
+字符串格式化：
+%d      十进制整数
+%x, %o, %b      十六进制、八进制、二进制整数
+%f, %g, %e      浮点数
+%t      布尔值
+%c      字符
+%s, %q      字符串
+%v      自然形式
+%T      类型
+
+
+#### 原生类型
+
+#### 复合类型
+
+### 包
+Go语言的代码通过包（package）组织，一个包由位于单个目录下的一个或多个.go源代码文件组成, 目录定义包的作用。
+
+每个源文件都以一条package声明语句开始，表示该文件属于哪个包，紧跟着一系列导入（import）的包，之后是存储在这个文件里的程序语句。
+
+#### 文件
+
+### 程序控制
+
+#### 条件
+
+
+
+#### 循环
+
+Go语言只有 for 循环这一种循环语句， for 循环有多种形式，最基本的形式为：
+```go
+for initialization; condition; post {
+    // zero or more statements
+}
+```
+其中 `initialization` 是初始值；`condition` 是执行条件，只有满足条件才能执行循环体；`post` 是在循环体执行结束后执行。
+
+`initialization` 省略则表示初始值在 for 语句之前存在；`post` 省略则表示循环体执行后不需要后续处理；`condition` 省略则表示 for 循环是无限循环。
+```go
+// a traditional "while" loop
+for condition {
+    // ...
+}
+
+// a traditional infinite loop
+for {
+    // ...
+}
+```
+### 测试
+
+### 命令行
+
+## 函数
+
+## 方法
+
+## 接口
+
+## 并发
+
+### Channel
+
+### 锁
+
+## 反射
+
+## CGo
 
 
 Go 语言主要有四种类型的声明语句：
@@ -400,7 +467,7 @@ type Flags uint
 const (
     FlagUp Flags = 1 << iota // is up
     FlagBroadcast            // supports broadcast access capability
-    FlagLoopback             // is a loopback interface
+    FlagLoopback             // is a loopback interfaces
     FlagPointToPoint         // belongs to a point-to-point link
     FlagMulticast            // supports multicast access capability
 )
@@ -1547,6 +1614,9 @@ Go 中 goroutine 没有 ID，因此不会向其他语言意向可以做 thread-l
 - https://books.studygolang.com/gopl-zh/
 - https://books.studygolang.com/advanced-go-programming-book/
 
+- https://www.bookstack.cn/read/qcrao-Go-Questions/README.md
+
+- http://shouce.jb51.net/gopl-zh/index.html
 
 http://wuchong.me/blog/2019/02/12/how-to-become-apache-committer/
 

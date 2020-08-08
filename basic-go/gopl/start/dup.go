@@ -9,11 +9,17 @@ import (
 )
 
 func dup1(){
+
+	// map 类型需要使用 make 创建
 	counts := make(map[string]int)
+	// 从标准输入中获取
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan(){
+		// map 是引用类型
 		counts[input.Text()]++
 	}
+	// map 使用 range 遍历得到 (key, value) 的值，map 的遍历是随机的
+	// go 中 map 在遍历时删除是安全的
 	for line, n := range counts{
 		if n > 1 {
 			fmt.Printf("%d\t%s\n", n, line)
@@ -33,6 +39,7 @@ func dup2(){
 				fmt.Fprintf(os.Stderr, "dup2: %v\n", err)
 				continue
 			}
+			// map 是引用类型，作为形参时传递的是引用的拷贝
 			countLines(f, counts)
 			f.Close()
 		}
