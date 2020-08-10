@@ -193,18 +193,10 @@ docker ps -a | grep docker-hello | awk '{print $1}'  | xargs docker port
 9100/tcp -> 127.0.0.1:9100
 ```
 除了查看容器运行时日志外，还可以通过 `docker top CONTAINER` 命令来查看容器内进程的信息：
-- uid
-- pid
-- ppid
-- c
-- stime
-- tty
-- time
-- cmd
 ```shell script
 docker top docker-hello
 
-
+# 用户ID	进程ID	
 UID      PID      PPID      C      STIME      TTY      TIME      CMD
 ```
 使用 `docker stats [CONTAINER...]` 可以查看容器内进程的资源使用情况，包括 CPU, 内存, 网络 IO, 磁盘 IO：
@@ -223,7 +215,7 @@ docker ps | grep docker-hello | awk '{print $1}'  | xargs docker kill
 - `e k=v` 设置容器中的环境变量
 ```shell script
 docker exec -it -e GO_ROOT=/usr/bin/go docker-hello '/hello'
-``` 
+```
 `docker cp` 命令则可以使容器和宿主机之间复制文件
 ```shell script
 # 容器向宿主机拷贝文件
@@ -258,4 +250,4 @@ docker run -d \
 -v /home/user/registry/config.yml:/etc/docker/registry/config.yml \
 -v /home/user/registry/lib:/var/lib/registry \
 registry:2
-``` 
+```
