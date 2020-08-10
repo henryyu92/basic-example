@@ -1,4 +1,7 @@
+## 网络管理
+
 ### IP 地址配置
+
 ifconfig	查看网络状态命令
 		
 		ifconfig eth0 192.168.0.200 netmask 255.255.255.0		临时设置 eth0 网卡的 IP 地址与子网掩码
@@ -116,6 +119,7 @@ Linux 防火墙是作为一个服务被管理的
 - 停止防火墙服务：systemctl disable firewalld
 - 禁用防火墙：systemctl stop firewalld
 	
+
 也可以用 .service 管理服务：
 - 启动一个服务：systemctl start firewalld.service
 - 关闭一个服务：systemctl stop firewalld.service
