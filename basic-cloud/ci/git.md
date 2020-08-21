@@ -1,6 +1,5 @@
-## Git
+### 基础命令
 
-## 基础命令
 - git log：查看提交日志
 - git remote -v：查看远程仓库详情
 - git remote add <remote_repo_name> <repo_url>：添加远程仓库
@@ -35,7 +34,7 @@ git pull --rebase
 
 git push origin bug#1234 --force
 ```
-## 分支命令
+### 分支命令
 - ```git branch```：查看本地所有分支
 - ```git branch --remote```：查看远程分支
 - ```git branch -a```：查看所有本地和远程分支
@@ -46,22 +45,22 @@ git push origin bug#1234 --force
 - ```git checkout -b <branchname> origin/<branchname>```：创建与远程分支对应的分支
 - ```git branch --set-upstream-to=origin/<branchname> <branchname>```：建立本地分支与远程分支的关联
 - ```git push origin --delete <branchname>```：删除远程分支
-## 撤销修改
+### 撤销修改
 - 如果只是修改了工作区的内容，还未使用 git add 将修改添加到暂存区，使用 ```git checkout -- <filename>``` 撤销对文件的修改
 - 如果已经使用 git add 将修改添加到暂存区，使用 ```git reset HEAD <filename>``` 返回到 HEAD 的版本，此时暂存区会被清空；然后使用 git reset -- <filename> 清空工作区
 - 如果已经使用 git commit 将修改添加到版本库了，使用 ```git reset --hard <commit_id>``` 将 HEAD 回滚到指定的提交
 
 - ```git commit --amend```
-### git reset 和 git revert
+### git reset
 
-## git pull 和 git fetch
+### git fetch
 git fetch 是将远程仓库的最新内容拉到本地，用户在检查了以后决定是否合并到本地仓库分支中。git pull 是将远程仓库最新内容拉下来后直接合并，即 git pull = git fetch + git merge 这样可能会产生冲突，需要手动解决冲突。
 
 - git fetch <远程主机>：将远程主机的更新全部拉取到本地
 - git fetch <远程主机> <分支>：将远程主机的指定分支更新拉取到本地
-## git cherry-pick
+### git cherry-pick
 git cherry-pick 通常用于把特定提交从仓库的一个分支引入到其他分支中。
-## git merge 和 git rebase
+### git rebase
 使用 git merge 提交时由于分支有其他提交，因此会将两个分支的最新快照(c3 和 c4)以及二者最近的共同祖先(c2)进行三方合并生成一个新的快照(c5)并提交，因而导致提交历史出现了分叉。
 ```
 c0 <-- c1 <-- c2 |<-- c3(dev) <----|<--c5
@@ -77,3 +76,7 @@ c0 <-- c1 <-- c2 |<-- c4(dev)
 c0 <-- c1 <-- c2 <-- c3<--c4'(dev, master)             
 ```
 变基存在一定的风险，使用变基需要遵守一条准则：**不要在仓库外有副本的分支执行变基**
+
+### git stash
+
+`git stash` 命令用于将本地的修改暂存，修改必须是未提交到暂存区。
