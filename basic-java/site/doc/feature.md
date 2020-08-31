@@ -192,6 +192,7 @@ JDK 1.8 的 Collection 接口新增了两个用于创建 Stream 的方法：
 - parallelStream：创建一个并行流，流中的数据是并行处理的
 
 ```java
+
 ```
 
 除了 Collection 接口提供了创建 Stream 的方法，Arrays 也提供了一个静态方法 example.stream 用于从数组创建 Stream：
@@ -279,3 +280,13 @@ optional.orElese("world");
 optional.orEleseGet(()->"world");
 ```
 ### 日期与时间
+
+#### LocalDate & LocalTime
+
+LocalDate 的实例是一个不可变对象，只提供了简单的日期，并不包含当天的时间信息，也不包含与时区相关的信息。
+
+LocalTime 的实例也是一个不可变对象，表示当天的时间信息，不包含与时区相关的信息。
+
+LocalDateTime 是 LocalDate 和 LocalTime 的复合，表示日期和时间信息，但是不包含时区信息。
+
+#### 

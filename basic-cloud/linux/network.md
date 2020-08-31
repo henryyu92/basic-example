@@ -64,7 +64,9 @@ netstat -rn
 			-n		使用 IP，不使用域名，速度更快
 		wget 地址			下载命令
 			wget http://soft.vpser.net/lnmp/lnmp1.1-full.tar.gz
-		
+
+curl
+
 ### SSH远程管理服务
 #### SSH 简介
 - SSH 是 Secure Shell 的缩写，SSH 为建立在应用层和传输层基础上的安全协议
