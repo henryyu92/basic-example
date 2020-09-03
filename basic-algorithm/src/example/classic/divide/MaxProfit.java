@@ -20,7 +20,7 @@ public class MaxProfit {
 
     /**
      * 暴力枚举法：比较任意两个的差值，返回最大的差值，时间复杂度 O(N^2)
-     * @return
+     *
      */
     public int maxProfit1(int[] price){
         if (price == null){
@@ -38,8 +38,7 @@ public class MaxProfit {
 
     /**
      * 分治法：将数组一分为二，分别求最大的差值，最后比较二者的差值，时间复杂度 O(NlgN)
-     * @param price
-     * @return
+     *
      */
     public int maxProfit2(int[] price){
         if (price == null){
@@ -79,7 +78,7 @@ public class MaxProfit {
 
     /**
      * N 位置的值与前面 N-1 个位置的最小值的差值是当前位置能得到的最大值，遍历一遍数组比较每个位置能够得到的最大值，时间复杂度 O(N)
-     * @return
+     *
      */
     public int maxProfit3(int[] price){
         if (price == null){

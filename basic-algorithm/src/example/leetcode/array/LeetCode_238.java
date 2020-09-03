@@ -9,11 +9,11 @@ import java.util.Arrays;
 public class LeetCode_238 {
 
     /**
-     * 思路：由于不能使用除法，因此不能采用将所有的数相乘，然后除去当前位置的值
-     * 对每个元素，我们必须求出除它自身以外数组的乘积，我们可以将这个乘积划为两部分，左子数组乘积以及右子数组乘积，使用数组形式保存这个乘积。这样对每一个元素，我们不需要重新遍历数组来计算乘积，只需要对乘积数组的前一位乘以当前元素值就可以了
+     * 思路：由于不能使用除法，因此不能采用将所有的数相乘，然后除去当前位置的值。
+     * 对每个元素，我们必须求出除它自身以外数组的乘积，我们可以将这个乘积划为两部分，左子数组乘积以及右子数组乘积，使用数组形式保存这个乘积。
+     * 这样对每一个元素，我们不需要重新遍历数组来计算乘积，只需要对乘积数组的前一位乘以当前元素值就可以了
      *
-     * @param arr
-     * @return
+     *
      */
     public int[] product(int[] arr) {
         if (arr == null) {
@@ -42,8 +42,7 @@ public class LeetCode_238 {
     /**
      * 考虑到输出数组不算到空间复杂度，因此可以借助输出数组存储左侧子数组和右侧子数组的累乘结果
      *
-     * @param arr
-     * @return
+     *
      */
     public int[] product2(int[] arr) {
         if (arr == null) {
@@ -61,18 +60,6 @@ public class LeetCode_238 {
             res[j] *= right;
         }
         return res;
-    }
-
-    public static void print(int[] arr){
-        if (arr == null){
-            System.out.println("[]");
-        }else{
-            System.out.print("[");
-            for (int i = 0; i < arr.length; i++){
-                System.out.print(arr[i] + " ");
-            }
-            System.out.println("]");
-        }
     }
 
     public static void main(String[] args) {

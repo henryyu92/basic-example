@@ -10,10 +10,6 @@ public class BinaryOperator {
     /**
      * 交换 x 的第 i 位和第 j 位
      *
-     * @param x
-     * @param i
-     * @param j
-     * @return
      */
     public int swap_bit(int x, int i, int j) {
 
@@ -28,8 +24,6 @@ public class BinaryOperator {
     /**
      * 反转 x 的二进制
      *
-     * @param x
-     * @return
      */
     public int reverse_bit(int x) {
         // 二进制反转只需要遍历交换即可
@@ -45,8 +39,6 @@ public class BinaryOperator {
     /**
      * 交换整数
      *
-     * @param a
-     * @param b
      */
     public void swap_int(int a, int b) {
 
@@ -61,9 +53,7 @@ public class BinaryOperator {
 
     /**
      * 使用位运算求余
-     * @param a
-     * @param b
-     * @return
+     *
      */
     public int module(int a, int b){
         ArrayList<Integer> T = new ArrayList<>();
