@@ -1,0 +1,82 @@
+package example.classic.ds.bit;
+
+import java.util.ArrayList;
+
+/**
+ * 二进制操作
+ */
+public class BinaryOperator {
+
+    /**
+     * 交换 x 的第 i 位和第 j 位
+     *
+     */
+    public int swapBit(int x, int i, int j) {
+
+        // bit 位上不同才需要交换
+        if (((x >> i) & 1) != ((x >> j) & 1)) {
+            x ^= (1 << i) | (1 << j);
+        }
+
+        return x;
+    }
+
+    /**
+     * 反转 x 的二进制
+     *
+     */
+    public int reverseBit(int x) {
+        // 二进制反转只需要遍历交换即可
+        int i = Integer.SIZE, j = 0;
+        while (i > j) {
+            swapBit(x, i, j);
+            i--;
+            j++;
+        }
+        return x;
+    }
+
+    /**
+     * 交换整数
+     *
+     */
+    public void swapInt(int a, int b) {
+
+        // a 和 b 不同的位
+        a ^= b;
+        // b 和 a、b 不同的位异或得到的就是 a
+        b ^= a;
+        // a 和 a、b 不同的位异或得到的就是 b
+        a ^= b;
+
+    }
+
+    /**
+     * 使用位运算求余
+     *
+     */
+    public int module(int a, int b){
+        ArrayList<Integer> T = new ArrayList<>();
+        int k = 0;
+        while ((b << k) <= a){
+            k++;
+        }
+        T.add(k--);
+
+        int a_prime = a - (b << T.get(T.size() - 1));
+
+        do{
+            while ((b<<k) > a_prime){
+                k--;
+            }
+            T.add(k);
+            a_prime = a_prime - (b<<T.get(T.size() - 1));
+        }while (a_prime >= b);
+
+        int d = 0;
+        for (int i = 0; i < T.size(); i++){
+            a -= (b << T.get(i));
+        }
+        return a;
+    }
+}
