@@ -1,5 +1,8 @@
-package example.classic.ds.bit;
+package example.classic.ds.primitive;
 
+/**
+ * 二进制操作
+ */
 public class BinaryOperatorTest {
 
     private final int N;
@@ -16,15 +19,29 @@ public class BinaryOperatorTest {
 
     public void testSwapBit(){
 
-        int number = (int) (Math.random() * 256);
-        int bit_x = (int) (Math.random() * 8);
-        int bit_y = (int) (Math.random() * 8);
-
         for (int i = 0; i < N; i++){
+
+            int number = (int) (Math.random() * 256);
+            int bit_x = (int) (Math.random() * 8);
+            int bit_y = (int) (Math.random() * 8);
             int swap = operator.swapBit(number, bit_x, bit_y);
             assert number == operator.swapBit(swap, bit_x, bit_y);
+
+            System.out.println("before " + number + ", swap " + bit_x + " and " + bit_y + ": " + swap);
         }
         System.out.println("test success.");
+    }
+
+    public void testSwapInt(){
+
+        for (int i = 0; i < N; i++){
+
+            int a = (int) (Math.random() * Integer.MAX_VALUE + Math.random() * Integer.MIN_VALUE);
+            int b = (int) (Math.random() * Integer.MIN_VALUE + Math.random() * Integer.MIN_VALUE);
+
+//            int swap = operator.swapInt(a, b);
+
+        }
     }
 
     public static void main(String[] args) {
