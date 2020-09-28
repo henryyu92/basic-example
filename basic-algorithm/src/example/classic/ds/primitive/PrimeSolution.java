@@ -11,19 +11,34 @@ public class PrimeSolution {
      */
     public int[] plain(int x){
         for (int i = 1; i <= x; i++){
+            if (isPrime(x)){
 
+            }
         }
 
         return new int[]{};
     }
 
     /**
-     * 判断 x 是否是素数可以遍历小于 x 的所有整数并整除 x，如果所有的整数都不能整除 x 则表示 x 是素数
+     * 根据素数定义，如果小于 x 的数能够整除 x 则 x 不是素数
      *
      */
     public boolean isPrime(int x){
 
-        return false;
+        for(int i = 2; i < x; i++){
+            if (x % i == 0) {
+                return false;
+            }
+        }
+        return true;
     }
+
+
+    /**
+     * 对于素数 x 有小于 x 的素数不能整除 x，即不存在 x 不能被小于 x 的数据整除却能够被小于 x 的非素数整除
+     *
+     * 证明：设任意的素数 u = mk + n，如果 x 不能被素数 u 整除则 x = uh + w = (mk+n)
+     *
+     */
 
 }

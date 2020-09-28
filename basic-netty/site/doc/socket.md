@@ -72,16 +72,41 @@ Channel 只能从 Buffer 中读取或者写入数据。
 
 #### Buffer
 
-Buffer 是一个缓冲区的概念，包含写入和需要读出的数据。NIO 中所有的数据都是用 Buffer 处理的，读数据时直接从 Buffer 中读，写数据时直接写到 Buffer 中。
+Buffer 是一个存储特定基础类型数据的容器，其实质是特定基础类型元素的线性有限序列。Buffer  定义了三个基本属性：
 
-Buffer 本质上是一个可以读写数据的内存块，Channel 的数据读写必须通过 Buffer 才能实现。Buffer 内部定义了 3 个维护数据读写位置的变量：
-- ```positoin```：Buffer 中下一个读或者写的元素的索引
-- ```limit```：Buffer 的当前终点，不能对超过终点位置进行读写
-- ```capacity```：Buffer 可以容纳的最大元素个数，在 Buffer 创建的时候指定
+- `capacity`：Buffer 的容量，在创建 Buffer 的时候需要指定 capacity，容量大小不为负数且一旦指定后就不允许修改，Buffer 中存储的元素数量不能超过 Buffer 的容量
+- `limit`：Buffer 中第一个不能读取或者写入的元素的下标，即当前 Buffer 中存储的数据的最大长度，`limit` 的值不能为负数且永远不会大于 `capacity`，Buffer 初始化时 `limit` 初始化为 `capacity` 大小
+- `position`：Buffer 中下一个将要被读取或者写入的元素的下标，`position` 不能为负数且永远不会大于 `limit`
 
 ```java
-
+// 获取 buffer 的 position
+buffer.position();
+// 获取 buffer 的 limit
+buffer.limit();
+// 获取 buffer 的 capacity
+buffer.capacity();
 ```
+
+Buffer 是 NIO 双工模式中用于存储数据的载体，可以同时进行读写
+
+
+
+拥有读和写两种模式。在读模式中，随着 `get` 方法的调用，`position` 也随着不断增大直到达到 `limit`，此后再次读取数据则会抛出 `BufferUnderflowException`；在写模式中，数据随着 `put` 方法不断写入到 Buffer 中，`position` 也会随之增大直到达到 `limit`，此时再次写入数据会抛出 `BufferOverflowException`。
+
+```java
+// limit 设置为 写入数据的容量大小，position 设置为 0
+buffer.flip();
+
+buffer.clear();
+```
+
+
+
+
+
+
+
+NIO 中所有的数据都是用 Buffer 处理的，读数据时直接从 Buffer 中读，写数据时直接写到 Buffer 中。
 
 ByteBuffer 是 Buffer 常用的实现类，其有堆内分配和对外分配两种方式，使用 ```ByteBuffer#allocate``` 方法返回的是堆内分配的 ByteBuffer，使用 ```ByteBuffer#allocateDirect``` 方法返回的是堆外分配的 ByteBuffer。
 
@@ -141,6 +166,5 @@ snedfile(socket, file, len)
 Java 中常用的零拷贝有 mmap（内存映射）和 sendFile。 mmap 通过内存映射，将文件映射到内核缓冲区，用户空间和内核空间可以共享内核空间的数据，减少用户空间到内核空间的数据拷贝(4 次减少到 3 次)。sendFile 是数据不经过用户态，直接从内核缓冲区进入到 SocketBuffer，在减少数据拷贝的同时也减少了状态上下文切换。
 
 mmap 适合小数据量读写，sendFile 适合大文件传输；mmap 需要 4 次上下文切换，3 次数据拷贝，sendFile 需要 3 次上下文切换，最少 2 次数据拷贝；sendFile 可以利用 DMA 方式，减少 CPU 拷贝， mmap 则不能，必须从内核拷贝到 socket 缓冲区
-
 
 **[Back](../)**

@@ -1,2 +1,7 @@
-package example.classic.ds.primitive;public class NumericOperation {
+package example.classic.ds.primitive;
+
+public class NumericOperation {
+
+
+
 }
