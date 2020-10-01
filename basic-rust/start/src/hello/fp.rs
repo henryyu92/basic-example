@@ -95,10 +95,10 @@ fn fmt_display(){
     }
 
     // print
-    let minmax = MinMax(0, 14);
+    let minMax = MinMax(0, 14);
     println!("Compare structures:");
-    println!("Display: {}", minmax);
-    println!("Debug: {:?}", minmax);
+    println!("Display: {}", minMax);
+    println!("Debug: {:?}", minMax);
 
     let big_range =   MinMax(-300, 300);
     let small_range = MinMax(-3, 3);
