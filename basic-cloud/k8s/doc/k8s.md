@@ -42,14 +42,6 @@ kubectl describe node <node_name>
 
 // todo
 
-#### Pod
-
-Pod 是 Kubernetes 的基本调度单元，每个 Pod 由一个 `pause` 容器以及一个或多个业务容器组成，同一个 Pod 中的容器共享相同的网络命名空间、IP 地址和端口以及存储卷空间。
-
-Kubernetes 为每个 Pod 分配了唯一的 IP 地址，集群内 Pod 的容器之间可以可以直接通信。
-
-
-
 #### Label
 
 Label 是一个键-值对，用于附加在 Kubernetes 的对象上进行标识。每个对象可以有多个 Label，并且一个 Label 可以添加到多个对象上。
@@ -87,7 +79,7 @@ spec:
 	selector:
 		name:pod_label_test
 	# ...
-	
+---	
 
 # Deployment 使用基于集合的筛选
 selector:
@@ -104,22 +96,42 @@ selector:
 - `kube-proxy` 进程通过 `Service` 的 `LabelSelector` 来选择对应的 Pod，自动创建每个 Service 到对应的 Pod 的请求转发路由表，从而实现 Service 的智能负载均衡机制
 - 通过对 Node 定义特定的标签，并且在 Pod 定义文件中使用 `LabelSelector` 选择 Pod 指定调度策略，`kube-scheduler` 进程可以实现 Pod 的定向调度
 
-#### Service
-Service 是服务应用的抽象，定义了 Pod 的逻辑集合和访问这个集合的策略。Service 是一组协同工作的 Pod，用于保证 Pod 的动态变化对其他访问端 Pod 的透明，访问端 Pod 只需要知道 Service 的地址，由 Service 代理请求并路由到对应的服务提供 Pod。Service 通过 Label 选择器将流量负载均衡到匹配的 Pod 中。
-
 
 #### NameSpace
 命名空间是 Kubernetes 集群级别的资源，用于将集群分隔为多个隔离的逻辑分区以配置给不同的用户、租户。Kubernetes 命名空间的隔离只是资源名称上的隔离，而并非操作系统的命名空间隔离也不是物理上的隔离。
+
+### Kubernetes 核心对象
+
+Kubernetes 对象时 Kubernetes 系统中的持久实体，Kubernetes 使用这些实体来表示集群的状态，包括：
+
+- 节点上运行的容器化应用程序
+- 应用程序的可用资源
+- 应用程序的行为策略，包括启动、升级、容错等策略
+
+Kubernetes 对象一旦创建就能确保存在，通过创建对象的方式可以告诉 Kubernetes 希望的集群状态。对 Kubernetes 对象的所有操作，不管是创建、修改还是删除，都需要使用 Kubernetes API
+
+
+
+Kubernetes 的对象使用 .yml 文件描述，每个对象描述文件分为 3 部分：元数据(metadata)、规范(spec) 和 状态(status)。状态描述了对象的当前状态，由Kubernetes系统及其组件提供和更新。Kubernetes控制平面持续地、主动地管理每个对象的实际状态，以匹配您提供的所需状态。
+
+#### Pod
+
+Pod 是 Kubernetes 的基本调度单元，每个 Pod 由一个 `pause` 容器以及一个或多个业务容器组成，同一个 Pod 中的容器共享相同的网络命名空间、IP 地址和端口以及存储卷空间。
+
+Kubernetes 为每个 Pod 分配了唯一的 IP 地址，集群内 Pod 的容器之间可以可以直接通信。
+
+#### Service
+
 ### Kubernetes 安装
-#### minikube 安装
+#### minikube
 ```shell
 
 ```
-#### kubeadm 安装
+#### kubeadm
 kubeadm 是 kubernetes 项目自带的集群构建工具，负责执行构建一个最小化的可用集群以及将其启动等的必要基本步骤。kubeadm 包含多个组件：
 - kubeadm init：部署 Master 节点的各个组件
 - kubeadm join：将节点加入到指定集群中
-#### Rancher 安装
+#### Rancher
 安装 rancher
 ```shell
 # 通过 docker 安装 rancher
@@ -129,7 +141,11 @@ docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher:stabl
 ### Kubernetes 基本操作
 Kubernetes 使用 API 对象来描述集群的所需状态，通过 Kubernetes API(通常通过命令行界面 kubectl) 创建对象来设置所需的状态，一旦设置了所需的状态，Kubernetes 就会通过 Pod 生命周期事件生成器使集群的当前状态与所需的状态匹配。
 
-#### yaml 文件
+#### yaml
+
+在Kubernetes中创建对象时，必须提供描述其所需状态的对象规范，以及有关该对象的一些基本信息（例如名称）。当您使用kubernetes API 创建对象（直接或通过kubectl），API请求必须在请求主体中以JSON的形式包含该信息。通常，您在.yaml文件中向kubectl提供信息。kubectl在发出API请求时将信息转换为JSON。
+
+
 
 Kubernetes 使用 `ym`l 文件描述资源对象，`yml` 文件必须包含 4 部分：
 
@@ -144,7 +160,7 @@ kind: Pod
 metadata:
 	name: res_name
 	labels:
-	- name: pod_label
+	- label_key: label_value
 spec:
 	# 对象容器描述
 	containers:

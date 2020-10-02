@@ -5,7 +5,7 @@ import (
 )
 
 var calculateTime string
-var duation string
+var duration string
 
 var timeCmd = &cobra.Command{
 	Use:   "time",

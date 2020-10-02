@@ -1,6 +1,49 @@
-## Service
+### Service
 
-Service 用于为 Pod 对象提供一个固定的、统一的访问接口及负载均衡能力，并支持借助于新一代 DNS 系统的服务发现功能，解决客户端发现并访问容器化应用的问题。
+Service 是 Kubernetes 中的核心资源对象，是应用服务的抽象，定义了多个 Pod 对象组合而成的逻辑集合和访问这个集合的策略。
+
+Service 通过 `LabelSelector` 将一组 Pod 定义成一个逻辑集合，内部实现服务负载均衡和回话保持机制，并通过运行在每个 Node 上的 `kube-proxy` 实现请求的转发。
+
+Kubernetes 在创建 Service 的时候会在集群指定的虚拟 IP 范围内分配一个全局唯一的 Cluster IP，并且在 Service 的整个生命周期内不会发生改变。
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc_name
+spec:
+  # Service 代理的 Pod 选择器
+  selector:
+    label_key: label_value
+  # Service 的
+  type: ClusterIP
+  # Service 暴露的端口
+  ports:
+  - port: svc_port
+
+```
+
+
+
+#### IP
+
+Kubernetes 中存在三种 IP：Node IP, Pod IP, Cluster IP。
+
+![Kubernetes IP]()
+
+Node IP 是 Kubernetes 集群中每个节点的物理网卡的 IP 地址，是一个真实存在的物理网络，所有属于这个网络的服务器都可以通过这个网络通信，而不管服务器是否属于这个 Kubernetes 集群，集群外的服务器访问当前节点时必须通过 Node IP 通信。
+
+Pod IP 是节点上运行的 Pod 的 IP 地址，是 Docker Engine 根据 docker0 网桥的 IP 地址段进行分配的，通常是一个虚拟的二层网络，Kubernetes 集群中 Pod 间的通信就是通过 Pod IP 所在的虚拟二层网络完成，而真实的 TCP/IP 流量是通过  Node IP 所在的物理网卡流出的。
+
+Cluster IP 是一种虚拟的 IP，仅仅作用于 Service 对象，并由 Kubernetes 管理和分配 IP 地址。Cluster IP 无法响应 Ping 请求，因为并没有一个 “实体网络对象” 来响应。Cluster IP 只能和 Service Port 组成一个具体的通信端口，并且只能被 Kubernetes 集群内的节点访问，集群外部无法直接使用。
+
+
+
+#### 请求代理
+
+Service 是一组协同工作的 Pod，用于保证 Pod 的动态变化对其他访问端 Pod 的透明，访问端 Pod 只需要知道 Service 的地址，由 Service 代理请求并路由到对应的服务提供 Pod。Service 通过 Label 选择器将流量负载均衡到匹配的 Pod 中。
+
+
 
 Service 是一种抽象：通过规则定义出由多个 Pod 对象组合而成的逻辑集合，以及访问这组 Pod 的策略。Service 关联 Pod 对象的规则要借助于标签选择器来完成，由 Deployment 控制器管理的 Pod 对象中断后会由新建的对象取代，而扩容后的应用则会带来 Pod 对象的 IP 地址的变动，Service 对象基于标签选择器将一组 Pod 定义成一个逻辑组合，并通过自己的 IP 地址和端口代理请求至组内的 Pod 对象之上。
 
@@ -36,6 +79,16 @@ spec:
 
 使用```kubectl get svc <service_name>``` 可以获取 Service 对象的信息，使用 ```kubectl get endpoints <service_name>``` 可以获取 Service 对应的 Endpoint 对象。Service 对象创建完成后即可作为服务对外提供，但是真正响应请求的是后端的 Pod 对象。
 
+```sh
+# 查看 Service 信息
+kubectl get svc <svc_name>
+
+# 查看 Service 代理的端点
+kubectl get endpoints <svc_name>
+```
+
+
+
 Service 对象还支持会话粘性(Session affinity)机制，它能够将来自同一客户端的请求始终转发至同一个后端的 Pod 对象。Session affinity 的效果会在一定时间期限内生效，默认值为 10800 秒，超出此时长之后客户端的再次访问会被调度算法重新调度。
 
 Service 对象通过 ```spec.sessionAffinity``` 和 ```spec.sessionAffinityConfg``` 两个字段配置会话粘性，其中 sepc.sessionAffinity 字段用于定义要使用会话粘性的类型，支持：
@@ -52,16 +105,20 @@ spec:
     ClientIP: 10800
 ```
 
-### 
+
 
 #### 服务发现
 
-服务发现机制的基本实现一般是事先部署好一个网络位置较为稳定的服务注册中心，服务提供者(服务端)向注册中心注册自己的位置信息并在表动后及时给予更新，服务消费者则周期性的从注册中心获取服务提供者的最新位置从而“发现”要访问的目标服务资源。
+服务发现机制的基本实现一般是事先部署好一个网络位置较为稳定的服务注册中心，服务提供者(服务端)向注册中心注册自己的位置信息并在变动后及时给予更新，服务消费者则周期性的从注册中心获取服务提供者的最新位置从而发现要访问的目标服务资源。
 
 根据服务发现过程的实现方式，服务发现可以分为两种类型：
 
 - 客户端发现：客户端到服务注册中心发现其依赖到的服务的相关信息，因此需要内置特定的服务发现逻辑
 - 服务端发现：服务消费者将请求发往负载均衡器，由它们负责查询服务注册中心获取服务提供者的位置信息并将服务消费者的请求转发给服务提供者
+
+Kubernetes 引入了 DNS 系统把服务名作为域名，使得程序可以直接使用服务名来建立通信连接。
+
+
 
 
 
@@ -115,4 +172,33 @@ Service 的 spec.type 可以指定为 ClusterIP, NodePort, LodaBalancer 三个�
 
 #### NodePort
 
+NodePort 实现方式是在 Kubernetes 集群中的每个 Node 上为需要外部访问的 Service 开启一个对应的 TCP 监听端口，外部系统只要用任意一个 Node 的 IP 地址和 NodePort 即可访问此服务。
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc_name
+spec:
+  selector:
+    label_key: label_value
+  # 通信模式为 NodePort
+  type: NodePort
+  prots:
+  # Service 暴露的端口
+  - port: svc_port
+    # Node 为 Service 开放的外部访问端口
+    nodePort: node_port
+```
+
+在任意一个 Node 上运行 `netstat` 命令就可以看到设置的 `nodePort` 端口被监听：
+
+```sh
+netstat -tlp | grep <nodePort>
+```
+
+NodePort 模式可以使得 Service 可以对外服务，但是需要外部客户端指定 Node 的 IP，因此一般在使用 Node Port 模式的时候会在 Kubernetes 集群外部署负载均衡器(Load balancer)，如 HAProxy 或者 Nginx，对每个需要对外暴露服务的 Service 配置负载均衡。
+
 #### LoadBalancer
+
+

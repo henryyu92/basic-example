@@ -19,7 +19,7 @@ func cmd() {
 	// -flag=x	支持所有数据类型
 
 	flag.StringVar(&name, "name", "Go Flag Demo", "usage -name=value")
-	flag.StringVar(&name, "n", "Go Flag Demo", "useage -n=value")
+	flag.StringVar(&name, "n", "Go Flag Demo", "usage -n=value")
 
 	flag.Parse()
 
