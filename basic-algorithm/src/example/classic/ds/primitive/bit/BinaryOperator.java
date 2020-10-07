@@ -1,4 +1,4 @@
-package example.classic.ds.primitive;
+package example.classic.ds.primitive.bit;
 
 import java.util.ArrayList;
 

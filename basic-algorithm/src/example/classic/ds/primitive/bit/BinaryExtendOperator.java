@@ -1,4 +1,4 @@
-package example.classic.ds.primitive;
+package example.classic.ds.primitive.bit;
 
 
 public class BinaryExtendOperator {
