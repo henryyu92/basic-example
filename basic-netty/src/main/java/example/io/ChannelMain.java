@@ -6,4 +6,8 @@ package example.io;
  * NIO 操作需要获取与 I/O 设备的连接 Channel 并使用 Buffer 进行数据传输
  */
 public class ChannelMain {
+
+
+
+    // scatter
 }

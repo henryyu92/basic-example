@@ -61,6 +61,10 @@ SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
 
 #### Channel
 
+Channel 本身不能存储数据，需要配合 Buffer 来完成数据传输。
+
+
+
 Channel 是 NIO 的数据管道，网络数据通过 Channel 读取和写入，和流不同的是 Channel 是双工的，即 Channel 可以同时进行读写操作。
 
 Channel 有 FileChannel、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类：
@@ -68,7 +72,9 @@ Channel 有 FileChannel、DatagramChannel、ServerSocketChannel、SocketChannel 
 - ```DatagramChannel```：用于 udp 协议的数据读写
 - ```ServerSocketChannel 和 SocketChannel```：用于 tcp 协议的数据读写
 
-Channel 只能从 Buffer 中读取或者写入数据。
+
+
+
 
 #### Buffer
 
@@ -87,17 +93,28 @@ buffer.limit();
 buffer.capacity();
 ```
 
-Buffer 是 NIO 双工模式中用于存储数据的载体，可以同时进行读写
+Buffer 是 NIO 双工模式中用于存储数据的载体，可以同时进行读写。Buffer 的每次读写操作使得 position 增加直到达到 limit，此后再次读取数据则会抛出 `BufferUnderflowException`，再次写入数据则会抛出 `BufferOverflowException`。
 
-
-
-拥有读和写两种模式。在读模式中，随着 `get` 方法的调用，`position` 也随着不断增大直到达到 `limit`，此后再次读取数据则会抛出 `BufferUnderflowException`；在写模式中，数据随着 `put` 方法不断写入到 Buffer 中，`position` 也会随之增大直到达到 `limit`，此时再次写入数据会抛出 `BufferOverflowException`。
+`Buffer` 提供 `mark` 属性表示 `reset` 方法调用后 position 重置的索引，`mark` 如果定义了则必须是正数且永远不会大于` position`，如果 `position` 或者 `limit` 重新调整为小于 `mark` 的值则会丢弃 `mark`，如果 `mark` 未定义则调用 `reset` 方法时会抛出 `InvalidMarkException`。
 
 ```java
-// limit 设置为 写入数据的容量大小，position 设置为 0
+// position 设置为 mark
+// 如果 mark 未设置(-1) 则抛出异常
+buffer.reset();
+
+buffer.mark();
+```
+
+0 <= mark <= position <= limit <= capacity
+
+
+
+```java
+// limit 设置为 position
+// position 设置为 0
+// mark 设置为 -1
 buffer.flip();
 
-buffer.clear();
 ```
 
 
@@ -106,9 +123,17 @@ buffer.clear();
 
 
 
-NIO 中所有的数据都是用 Buffer 处理的，读数据时直接从 Buffer 中读，写数据时直接写到 Buffer 中。
+
 
 ByteBuffer 是 Buffer 常用的实现类，其有堆内分配和对外分配两种方式，使用 ```ByteBuffer#allocate``` 方法返回的是堆内分配的 ByteBuffer，使用 ```ByteBuffer#allocateDirect``` 方法返回的是堆外分配的 ByteBuffer。
+
+#### File
+
+##### Path
+
+##### Files
+
+#### Charset
 
 ### AIO
 
