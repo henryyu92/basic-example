@@ -1627,3 +1627,5 @@ go 语言学习笔记--雨痕
 effective go
 
 go in action
+
+http://books.studygolang.com/The-Golang-Standard-Library-by-Example/

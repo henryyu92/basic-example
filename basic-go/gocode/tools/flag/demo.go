@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 )
 
 func main() {
@@ -29,8 +30,6 @@ func cmd() {
 func subCmd() {
 	var name string
 
-	flag.Parse()
-
 	// 创建子命令
 	goCmd := flag.NewFlagSet("go", flag.ExitOnError)
 	goCmd.StringVar(&name, "name", "default value", "help info")
@@ -38,7 +37,7 @@ func subCmd() {
 	javaCmd := flag.NewFlagSet("java", flag.ExitOnError)
 	javaCmd.StringVar(&name, "n", "default value", "help info")
 
-	args := flag.Args()
+	args := os.Args[1:]
 	switch args[0] {
 	case "go":
 		_ = goCmd.Parse(args[1:])
