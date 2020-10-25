@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package example.netty.codec.protobuf;
+
+// 加快解析
+option optimize_for = SPEED;
+
+option java_outer_classname="DataInfo";
+
+message DataMessage{
+    enum DataType{
+        studentType = 0;
+        workerType = 1;
+    }
+
+    DataType data_type = 1;
+
+    //  只能选择一个
+    oneof dataBody{
+        Student2 student = 2;
+        Worker worker = 3;
+    }
+}
+
+message Student2{
+    int32 id = 1;
+    string name = 2;
+}
+
+message Worker{
+    string name = 1;
+    int32 age = 2;
+}

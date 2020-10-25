@@ -1,0 +1,15 @@
+
+// protobuf 版本
+syntax = "proto3";
+
+package example.netty.codec.protobuf;
+
+// 生成的外部类
+option java_outer_classname = "StudentPOJO";
+// 内部类，真正发送的对象
+message Student{
+    // 属性类型，属性名，序号
+    int32 id = 1;
+    string name = 2;
+}
+
