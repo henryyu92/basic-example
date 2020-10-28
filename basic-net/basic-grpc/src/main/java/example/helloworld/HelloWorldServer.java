@@ -2,6 +2,7 @@ package example.helloworld;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,7 @@ public class HelloWorldServer {
         }
 
         @Override
-        public void sayAgain(HellowRequests request, StreamObserver<HelloReply> responseObserver) {
+        public void sayHelloAgain(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
             HelloReply reply = HelloReply.newBuilder().setMessage("hello again " + request.getName()).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
