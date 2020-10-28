@@ -22,6 +22,8 @@
         <netty.version>4.1.49.Final</netty.version>
         <protobuf.version>3.9.2</protobuf.version>
         <dubbo.version>2.7.7</dubbo.version>
+        <grpc.version>1.33.0</grpc.version>
+        <lettuce.version>5.3.0.RELEASE</lettuce.version>
     </properties>
 
     <repositories>
@@ -61,14 +63,9 @@
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
-                <version>5.3.0.RELEASE</version>
+                <version>${lettuce.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter</artifactId>
-                <version>${spring.versino}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

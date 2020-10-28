@@ -1,8 +1,4 @@
-## Docker
-
-Docker 是基于 Linux 内核的 cgroup 和 namespace 技术开发容器平台，Docker 将容器中的进程与宿主的进程隔离开来，使得容器可以像宿主机一样工作。
-
-### Image
+### 镜像
 
 镜像(Image)是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。 镜像不包含任何动态数据，其内容在构建之后也不会被改变。
 
@@ -85,7 +81,7 @@ hello-world            latest              bf756fb1ae65        6 months ago     
 docker push hello-world:0.0.1
 ```
 
-### Container
+### 容器
 
 容器(Container)是镜像的一个运行时实例，容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的命名空间。
 
@@ -233,7 +229,7 @@ docker update --cpus 10 --memory 1024 docker-hello
 docker export -o ~/docker-hello.tar docker-hello
 ```
 
-### Repository
+### 仓库
 
 仓库是集中存放镜像的地方，注册服务器是存放仓库的具体服务器，一个注册服务器上可以有很多仓库，每个仓库可以有多个镜像。在使用 `docker pull` 命令拉取镜像时可以指定镜像的注册服务器，格式为 `<image_registry_server>/<repository>:<tag>`。
 

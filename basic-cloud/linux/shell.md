@@ -1,45 +1,40 @@
-## Shell 基础
+## Shell
 Shell 是一个命令行解释器，它为用户提供了一个向 Linux 内核发送请求以便运行程序的界面系统级程序，用户可以用 Shell 来启动、挂起、停止甚至是编写一些程序。
 
 Shell 还是一个功能强大的编程语言，易编写，易调试，灵活性较强。Shell 是解释执行的脚本语言，在 Shell 中可以直接调用 Linux 系统命令。
 
-使用 sh 命令可以进入 Shell，使用 exit 命令退出 Shell 环境
-
-### Shell 分类
-可以查看 /etc/shell 文件获取当前系统支持的 Shell 类型，一般的 Linux 使用 Bash 作为用户的基本 Shell。
-
-### shell 执行
+使用 sh 命令可以进入 Shell，使用 exit 命令退出 Shell 环境。可以查看 /etc/shell 文件获取当前系统支持的 Shell 类型，一般的 Linux 使用 Bash 作为用户的基本 Shell。
 
 ### Bash 的基本功能
-#### 常用快捷键
-- ```ctrl+A```：把光标移动到命令行开头。如果我们输入的命令过长，想要把光标移动到命令行开头时使用
-- ```ctrl+E```：把光标移动到命令行结尾
-- ```ctrl+C```：强制终止当前的命令
-- ```ctrl+L```：清屏，相当于 clear 命令
-- ```ctrl+U```：删除或剪切光标之前的命令。如果输入了一行很长的命令，不使用退格键一个一个字符的删除，使用这个快捷键很方便
-- ```ctrl+K```：删除或剪切光标之后的内容
-- ```ctrl+Y```：粘贴 ctrl+U 或 ctrl+K 剪切的内容
-- ```ctrl+R```：在历史命令中搜索，按下 ctrl+R 之后，就会出现搜索界面，只要输入搜索内容，就会从历史命令中搜索
-- ```ctrl+D```：退出当前终端
-- ```ctrl+Z```：暂停，并放入后台。
-- ```ctrl+S```：暂停屏幕输出
-- ```ctrl+Q```：恢复屏幕输出
+
 #### 命令别名
+
 使用 ```alias alias_command='origion_command'``` 设置别名，使用 ```alias``` 命令查看别名：
+
 ```shell
 alias llh_test='ls -lh'
 ```
+
 alias 命令设置的别名只能在当前 Shell 中有效，如果需要在关闭 Shell 之后仍然有效，需要将命令别名写入 ```/<user_home>/.bashrc``` 中:
+
 ```shell
 echo "alias llh_tests='ls -h'" >> /home/test/.bashrc
 # 使别名生效
 source .bashrc
 ```
+
 使用 ```unalias alias_command``` 命令删除别名，如果命令别名写入了 .bashrc 则需要在文件中删除：
+
 ```shell
 unalias llh_test
 ```
-#### 输入输出重定向
+
+#### **echo**
+
+#### **EOF**
+
+#### 重定向
+
 标准输入输出：
 - ```/dev/stdin```：标准输入，文件描述符为 0，表示键盘输入
 - ```/dev/stdout```：保准输出，文件描述符为 1，表示显示器
@@ -173,14 +168,12 @@ function position_var(){
 - ```<user_hoame>/.bash_profile``` 中的环境变量只对该用户有效
 
 使用 ```source profile_name``` 或者 ```/profile/path``` 可以使环境配置文件立即生效。
-### Bash 的运算符
-
 ## Shell 编程
 ### printf
 ### awk
 ### sed
 
-#### xargs
+### xargs
 
 ### 条件判断表达式
 使用 ```test expr``` 可以断言表达式：
