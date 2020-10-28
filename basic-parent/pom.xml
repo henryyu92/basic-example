@@ -21,6 +21,7 @@
         <spring.versino>2.2.2.RELEASE</spring.versino>
         <netty.version>4.1.49.Final</netty.version>
         <protobuf.version>3.9.2</protobuf.version>
+        <grpc.version>1.33.0</grpc.version>
         <dubbo.version>2.7.7</dubbo.version>
     </properties>
 

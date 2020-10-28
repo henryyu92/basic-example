@@ -56,13 +56,19 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf.version}</version>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>

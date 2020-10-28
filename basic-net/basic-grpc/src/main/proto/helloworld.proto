@@ -7,11 +7,16 @@ option objc_class_prefix = "HLW";
 
 package helloworld;
 
+// service definition
 service Greeter {
+
+    // service method
     rpc sayHello (HelloRequest) returns (HelloReply) {}
+
+    rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
 }
 
-
+// request & response message definition
 message HelloRequest {
     string name = 1;
 }
