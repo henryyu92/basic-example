@@ -13,7 +13,7 @@ service Greeter {
     // service method
     rpc sayHello (HelloRequest) returns (HelloReply) {}
 
-    rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+    rpc sayHelloAgain (HelloRequest) returns (HelloReply) {}
 }
 
 // request & response message definition
