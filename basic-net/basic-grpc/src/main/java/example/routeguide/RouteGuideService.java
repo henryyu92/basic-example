@@ -20,7 +20,7 @@ public class RouteGuideService extends RouteGuideGrpc.RouteGuideImplBase {
     private static final Logger logger = Logger.getLogger(RouteGuideServer.class.getName());
 
     private final Collection<Feature> features;
-    private final ConcurrentMap<Point, List<RouteNote>> routeNodes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Point, List<RouteNote>> routeNotes = new ConcurrentHashMap<>();
 
     public RouteGuideService(Collection<Feature> features){
         this.features = features;

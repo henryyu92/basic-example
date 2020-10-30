@@ -9,16 +9,16 @@ package routeguide;
 
 service RouteGuide {
 
-  rpc getFeature(Point) returns (Feature) {}
+  rpc GetFeature(Point) returns (Feature) {}
 
   // A server-to-client streaming RPC.
-  rpc listFeatures(Rectangle) returns (stream Feature) {}
+  rpc ListFeatures(Rectangle) returns (stream Feature) {}
 
   // A client-to-server streaming RPC.
-  rpc recordFeature(stream Point) returns (RouteSummary) {}
+  rpc RecordFeature(stream Point) returns (RouteSummary) {}
 
   // A Bidirectional streaming RPC.
-  rpc routeChat(stream RouteNote) returns (stream RouteNote) {}
+  rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
 }
 
 message Point {
