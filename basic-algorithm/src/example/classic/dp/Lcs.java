@@ -45,7 +45,7 @@ public class Lcs {
         return max;
     }
 
-    public static int buttom(String[] x, String[] y){
+    public static int bottom(String[] x, String[] y){
         int[][] c = new int[x.length+1][y.length+1];
 
         for (int i = 0; i <= x.length; i++){
@@ -80,6 +80,6 @@ public class Lcs {
 
         lcs(x, y);
 
-        System.out.println(buttom(x, y));
+        System.out.println(bottom(x, y));
     }
 }

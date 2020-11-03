@@ -43,7 +43,7 @@ public class CutRod {
             int sum = arr[j] + memoized(arr, i - 1 - j, r);
             max = Math.max(max, sum);
         }
-        arr[i] = max;
+        r[i] = max;
         return max;
     }
 
@@ -54,7 +54,7 @@ public class CutRod {
      * @param n   钢条长度
      * @return
      */
-    public static int buttom(int[] arr, int n) {
+    public static int bottom(int[] arr, int n) {
         // 收益
         int[] r = new int[n];
         r[0] = 0;
@@ -69,7 +69,7 @@ public class CutRod {
             }
             r[j] = max;
         }
-        return r[n];
+        return r[n - 1];
     }
 
 
