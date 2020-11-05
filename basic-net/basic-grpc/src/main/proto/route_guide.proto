@@ -15,7 +15,7 @@ service RouteGuide {
   rpc ListFeatures(Rectangle) returns (stream Feature) {}
 
   // A client-to-server streaming RPC.
-  rpc RecordFeature(stream Point) returns (RouteSummary) {}
+  rpc RecordRoute(stream Point) returns (RouteSummary) {}
 
   // A Bidirectional streaming RPC.
   rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}

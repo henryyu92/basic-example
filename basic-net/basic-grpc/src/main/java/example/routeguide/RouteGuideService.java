@@ -1,5 +1,8 @@
 package example.routeguide;
 
+import io.grpc.stub.StreamObserver;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +16,8 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.toRadians;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class RouteGuideService extends RouteGuideGrpc.RouteGuideImplBase {
@@ -125,7 +130,7 @@ public class RouteGuideService extends RouteGuideGrpc.RouteGuideImplBase {
     }
 
     private List<RouteNote> getOrCreateNotes(Point location) {
-        List<RouteNote> notes = Collections.synchronizedList(new ArrayList<RouteNote>());
+        List<RouteNote> notes = Collections.synchronizedList(new ArrayList<>());
         List<RouteNote> prevNotes = routeNotes.putIfAbsent(location, notes);
         return prevNotes != null ? prevNotes : notes;
     }

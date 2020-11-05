@@ -16,7 +16,7 @@ public class RouteGuideServer {
     private final Server server;
     private final int port;
 
-    public RouteGuideServer(int port){
+    public RouteGuideServer(int port) throws IOException {
         this(port, RouteGuideUtil.getDefaultFeaturesFile());
     }
 
