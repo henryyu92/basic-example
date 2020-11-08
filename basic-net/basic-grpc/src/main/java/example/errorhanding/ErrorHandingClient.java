@@ -22,7 +22,11 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 public class ErrorHandingClient {
 
     private ManagedChannel channel;
-    private int port;
+    private final int port;
+
+    public ErrorHandingClient(int port){
+        this.port = port;
+    }
 
     public void run() throws IOException {
 
