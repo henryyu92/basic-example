@@ -48,20 +48,57 @@ select/poll 是顺序扫描 fd 是否就绪，而且支持的 fd 数量有限，
 
 ![异步 IO](../resources/async.png)
 
+- **同步**
+- **异步**
+- **阻塞**
+- **非阻塞**
+
+### Java I/O
+
+Java 在 1.4 之前支持支阻塞式 I/O，在 1.4 之后支持多路复用模型，在 1.7 之后支持异步 I/O 模型。
+
+Java 阻塞式 io 是以流(Stream)的方式进行数据操作，多路复用模型使用通道(Channel)来进行数据操作，异步 io 则是使用异步通道(AsynchronousChannel) 进行数据操作。
 
 
+
+```java
+// 阻塞式 IO
+InputStream in = new FileInputStream("file_name");
+byte[] bytes = new byte[in.available()];
+while(in.read(bytes) != -1){
+    System.out.println(new String(bytes));
+}
+
+// 多路复用 IO
+Channel chan = Channels.newChannel(new FileInputStream("file_name"));
+ByteBuffer buf = ByteBuffer.allocate(1024);
+channel.read(buf);
+
+```
+
+
+
+#### `BIO`
+
+Java 传统 IO 操作是以流的形式进行，用户进程在读取或者写入数据时调用系统命令并传入文件描述符，如果数据没有拷贝到缓冲区则会一直阻塞。
+
+##### `Stream`
+
+
+
+#### `NIO`
+
+##### `Channel`
+
+##### `Buffer`
+
+#### `AIO`
+
+##### `AsynchronousChannel`
+
+##### `Futures`
 
 **[Back](../)**
-
-
-
-
-
-
-
-
-
-
 
 
 

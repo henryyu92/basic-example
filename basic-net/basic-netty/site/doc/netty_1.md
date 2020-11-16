@@ -4,16 +4,16 @@ Netty 是一个异步的、基于事件驱动的网络应用框架，其本质�
 ## Unix 网络I/O模型
 根据 Linux 网络编程对 I/O 模型的分类，UNIX 提供了 5 中 I/O 模型，以套接字(Socket)接口为例：
 - **阻塞 I/O 模型**  
- 
+
 ![](assets/bio.png)
 - 非阻塞 I/O 模型  
- 
+
 ![](assets/nio.png)
 - I/O 复用模型  
- 
+
 ![](assets/mio.png)
 - 信号驱动 I/O 模型  
- 
+
 ![](assets/sio.png)
 - 异步 I/O 模型  
 告知内核启动某个操作，并让内核在整个操作结束后(包括将数据从内核复制到应用进程缓冲区)通知应用进程。  
