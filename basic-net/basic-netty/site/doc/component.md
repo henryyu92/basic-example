@@ -1,5 +1,3 @@
-### EventLoopGroup
-
 ### EventLoop
 
 ### ByteBuf
@@ -73,3 +71,5 @@ Netty 中每个 Channel 都有一个 ChannelPipeline 与之对应，ChannelPipel
 当调用 ChannelPipeline 的 addLast 方法加入自定义的 ChannelHandler 时先将 ChannelHandler 包装成 ChannelHandlerContext 然后加入双向链表的尾部。
 
 ChannelPipeline 中维护的 ChannelHandlerContext 双向链表完成了对 inbound 和 outbound 事件的拦截和处理，当调用 ```AbstractChannel#write``` 方法时会自动调用 ChannelPipeline 的 write 方法，由于 write 是 outbound 事件，ChannelPipeline 会直接找到 tail 节点并从尾节点开始向头节点开始查找 outbound 类型的 ContextHandler 并调用其中的 ChannelHandler 的方法；同理当是 inbound 事件时 ChannelPipeline 会从 head 开始向尾节点查找 inbound 类型的 ContextHandler 并执行其中的 ChannelHandler 的 write 方法。
+
+### BootStrap
