@@ -1,8 +1,42 @@
-### `EventLoop`
+### `EventLoopGroup`
 
-Netty 使用 Reactor 线程模型，
+Netty 使用 Reactor 线程模型，其中 `EventLoopGroup` 作为 Reactor 线程模型中的 `Acceptor` 线程池和 `Handler` 线程池，在 `EventLoopGroup` 中配置不同数量的 `EventLoop` 就可以实现不同的 Reactor 线程模型。
+
+```java
+// 单线程模型，Netty 已经废弃
+EventLoopGroup group = new NioEventLoopGroup(1);	// Acceptor & Handler
+ServerBootStrap server = new ServerBootStrap();
+server.group(group);
+
+// 多线程模型
+EventLoopGroup boss = new NioEventLoopGroup(1);		// Acceptor
+EventLoopGroup worker = new NioEventLoopGroup();	// Handler
+server.group(boss, worker);
+
+// 主从模型
+EventLoopGroup boss = new NioEventLoopGroup();		// Acceptor
+EventLoopGroup worker = new NioEventLoopGroup();	// Handler
+server.group(boss, worker);
+```
+
+
 
 #### `NioEventLoopGroup`
+
+`NioEventLoopGroup` 是 `EventLoopGroup` 的实现类，其本质是 `ScheduledExecutorService` 的实现类。
+
+![NioEventLoopGroup]()
+
+`NioEventLoopGroup` 在初始化时实际是在父类 `MultithreadEventExecutorGroup` 中完成，在初始化时如果没有指定线程池大小，则使用配置的线程池大小，如果没有配置则使用 `Runtime.getRuntime().availableProcessors() * 2`。
+
+- `io.netty.eventLoopThreads`
+- `io.netty.availableProcessors`
+
+`MultithreadEventExecutorGroup` 的实例化过程包括初始化指定大小的 `EventLoop` 数组以及为这个数组指定一个 `EventExecutorChooser`。
+
+生成 `EventLoop` 是通过 `newChild` 方法，其实现在 `NioEventLoopGroup` 中，返回一个 `EventLoop` 实例。
+
+#### `NioEventLoop`
 
 ### `ByteBuf`
 
@@ -80,7 +114,9 @@ Netty 引入了启动引导类 `BootStrap` 来屏蔽网络层的复杂配置，�
 
 Netty 提供了  `BootStrap` 和 `ServerBootStrap` 分别用于客户端和服务器端的启动引导，二者拥有共同的父类 `AbstractBootStrap`，其中通用的配置在父类中完成，而特定的客户端和服务器端配置则由子类完成。
 
+#### `Channel` 初始化
 
+#### 创建连接
 
 #### 客户端引导
 
@@ -99,7 +135,3 @@ Netty 提供了  `BootStrap` 和 `ServerBootStrap` 分别用于客户端和服�
   - `unsafe`
   - `pipeline`
   - `ch`
-
-##### 创建连接
-
-#### 服务器端引导

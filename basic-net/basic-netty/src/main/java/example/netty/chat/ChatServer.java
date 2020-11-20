@@ -14,7 +14,7 @@ import io.netty.handler.codec.string.StringEncoder;
 public class ChatServer {
     private int port;
 
-    public ChatServer(int port){
+    public ChatServer(int port) {
         this.port = port;
     }
 
@@ -22,10 +22,12 @@ public class ChatServer {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try{
+        try {
             ServerBootstrap b = new ServerBootstrap();
 
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 128)
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -41,7 +43,7 @@ public class ChatServer {
             ChannelFuture future = b.bind(port).sync();
 
             future.channel().closeFuture().sync();
-        }finally {
+        } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
