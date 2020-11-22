@@ -1,4 +1,4 @@
-## I/O 模型
+## I/O
 
 Linux 的内核将所有的外部设备都看做文件，对文件的读写操作会调用内核提供的系统命令，返回一个文件描述符 (file descriptor, fd)，文件描述符是一个地址，指向内核中的一个存储了文件路径、数据区等属性的结构体。
 
@@ -6,9 +6,9 @@ Linux 的内核将所有的外部设备都看做文件，对文件的读写操�
 
 操作系统为了限制进程的访问能力将 CPU 划分为**用户态**和**进程态**
 
+### I/O 模型
 
-
-### 阻塞 I/O 模型
+#### 阻塞 I/O 模型
 
 ```sequence
 应用进程->系统内核: recvfrom 系统调用
@@ -24,13 +24,13 @@ Note left of 应用进程: 进程阻塞
 
 ![阻塞 IO](../resources/bio.png)
 
-### 非阻塞 I/O 模型
+#### 非阻塞 I/O 模型
 
 recvfrom 从应用层到内核的时候，如果缓冲区没有数据就直接返回 EWOULDBLOCK 错误，一般都对非阻塞 I/O 模型进行轮询检查这个状态，看内核是不是有数据到来，这个过程中应用进程并没有一直阻塞等待数据到来，因此称为非阻塞 I/O 模型 
 
 ![非阻塞 IO](../resources/nio.png)
 
-### I/O 复用模型
+#### I/O 复用模型
 
 Linux 提供 select/poll，进程通过将一个或多个 fd 传递给 select 或 poll 系统调用，这样 select/poll 就可以侦测多路 fd 是否处于就绪状态，而进程只阻塞在 select 操作上。
 
@@ -38,13 +38,13 @@ select/poll 是顺序扫描 fd 是否就绪，而且支持的 fd 数量有限，
 
 ![多路复用](../resources/selector.png)
 
-### 信号驱动 I/O 模型
+#### 信号驱动 I/O 模型
 
 首先开启套接口信号驱动 I/O 功能，并通过系统调用 sigaction 执行一个信号处理函数(此系统调用立即返回，进程继续工作，它是非阻塞的)，当数据准备就绪时，就为该进程生成一个 SIGIO 信号，通过信号回调通知应用程序调用 recvfrom 来读取数据。
 
 ![信号驱动](../resources/signal.png)
 
-### 异步 I/O 模型
+#### 异步 I/O 模型
 
 ![异步 IO](../resources/async.png)
 
@@ -91,6 +91,47 @@ Java 传统 IO 操作是以流的形式进行，用户进程在读取或者写�
 ##### `Channel`
 
 ##### `Buffer`
+
+Buffer 是一个存储特定基础类型数据的容器，其实质是特定基础类型元素的线性有限序列。Buffer  定义了三个基本属性：
+
+- `capacity`：Buffer 的容量，在创建 Buffer 的时候需要指定 capacity，容量大小不为负数且一旦指定后就不允许修改，Buffer 中存储的元素数量不能超过 Buffer 的容量
+- `limit`：Buffer 中第一个不能读取或者写入的元素的下标，即当前 Buffer 中存储的数据的最大长度，`limit` 的值不能为负数且永远不会大于 `capacity`，Buffer 初始化时 `limit` 初始化为 `capacity` 大小
+- `position`：Buffer 中下一个将要被读取或者写入的元素的下标，`position` 不能为负数且永远不会大于 `limit`
+
+```java
+// 获取 buffer 的 position
+buffer.position();
+// 获取 buffer 的 limit
+buffer.limit();
+// 获取 buffer 的 capacity
+buffer.capacity();
+```
+
+Buffer 是 NIO 双工模式中用于存储数据的载体，可以同时进行读写。Buffer 的每次读写操作使得 position 增加直到达到 limit，此后再次读取数据则会抛出 `BufferUnderflowException`，再次写入数据则会抛出 `BufferOverflowException`。
+
+`Buffer` 提供 `mark` 属性表示 `reset` 方法调用后 position 重置的索引，`mark` 如果定义了则必须是正数且永远不会大于` position`，如果 `position` 或者 `limit` 重新调整为小于 `mark` 的值则会丢弃 `mark`，如果 `mark` 未定义则调用 `reset` 方法时会抛出 `InvalidMarkException`。
+
+```java
+// position 设置为 mark
+// 如果 mark 未设置(-1) 则抛出异常
+buffer.reset();
+
+buffer.mark();
+```
+
+0 <= mark <= position <= limit <= capacity
+
+
+
+```java
+// limit 设置为 position
+// position 设置为 0
+// mark 设置为 -1
+buffer.flip();
+
+```
+
+ByteBuffer 是 Buffer 常用的实现类，其有堆内分配和对外分配两种方式，使用 ```ByteBuffer#allocate``` 方法返回的是堆内分配的 ByteBuffer，使用 ```ByteBuffer#allocateDirect``` 方法返回的是堆外分配的 ByteBuffer。
 
 #### `AIO`
 
