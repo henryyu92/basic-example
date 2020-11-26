@@ -1,7 +1,7 @@
-package start
+package quickstart
 
 import "fmt"
 
-func hello()  {
+func hello() {
 	fmt.Println("hello world !")
 }

@@ -1,4 +1,4 @@
-package start
+package quickstart
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ func fetch1(url string, ch chan<- string) {
 }
 
 // 协程
-func fetchAll(){
+func fetchAll() {
 	start := time.Now()
 	ch := make(chan string)
 

@@ -1,4 +1,4 @@
-package start
+package quickstart
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func echo1(){
+func echo1() {
 
 	// var 声明变量时会初始化零值
 	var s, sep string
@@ -19,7 +19,7 @@ func echo1(){
 	fmt.Println(s)
 }
 
-func echo2(){
+func echo2() {
 	s, sep := "", ""
 
 	// os.Args 变量是 slice 类型，使用 range 可以遍历 slice
@@ -31,19 +31,19 @@ func echo2(){
 	fmt.Println(s)
 }
 
-func echo3(){
+func echo3() {
 	// 使用 += 会创建新的字符串,使用 strings.Join 函数可以拼接字符，内部使用 builder 实现
 	fmt.Println(strings.Join(os.Args[1:], " "))
 }
 
 // todo  slice append 直接追加到最后
-func echo4(){
+func echo4() {
 
 	sep := " "
 
-	buf := make([]string, 2 * len(os.Args[1:]) - 1)
+	buf := make([]string, 2*len(os.Args[1:])-1)
 
-	for _, arg := range os.Args[1:]{
+	for _, arg := range os.Args[1:] {
 		fmt.Println(arg)
 		buf = append(buf, arg)
 		fmt.Println(len(buf))
