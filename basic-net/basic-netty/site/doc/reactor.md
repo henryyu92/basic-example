@@ -114,3 +114,5 @@ MainReactor 可以对应多个 Reactor 子线程
 父线程与子线程的数据交互简单，Reactor 主线程只需要把新连接传给子线程，子线程无需返回数据
 
 ![multi](../resources/multi.png)
+
+### Proactor

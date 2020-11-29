@@ -26,8 +26,3 @@
 * [ConcurrentSkipListMap](doc/container/concurrentSkipListMap.md)
 * [ConcurrentLinkedQueue](doc/container/concurrentLinkedQueue.md)
 * [BlockingQueue](doc/container/blockingQueue.md)
-
-### 新特性
-* [函数式](doc/feature.md)
-* [try-with-resource](doc/try_with_resource.md)
-* [时间](doc/time.md)
