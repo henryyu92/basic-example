@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.dns.TcpDnsQueryEncoder;
 import io.netty.handler.codec.dns.TcpDnsResponseDecoder;
@@ -25,9 +26,9 @@ public class TcpDnsClient {
     public TcpDnsClient(){
         group = new NioEventLoopGroup();
 
-        b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<NioSocketChannel>() {
+        b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(NioSocketChannel ch) throws Exception {
+            protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(new LoggingHandler(LogLevel.INFO))
                     .addLast(new TcpDnsQueryEncoder())

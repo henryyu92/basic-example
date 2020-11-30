@@ -10,15 +10,16 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.internal.SystemPropertyUtil;
 
 import javax.net.ssl.SSLException;
 
 public class DiscardClient {
 
-    private static final boolean SSL = Boolean.parseBoolean(System.getProperty("ssl", "false"));
-    private static final String HOST = System.getProperty("host", "127.0.0.1");
-    private static final int PORT = Integer.parseInt(System.getProperty("port", "8009"));
-    public static final int SIZE = Integer.parseInt(System.getProperty("size", "256"));
+    private static final boolean SSL = SystemPropertyUtil.getBoolean("ssl", false);
+    private static final int PORT = SystemPropertyUtil.getInt("port", 8009);
+    private static final String HOST = SystemPropertyUtil.get("host", "127.0.0.1");
+    public static final int SIZE = SystemPropertyUtil.getInt("size", 256);
 
     private Bootstrap b;
     private NioEventLoopGroup group;

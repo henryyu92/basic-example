@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.dns.TcpDnsQueryEncoder;
 import io.netty.handler.codec.dns.TcpDnsResponseDecoder;
@@ -30,9 +31,9 @@ public class DoTClient {
         group = new NioEventLoopGroup();
         b.group(group)
             .channel(NioSocketChannel.class)
-            .handler(new ChannelInitializer<NioSocketChannel>() {
+            .handler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(NioSocketChannel ch) throws Exception {
+                protected void initChannel(SocketChannel ch) throws Exception {
                     ChannelPipeline p = ch.pipeline();
                     SslContext sslCtx = sslContext();
                     p.addLast(sslCtx.newHandler(ch.alloc(), DNS_SERVER_HOST, DNS_SERVER_PORT))

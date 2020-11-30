@@ -6,22 +6,24 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.internal.SystemPropertyUtil;
 
 public class EchoClient {
 
-    private static final boolean SSL = Boolean.parseBoolean(System.getProperty("ssl", "false"));
-    private static final String HOST = System.getProperty("host", "127.0.0.1");
-    private static final int PORT = Integer.parseInt(System.getProperty("port", "8009"));
-    private static final int SIZE = Integer.parseInt(System.getProperty("size", "256"));
+    private static final boolean SSL = SystemPropertyUtil.getBoolean("ssl", false);
+    private static final int PORT = SystemPropertyUtil.getInt("port", 8009);
+    private static final String HOST = SystemPropertyUtil.get("host", "127.0.0.1");
+    private static final int SIZE = SystemPropertyUtil.getInt("size", 256);
 
-    private Bootstrap b;
-    private NioEventLoopGroup group;
+    private final Bootstrap b;
+    private final NioEventLoopGroup group;
 
     public EchoClient(){
         b = new Bootstrap();
@@ -29,9 +31,9 @@ public class EchoClient {
 
         b.group(group).channel(NioSocketChannel.class)
             .option(ChannelOption.TCP_NODELAY, true)
-            .handler(new ChannelInitializer<NioSocketChannel>() {
+            .handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(NioSocketChannel ch) throws Exception {
+            protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline p = ch.pipeline();
                 SslContext sslCtx = sslContext();
                 if (sslCtx != null){

@@ -13,16 +13,17 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.internal.SystemPropertyUtil;
 
 public class DiscardServer {
 
     // -Dssl=true
-    private static final boolean SSL = Boolean.parseBoolean(System.getProperty("ssl", "false"));
-    private static final int PORT = Integer.parseInt(System.getProperty("port", "8009"));
+    private static final boolean SSL = SystemPropertyUtil.getBoolean("ssl", false);
+    private static final int PORT = SystemPropertyUtil.getInt("port", 8009);
 
-    private ServerBootstrap b;
-    private NioEventLoopGroup bossGroup;
-    private NioEventLoopGroup workerGroup;
+    private final ServerBootstrap b;
+    private final NioEventLoopGroup bossGroup;
+    private final NioEventLoopGroup workerGroup;
 
     private SslContext sslContext() throws Exception {
         if (SSL) {

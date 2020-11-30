@@ -82,6 +82,8 @@ Netty 提供的多个 ByteBuf 可以针对不同的情况使用，最佳实践�
 
 池化 ByteBuf 和 非池化 ByteBuf 主要区别就是池化 ByteBuf 会重用 ButeBuf 的内存区域，避免频繁的 GC。
 
+#### `Unpooled`
+
 ### `Chnnel`
 
 Channel 是 Netty 通信组件中用于执行网络 I/O 的组件，通过 Channel 可以获得当前连接的状态，通过 Channel 可以获取网络连接的配置参数。Channel 提供异步的网络操作，异步调用意味着任何的 IO 调用将立即返回，并且不保证在调用结束时所请求的 IO 操作已经完成。调用立即返回 ChannelFuture ，通过注册监听器到 ChannelFuture 可以在 IO 操作完成时调用回调函数。不同的协议对应的 Channel 类型是不同的。
@@ -106,6 +108,8 @@ ChannelPipeline 中维护的 ChannelHandlerContext 双向链表完成了对 inbo
 
 #### `ChannelFuture`
 
+
+
 #### `ChannelOption`
 
 ### `BootStrap`
@@ -114,7 +118,9 @@ Netty 引入了启动引导类 `BootStrap` 来屏蔽网络层的复杂配置，�
 
 Netty 提供了  `BootStrap` 和 `ServerBootStrap` 分别用于客户端和服务器端的启动引导，二者拥有共同的父类 `AbstractBootStrap`，其中通用的配置在父类中完成，而特定的客户端和服务器端配置则由子类完成。
 
-#### `Channel` 初始化
+#### 初始化 `Channel`
+
+#### 绑定端口
 
 #### 创建连接
 

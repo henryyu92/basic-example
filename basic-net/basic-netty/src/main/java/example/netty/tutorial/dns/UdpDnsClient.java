@@ -5,8 +5,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.dns.DatagramDnsQueryDecoder;
+import io.netty.handler.codec.dns.DatagramDnsQueryEncoder;
 import io.netty.handler.codec.dns.DatagramDnsResponseDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -16,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class UdpDnsClient {
 
     public static final String QUERY_DOMAIN = "www.example.com";
-    private static final int DNS_SERVER_PORT = 53;
-    private static final String DNS_SERVER_HOST = "8.8.8.8";
+    public static final int DNS_SERVER_PORT = 53;
+    public static final String DNS_SERVER_HOST = "8.8.8.8";
 
     private final Bootstrap b = new Bootstrap();
     private final NioEventLoopGroup group;
@@ -25,12 +27,12 @@ public class UdpDnsClient {
     public UdpDnsClient(){
         group = new NioEventLoopGroup();
 
-        b.group(group).channel(NioDatagramChannel.class).handler(new ChannelInitializer<NioDatagramChannel>() {
+        b.group(group).channel(NioDatagramChannel.class).handler(new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(NioDatagramChannel ch) throws Exception {
+            protected void initChannel(DatagramChannel ch) throws Exception {
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(new LoggingHandler(LogLevel.INFO))
-                    .addLast(new DatagramDnsQueryDecoder())
+                    .addLast(new DatagramDnsQueryEncoder())
                     .addLast(new DatagramDnsResponseDecoder())
                     .addLast(new UdpDnsClientHandler());
             }
