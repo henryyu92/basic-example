@@ -100,7 +100,7 @@ public class RouteGuideClient {
     public void recordRoute(List<Feature> features, int numPoints) throws InterruptedException {
         info("*** RecordRoute");
         final CountDownLatch finishLatch = new CountDownLatch(1);
-        StreamObserver<RouteSummary> responseObserver = new StreamObserver<>() {
+        StreamObserver<RouteSummary> responseObserver = new StreamObserver<RouteSummary>() {
             @Override
             public void onNext(RouteSummary summary) {
                 info("Finished trip with {0} points. Passed {1} features. "
