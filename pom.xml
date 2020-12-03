@@ -36,6 +36,7 @@
     <modules>
         <module>basic-redis</module>
         <module>basic-net</module>
+        <module>basic-dubbo</module>
     </modules>
 
     <dependencyManagement>
