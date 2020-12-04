@@ -1,4 +1,4 @@
-package example.rpc.codec;
+package example.rpc.serialize;
 
 /**
  * 定义网络数据编解码(序列化)

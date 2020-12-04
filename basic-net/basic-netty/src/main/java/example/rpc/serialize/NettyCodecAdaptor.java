@@ -1,4 +1,4 @@
-package example.rpc.codec;
+package example.rpc.serialize;
 
 import io.netty.channel.ChannelDuplexHandler;
 

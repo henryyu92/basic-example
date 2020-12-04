@@ -3,7 +3,7 @@ package example.rpc.exchanger;
 import java.util.concurrent.Future;
 
 /**
- * 封装底层网络实现，将底层网络实现转换为 Request -> Response 模式
+ * 封装底层网络实现，将方法调用转换为 Request -> Response
  */
 public interface Invoker {
 
