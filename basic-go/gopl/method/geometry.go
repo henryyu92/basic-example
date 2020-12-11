@@ -1,4 +1,4 @@
-package main
+package method
 
 import (
 	"fmt"
@@ -10,15 +10,32 @@ type Point struct {
 }
 
 func Distance(p, q Point) float64 {
-	return math.Hypot(q.X-p.Y, q.Y-p.Y)
+	return math.Hypot(q.X-p.X, q.Y-p.Y)
 }
 
 func (p Point) Distance(q Point) float64 {
 	return math.Hypot(q.X-p.X, q.Y-p.Y)
 }
 
+func (p *Point) ScaleBy(factor float64) {
+	p.X *= factor
+	p.Y *= factor
+}
+
 func (p Point) change() {
 	p.X++
 	p.Y++
 	fmt.Printf("%f, %f\n", p.X, p.Y)
+}
+
+type Path []Point
+
+func (path Path) Distance() float64 {
+	sum := 0.0
+	for i := range path {
+		if i > 0 {
+			sum += path[i-1].Distance(path[i])
+		}
+	}
+	return sum
 }
