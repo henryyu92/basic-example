@@ -8,7 +8,6 @@ Go 语言中的所有命名都必须以字母或下划线开头，后面可以�
 
 
 ```
-此外 Go 还预定义了 30 多个命名，在子定义命名时最好不要重新定义。
 
 
 
@@ -142,52 +141,23 @@ for {
 
 
 
-### 类型
+### 数据类型
 Go语言内置的数据类型分为四类：基础类型、复合类型、引用类型和接口类型。其中基础类型包括数字、字符串和布尔类型，复合数据类型包括数组和结构体，引用类型包括指针、切片、字典、函数、通道。
 
-除了 Go 语言内置的数据类型，还可以通过类型声明语句创建新的数据类型，用于隔离具有相同底层类型但有不同概念的类型，使得它们即使有相同的底层类型也是不兼容的
-```go
-type bigint int64
-```
 不同类型的值不能比较或者运算，Go 语言不支持隐式的类型转换，必须使用 ```T(x)``` 形式的显式类型转换。只有两个类型的底层类型相同，或者两者都是指向相同底层结构的指针类型时才允许类型转换操作，类型转换的错误发生在编译期。
 ```go
 var a int64 = 64
-var x bigint = bigint(a)    // bigint 是新的类型，所以必须显式类型转换
-
-var b int32 = 32
-var y int64 = int64(b)  // 数字类型是可以互相转换，但是有可能会丧失精度
-```
-除了通过声明语句创建新的类型，还可以通过类型别名为类型创建一个别名。类型别名只是一个别名，并没有创建新的类型，其本质还是底层类型。
-```go
-type byte = int8
-type rune = int32
-
-var a int32 = 32
-var x rune = a  // rune 类型本质是 int32，所以无需类型转换
+var b int32 = int32(a)	// 编译错误
+var y int64 = int64(b)	// 
 ```
 #### 基础类型
 Go 语言的数值类型包括整数、浮点数和复数，每种数值类型都有对应的大小范围和是否支持正负符号。Go 语言的数值类型的零值是 0。
 
 ##### 整数
-Go 语言同时提供了有符号和无符号整数类型，不同整数类型之间即使可以表示相同的数值，在需要赋值时也需要显式的类型转换：
-
-|整数类型|bit 数(字节数)|取值范围|零值|说明|
-|-|-|-|-|-|
-|int8|8(1)|
-|unint8|8(1)||
-|int16|16(2)||
-|unint16|16(2)||
-|int32|32(4)||
-|uint32|32(4)||
-|int64|64(8)||
-|uint64|64(8)||
-|int|32(4)/64(8)||
-|uint|32(4)/64(8)||
-|byte|32(4)||
-|rune|32(4)||
-|uintptr|||
+Go 语言同时提供了有符号和无符号整数类型，不同整数类型之间即使可以表示相同的数值，在需要赋值时也需要显式的类型转换。
 
 任何大小整数字面值都可以用以 0 开始的八进制格式书写，或者用以 0x 或 0X 开头的十六进制格式书写：
+
 ```go
 fmt.Printf("%016b\n", 0666)
 fmt.Printf("%032b\n", 0xdeadbeef)
@@ -1109,19 +1079,31 @@ func soleTitle(doc *html.Node) (title string, err error) {
 ## 面向对象
 
 ### 命名类型
-### 方法
 
+通过 `type` 关键字可以创建新的类型，称为命名类型。命名类型用于隔离具有相同底层类型但有不同概念的类型，使得它们即使有相同的底层类型也是不兼容的。
+
+还可以通过类型别名为类型创建一个别名。类型别名只是一个别名，并没有创建新的类型，其本质还是底层类型。
+
+```go
+type byte = int8
+type rune = int32
+
+var a int32 = 32
+var x rune = a  // rune 类型本质是 int32，所以无需类型转换
+```
+
+### 方法
 在函数名前添加一个接收器(receiver)参数即定义了一个方法，接收器参数会将函数附加到对应类型上，相当于为这种类型定义了一个独占的函数。
 ```go
 func (r type) name(parameter_list) retrun_list{
     func_body
 }
 ```
-任意命名类型都可以定义方法，只要命名类型的底层类型不是指针或者 `interface`， go 不支持方法的重载，因此命名类型中不能有相同的方法名。
+任意命名类型都可以定义方法，只要命名类型的底层类型不是指针或者 `interface`。不同的类型可以有相同的方法名，但是不同的命名类型不能有相同的方法名。
 ```go
-func (p Point) Distance(q Point){}
-// 编译错误，go 不支持重载
-func (p Point) Distance(q, x Point){}
+type Path []Point
+
+func(path Path) Distance(){}
 ```
 方法的接收器参数在方法调用时需要深度值拷贝，当方法的接收器变量本身比较大或者需要在方法中改变接收器参数时，可以使用指针作为接收器来声明方法。一般约定如果某个命名类型存在指针作为接收器的方法，则这个命名类型的所有方法的接收器参数应该都为指针。
 ```go
@@ -1136,49 +1118,17 @@ r := Point{1, 2}
 
 (&r).ScaleBy(2)
 fmt.Println(*r) // "{2, 4}"
-fmt.Println((&r).Distance(Point{4,6}))
 
 r.ScaleBy(2)
 fmt.Println(*r) // "{2, 4}"
 ```
-如果方法的 receiver 是非指针类型，则调用方法时存在一次 receiver 拷贝，如果 receiver 是指针类型则在调用方法的时候只是一次指针拷贝，指针指向的还是同一块内存地址
+接收器对于方法来说也是参数，因此对于接收器的零值为 Nil 的方法来说，Nil 是一个合法的接收器，但是在方法内部对接收器的 nil 零值操作必须合法：
 ```go
-type Point struct {
-    x, y int
-}
-
-func (p *Point) distance(){
-    fmt.Printf("address: %q\n", p)
-}
-
-func (p Point) distance2(){
-    fmt.Printf("address: %q\n", &p)
-}
-
-func show(){
-    p := Point{
-        x:1,
-        y:2,
-    }
-
-    fmt.Printf("address: %q\n", &p)
-
-    (&p).distance()
-    p.distance()
-
-    (&p).distance2()
-    p.distance2()
-}
-```
-receiver 对于方法来说也是参数，因此对于接收器的零值为 Nil 的方法来说，Nil 是一个合法的接收器，但是在方法内部对接收器的 nil 零值操作必须合法：
-```go
-// An IntList is a linked list of integers.
-// A nil *IntList represents the empty list.
 type IntList struct {
     Value int
     Tail  *IntList
 }
-// Sum returns the sum of the list elements.
+
 func (list *IntList) Sum() int {
     if list == nil {
         return 0
@@ -1186,71 +1136,41 @@ func (list *IntList) Sum() int {
     return list.Value + list.Tail.Sum()
 }
 ```
-
-通过嵌入类型，外部类型可以作为接收器调用嵌入类型的方法，即使外部类型没有声明这些方法。这种内嵌类型的方式不是 "is a"，而是 "has a"，编译器会生成额外的包装方法来适配内嵌类型的方法。
-
-可以定义和嵌入类型相同的方法名以覆盖嵌入类型的同名方法；编译器在调用方法时首先查找直接定义在类型的方法，然后查找嵌入类型的方法
+对于嵌入类型，编译器会生成额外的包装方法来使得外部类型可以像调用自身定义的方法一样调用内嵌类型的方法，当外部类型和嵌入类型有相同的方法名时，外部定义的方法会覆盖内嵌类型的方法。
 ```go
 type ColorPoint struct {
     Point
     color.RGBA
 }
 
-func (c *ColoredPoint) distance(){
+func (c *ColoredPoint) Distance(){
     fmt.Println("distance in coloredPoint")
 }
 
-c.distance() // distance in coloredPoint
+c.Distance() // distance in coloredPoint
 ```
-内嵌类型可以是指针，此时字段和方法会被间接地引入当前类型中，可以共享通用的结构并动态改变对象之间的关系：
-```go
-type ColorPoint struct{
-    *Point
-    Color color.RGBA
-}
+#### 方法值
+方法是绑定到接收器参数的特殊函数，通过方法值和方法表达式可以将方法转换为函数类型。方法值需要绑定接收器，语法为 `receiver.method`，方法值在调用时不需要指定接收器，只需要传入参数即可。
 
-p := ColoredPoint{&Point{1, 1}, red}
-q := ColoredPoint{&Point{5, 4}, blue}
-fmt.Println(p.Distance(*q.Point)) // "5"
-q.Point = p.Point                 // p and q now share the same Point
-p.ScaleBy(2)
-fmt.Println(*p.Point, *q.Point) // "{2 2} {2 2}"
-```
-方法只能在命名类型或者指向类型的指针上定义，通过内嵌类型可以使匿名 struct 类型拥有了方法
 ```go
-var cache = struct{
-    sync.Mutex
-    mapping map[string]string
-}{
-    mapping: make(map[string]string),
-}
-
-func Lookup(key string) string{
-    cache.Lock()
-    v := cache.mapping[key]
-    cache.Unlock()
-    return v
-}
-```
-##### 方法值
-方法是绑定到接收器参数的特殊函数，因此方法也可以向函数一样作为值赋值给变量。方法值在调用时不需要指定接收器，只需要传入参数即可。
-```go
+// 方法值
 s := p.distance
+// 参数类型为函数
 func methodValue(f func()){
     f()
 }
 methodValue(s)
 ```
-和方法值不同，方法表达式不会绑定接收器，但是需要将第一个参数作为接收器。方法表达式写作 ```T.f``` 或者 ```(*T).f```，其中 T 是类型，f 是该类型的方法名。：
+方法表达式不会像方法值一样绑定接收器，但是需要将第一个参数作为接收器。方法表达式写作 ```T.f``` 或者 ```(*T).f```，其中 T 是类型，f 是该类型的方法名。：
 ```go
-func (p *Point) Add(q *Point) *Point{
-    return &Point{
+func (p Point) Add(q Point) Point{
+    return Point{
         x: p.x + q.x,
         y: p.y + q.y,
     }
 }
-func (p *Point) Sub(q *Point) *Point{
-    return &Point{
+func (p Point) Sub(q Point) Point{
+    return Point{
         x: p.x - q.x,
         y: p.y - q.y,
     }
@@ -1258,20 +1178,21 @@ func (p *Point) Sub(q *Point) *Point{
 
 type Path []Point
 
-func (path *Path) TranslateBy(offset *Point, add bool){
-    // 函数的第一个参数作为接收器
-    var op fun(p, q *Point) *Point
+func (path Path) TranslateBy(offset Point, add bool){
+    // 定义函数类型
+    var op fun(p, q Point) Point
+    // 方法表达式赋值给函数类型变量
     if add{
-        op = (*Point).Add
+        op = Point.Add
     }else{
-        op = (*Point).Sub
+        op = Point.Sub
     }
-    for i := range *path{
-        (*path)[i] = *op(&(*path)[i], offset)
+    for i := range path{
+        path[i] = op(path[i], offset)
     }
 }
 ```
-##### 封装
+#### 封装
 一个对象的变量或者方法如果对调用方是不可见的话，一般就被定义为封装。封装也称为信息隐藏，Go 语言中控制字段的可见性使用首字母大写标识，基于名字的可见性使得在语言中最小的封装单元是 package。
 
 封装提供了三方面的优点：
@@ -1284,7 +1205,7 @@ func (c *Counter) N() int     { return c.n }
 func (c *Counter) Increment() { c.n++ }
 func (c *Counter) Reset()     { c.n = 0 }
 ```
-#### 接口
+### 接口
 通过组合、封装和接口使得 Go 语言具备了对 OOP 的支持。接口类型是一种抽象的类型，描述了一系列方法的集合。
 
 Go语言中接口类型的独特之处在于它是隐式实现的，也就是说在定义具体类型的时候不需要显式声明其实现的接口类型，而是简单的实现这些接口类型的方法即可。这种设计可以使新创建的接口类型满足已经存在的具体类型却不需要改变具体类型的定义，当使用的具体类型来自不受控制的包时这种设计尤其有用。
@@ -1334,7 +1255,7 @@ var any interface{}
 any = 1234
 any = true
 ```
-##### 接口值
+#### 接口值
 接口类型的值是由两部分构成：动态类型和动态值(类型的值)。**接口值的零值是 nil，此时它的类型和值都是 nil**。
 
 两个接口值具有相同的动态类型且动态类型可比较的情况下才是可比较的。因此当接口类型作为 map 的 key 或者结构体类型时需要注意可能会由于接口类型的值不具有可比较性而 panic
@@ -1392,10 +1313,10 @@ swithc x.(type){
     default:        // ...
 }
 ```
-### 并发
+## 并发
 Go 语言中的并发编程有两种实现手段：goroutine-channel 和 多线程共享内存。goroutine-channel 支持顺序通信进程(communication sequential processes, CSP)编程模型，这种模型总值会在不同的运行实例(goroutine)中传递。
 
-#### goroutine
+### goroutine
 Go 语言中每个并发地执行单元称为一个 goroutine。主函数在一个单独的 goroutine 中运行，称为 main goroutine。新建 goroutine 需要使用 go 语句实现，即在函数或方法调用前加关键字 go，go 语句将语句中的函数在一个新创建的 goroutine 中运行。当 main goroutine 退出时，所有的 goroutine 会中断。
 ```go
 func main(){
@@ -1421,7 +1342,7 @@ func fib(x int) int{
     return fib(x-1) + fib(x-2)
 }
 ```
-#### channel
+### channel
 channel 是 goroutine 之间的通信机制，可以让 goroutine 间通过 channel 发送消息。每个 channel 都有一个特殊的类型，即可以发送数据的类型。使用内置的 make 函数创建 channel。
 ```go
 ch := make(chan int)
@@ -1544,7 +1465,7 @@ func cancelled() bool{
     }
 }
 ```
-#### 共享内存
+### 共享内存
 如果一个函数在并发地情况下依然可以正确地工作，则这个函数是并发安全的，并发安全地函数不需要额外的同步工作。如果一个类型的所有访问方法和操作都是并发安全的，则这个类型就是并发安全的。
 
 竞争条件指的是程序在多个 goroutine 并发执行时导致错误的结果。数据竞争是一个特定的竞争条件，会在两个以上的 goroutine 并发访问相同的变量且至少其中一个为写操作时发生。
@@ -1574,7 +1495,7 @@ func Icon(name string) image.Image {
 ```
 Go 提供了竞争检查器(the race detector) 用于动态分析竞争条件，只需要在 ```go build``` 或者 ```go run``` 或者 ```go test``` 命令后面添加 ```-race``` 的 flag 就会使编译器创建一个附带了能够记录所有运行期对共享变量访问工具的 test，并且会记录下每一个读或者写共享变量的 goroutine 的身份信息。
 
-#### goroutine 和线程
+### goroutine 和线程
 每个 OS 线程都有一个固定大小的内存块(一般是 2MB)来做栈，这个栈会用来存储当前线程正在被调用或挂起的的函数的内部变量，这个固定大小的内存对于一个很小的 goroutine 来说是很大的内存浪费，另一方面对于层次比较深的递归函数来说这个固定大小的栈内存又会显得不够。goroutine 会在创建时只会分配一个很小的栈内存(2 KB)，但是 goroutine 的栈大小并不固定，可以动态的伸缩，最大值有 1 GB，因此 go 程序中可以同时创建成百上千的 goroutine。
 
 OS 线程会被操作系统内核调度，每几毫秒一个硬件计时器就会中断处理器并调用一个叫做 scheduler 的内核函数，这个函数会挂起当前执行的线程并将此线程的寄存器内容保存在内存，然后通过检查线程列表决定下个被执行的线程并从内存中恢复该线程的寄存器信息，然后恢复执行该线程的现场并开始执行该线程。操作系统线程被内核调度，从一个线程向另一个线程切换的过程需要几次内存(用户态)到寄存器(内核态)的数据访问，会增加运行 cpu 周期。
@@ -1587,11 +1508,11 @@ Go 的调度器使用 ```GOMAXPROCS``` 变量来决定会有多少个操作系�
 ```
 Go 中 goroutine 没有 ID，因此不会向其他语言意向可以做 thread-local 存储。
 
-### 测试
-#### 子测试
-#### 并行测试
-#### 压力测试
-### 命令行
+## 测试
+### 子测试
+### 并行测试
+### 压力测试
+## 命令行
 
 Go 语言的工具箱集合了一系列的功能的命令集，使用 ```go``` 或者 ```go help``` 命令可以查看内置的帮助文档。
 
