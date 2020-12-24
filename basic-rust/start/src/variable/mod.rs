@@ -44,6 +44,7 @@ fn scope_bind(){
 
         // 覆盖前面的变量绑定
         let long_lived_binding = 5_f32;
+        println!("inner long: {}", long_lived_binding);
     }
 
     // println!("outer short: {}", short_lived_binding);    // 超出作用域范围导致编译错误

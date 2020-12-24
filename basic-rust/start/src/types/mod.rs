@@ -71,7 +71,7 @@ fn type_inference(){
     println!("{:?}", vec);
 }
 
-// Rust 使用 type 生命语句给存在的类型重新命名，类型名必须是驼峰式的，否则编译器抛出告警信息(原生类型除外)
+// Rust 使用 type 声明语句给存在的类型重新命名，类型名必须是驼峰式的，否则编译器抛出告警信息(原生类型除外)
 // 别名的作用最主要是减少冗余，例如 IoResult<T> 是 Result<T, IoError> 的别名
 fn type_aliasing(){
 
