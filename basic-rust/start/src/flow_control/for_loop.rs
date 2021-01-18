@@ -30,7 +30,32 @@ fn for_iterator() {
         }
     }
 
-    // into_iter
+    // into_iter 迭代会获取集合的所有权，循环后不可重用
     let names_into = vec!["Bob", "Frank", "Ferris"];
+    for name in names_into.into_iter(){
+        match name {
+            "Ferris" => println!("There is a rustacean among us!"),
+            _ => println!("Hello {}", name),
+        }
+    }
 
+    // iter_mut 可变借用可以改变集合中元素的值
+    let mut names_mut = vec!["Bob", "Frank", "Ferris"];
+    for name in names_mut.iter_mut() {
+        *name = match name {
+            &mut "Ferris" => "There is a rustacean among us!",
+            _ => "Hello",
+        }
+    }
+    println!("names: {:?}", names_mut)
+}
+
+#[test]
+fn test_for_range(){
+    for_range();
+}
+
+#[test]
+fn test_for_iterator(){
+    for_iterator();
 }
