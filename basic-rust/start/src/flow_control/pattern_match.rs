@@ -123,6 +123,15 @@ fn match_binding() {
         n @ 13..=19 => println!("I'm a teen of age {:?}", n),
         n => println!("I'm an old person of age {:?}", n),
     }
+
+    fn some_number() -> Option<u32> {
+        Some(42)
+    }
+    match some_number() {
+        Some(n @ 42) => println!("The Answer: {}!", n),
+        Some(n) => println!("Not interesting... {}", n),
+        _ => (),
+    }
 }
 
 #[test]
@@ -141,6 +150,6 @@ fn test_match_guard() {
 }
 
 #[test]
-fn test_match_binding(){
+fn test_match_binding() {
     match_binding();
 }
