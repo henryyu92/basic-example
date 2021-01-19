@@ -25,6 +25,7 @@ fn loop_control() {
 }
 
 // 在 loop 嵌套的情况下，使用 'label 可以 break 或者 continue 外部的 loop 循环
+#[allow(unused_labels)]
 fn label_loop() {
     'outer: loop {
         println!("Enter the outer loop");

@@ -2,6 +2,7 @@
 
 use std::fmt::Formatter;
 
+#[allow(unused_variables)]
 fn type_tuple(){
 
     use std::fmt;

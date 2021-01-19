@@ -76,6 +76,7 @@ fn declare_bind(){
 }
 
 // 当变量被同名的不可变量绑定时就会冻结，直到在作用域范围外才能修改值
+#[allow(dead_code)]
 fn freezing_bind(){
 
     let mut _mutable_integer = 7i32;

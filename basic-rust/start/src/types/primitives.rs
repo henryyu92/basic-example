@@ -7,7 +7,7 @@
 
 // 复合类型
 // array, tuple
-
+#[allow(unused_variables, unused_assignments)]
 fn primitive_type(){
 
     // 指定变量类型

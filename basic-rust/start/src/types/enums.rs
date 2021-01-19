@@ -1,29 +1,29 @@
 // enum 关键字用于创建枚举类型，任意类型都可以作为有效的枚举
 
-enum WebEvent{
+enum WebEvent {
     PageLoad,
     PageUnload,
     KeyPress(char),
     Paste(String),
-    Click{x:i64, y:i64},
+    Click { x: i64, y: i64 },
 }
 
-fn inspect(event: WebEvent){
+fn inspect(event: WebEvent) {
     match event {
         WebEvent::PageLoad => println!("page loaded."),
         WebEvent::PageUnload => println!("page unloaded."),
         WebEvent::KeyPress(c) => println!("pressed '{}'", c),
         WebEvent::Paste(s) => println!("pasted \"{}\"", s),
-        WebEvent::Click {x, y} => {
+        WebEvent::Click { x, y } => {
             println!("clicked at x ={}, y={}", x, y);
-        },
+        }
     }
 }
 
 // 类型别名
-fn type_aliases(){
-
-    enum VeryVerboseEnumOfThingsToDoWithNumbers{
+#[allow(dead_code, unused_variables)]
+fn type_aliases() {
+    enum VeryVerboseEnumOfThingsToDoWithNumbers {
         Add,
         Subtract,
     }
@@ -34,8 +34,8 @@ fn type_aliases(){
     let x = Operations::Add;
 
     // 实现自动创建别名 Self
-    impl VeryVerboseEnumOfThingsToDoWithNumbers{
-        fn run(&self, x:i32, y:i32) -> i32{
+    impl VeryVerboseEnumOfThingsToDoWithNumbers {
+        fn run(&self, x: i32, y: i32) -> i32 {
             match self {
                 Self::Add => x + y,
                 Self::Subtract => x - y,
@@ -45,17 +45,19 @@ fn type_aliases(){
 }
 
 #[derive(Debug)]
-enum Status{
+enum Status {
     Rich,
     Poor,
 }
 
-enum Work{
+#[allow(dead_code)]
+enum Work {
     Civilian,
     Soldier,
 }
+
 // use 声明
-fn use_declare(){
+fn use_declare() {
 
     // 隐藏 unused code 的警告
     #![allow(dead_code)]
@@ -70,7 +72,7 @@ fn use_declare(){
     let status = Poor;
     let work = Civilian;
 
-    match status{
+    match status {
         Rich => println!("The rich have lots of money!"),
         Poor => println!("The poor have no money..."),
     }
@@ -79,21 +81,19 @@ fn use_declare(){
         Civilian => println!("Civilians work!"),
         Soldier => println!("Soldiers fight!"),
     }
-
 }
 
 
-fn c_like(){
-
+fn c_like() {
     #![allow(dead_code)]
 
-    enum Number{
+    enum Number {
         Zero,
         One,
         Two,
     }
 
-    enum Color{
+    enum Color {
         Red = 0xff0000,
         Green = 0x00ff00,
         Blue = 0x0000ff,
@@ -104,29 +104,27 @@ fn c_like(){
 
     println!("roses are #{:06x}", Color::Red as i32);
     println!("violets are #{:06x}", Color::Blue as i32);
-
 }
 
-// A common use for enums is to create a linked-lis
-fn linked_list(){
-
-    enum List{
+// A common use for enums is to create a linked-list
+fn linked_list() {
+    enum List {
         // 包含当前节点元素以及下个节点的指针的 tuple
         Cons(u32, Box<List>),
         // linked list 的结束标识
         Nil,
     }
-    impl List{
+    impl List {
         // 创建一个空 List
-        fn new() -> List{
+        fn new() -> List {
             List::Nil
         }
         // 在 linked list 的头插入元素
-        fn prepend(self, elem:u32)-> List{
+        fn prepend(self, elem: u32) -> List {
             List::Cons(elem, Box::new(self))
         }
 
-        fn len(&self) ->u32{
+        fn len(&self) -> u32 {
             // self 是 &List 类型， *self 是 List 类型
             // 匹配具体的类型优先与引用类型的匹配
             match *self {
@@ -135,12 +133,12 @@ fn linked_list(){
             }
         }
 
-        fn stringify(&self) -> String{
+        fn stringify(&self) -> String {
             match *self {
                 List::Cons(head, ref tail) => format!("{}, {}", head, tail.stringify()),
-                List::Nil =>{
+                List::Nil => {
                     format!("Nil")
-                },
+                }
             }
         }
     }
@@ -155,14 +153,13 @@ fn linked_list(){
 }
 
 #[test]
-fn test_inspect(){
-
+fn test_inspect() {
     let pressed = WebEvent::KeyPress('x');
     // `to_owned()` creates an owned `String` from a string slice.
-    let pasted  = WebEvent::Paste("my text".to_owned());
-    let click   = WebEvent::Click { x: 20, y: 80 };
-    let load    = WebEvent::PageLoad;
-    let unload  = WebEvent::PageUnload;
+    let pasted = WebEvent::Paste("my text".to_owned());
+    let click = WebEvent::Click { x: 20, y: 80 };
+    let load = WebEvent::PageLoad;
+    let unload = WebEvent::PageUnload;
 
     inspect(pressed);
     inspect(pasted);
@@ -172,16 +169,16 @@ fn test_inspect(){
 }
 
 #[test]
-fn test_use_declare(){
+fn test_use_declare() {
     use_declare();
 }
 
 #[test]
-fn test_c_like(){
+fn test_c_like() {
     c_like();
 }
 
 #[test]
-fn test_linked_list(){
+fn test_linked_list() {
     linked_list();
 }
