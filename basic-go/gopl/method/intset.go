@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// IntSet is a set if small non-negative integers.
+// IntSet is a set of small non-negative integers.
 // Its zero value represents the empty set.
 type IntSet struct {
 	words []uint64

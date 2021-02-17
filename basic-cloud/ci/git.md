@@ -4,7 +4,7 @@
 - git remote -v：查看远程仓库详情
 - git remote add <remote_repo_name> <repo_url>：添加远程仓库
 - git fetch <remote_repo>：拉取远程仓库的所有分支
-- git remote renane <old> <new>：重命名远程仓库
+- git remote rename <old> <new>：重命名远程仓库
 - git remote rm <repo_name>：删除远程仓库
 - git clone <repo_url>：克隆仓库到本地
 
