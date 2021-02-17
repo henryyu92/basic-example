@@ -1,13 +1,13 @@
-// rust 原生数据类型
+// rust 原生数据类型(scalar type)
 // 有符号整数： i8, i16, i32, i64, i128 和 isize(指针的大小)
 // 无符号整数： u8, u16, u32, u64, u128 和 usize
 // 浮点数： f32, f64
 // 字符： char，每个字符占用 4 个字节
 // 布尔值： true 和 false
 
-// 复合类型
+// 复合类型(compound type)
 // array, tuple
-
+#[allow(unused_variables, unused_assignments)]
 fn primitive_type(){
 
     // 指定变量类型

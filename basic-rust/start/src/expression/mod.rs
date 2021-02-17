@@ -1,5 +1,6 @@
 // Rust 程序基本上是由一系列的语句构成，语句最常见的就是 变量绑定 和 表达式+;
 
+#[allow(unused_must_use)]
 fn expression(){
 
     let x = 5;     // 变量绑定

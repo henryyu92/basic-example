@@ -2,7 +2,7 @@ mod hello;
 mod types;
 mod variable;
 mod expression;
-mod flowcontrol;
+mod flow_control;
 
 fn main() {
     println!("hello world !")
