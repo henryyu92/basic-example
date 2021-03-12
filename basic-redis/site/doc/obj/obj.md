@@ -21,9 +21,7 @@ typedef struct redisObject {
 ### 字符串对象
 
 字符串对象的编码可以是 int, raw 和 embstr：
-- 如果字符串对象保存的是整数并且这个整数值可以用 long 类型来表示，则 encoding 为 int 且 ptr 保存了整数值
-- 如果字符串对象保存的是字符串值并且这个字符串值的长度大于 32 字节，那么字符串对象使用简单动态字符串(SDS)保存字符串值并将 encoding 设置为 raw
-- 如果字符串对象保存的是字符串值并且这个字符串值的长度小于等于 32 字节，那么字符串对象将使用 embstr 编码方式保存字符串值
+- 
 
 embstr 编码专门用于保存短字符串，这种编码和 raw 一样使用 redisObject 和 sdshdr 结构表示字符串，不同的是 raw 需要两次内存分配创建 redisObject 和 sdshdr 结构，而 embstr 调用一次内存分配来分配一块连续的空间包含 redisObject 和 sdshdr 两个结构。
 
