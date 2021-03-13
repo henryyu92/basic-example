@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/rustpl/guessing_game/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/leetcode/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/start/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rustpl/restaurant/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rustpl/async_await_http_server/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rustpl/ownership/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/leetcode/target" />
+      <excludeFolder url="file://$MODULE_DIR$/rustpl/async_await_http_server/target" />
+      <excludeFolder url="file://$MODULE_DIR$/rustpl/guessing_game/target" />
+      <excludeFolder url="file://$MODULE_DIR$/rustpl/ownership/target" />
+      <excludeFolder url="file://$MODULE_DIR$/rustpl/restaurant/target" />
+      <excludeFolder url="file://$MODULE_DIR$/start/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

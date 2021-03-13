@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/basic-dubbo/basic-dubbo.iml" filepath="$PROJECT_DIR$/basic-dubbo/basic-dubbo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic-example.iml" filepath="$PROJECT_DIR$/basic-example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic-net/basic-grpc/basic-grpc.iml" filepath="$PROJECT_DIR$/basic-net/basic-grpc/basic-grpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic-net/basic-net.iml" filepath="$PROJECT_DIR$/basic-net/basic-net.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic-net/basic-netty/basic-netty.iml" filepath="$PROJECT_DIR$/basic-net/basic-netty/basic-netty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic-redis/basic-redis.iml" filepath="$PROJECT_DIR$/basic-redis/basic-redis.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="basic-netty" />
+        <module name="basic-dubbo" />
+        <module name="basic-redis" />
+        <module name="basic-grpc" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="basic-dubbo" target="1.8" />
+      <module name="basic-example" target="1.5" />
+      <module name="basic-grpc" target="1.8" />
+      <module name="basic-net" target="1.8" />
+      <module name="basic-netty" target="1.8" />
+      <module name="basic-redis" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
