@@ -13,12 +13,12 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="basic-dubbo" target="1.8" />
+      <module name="basic-dubbo" target="11}" />
       <module name="basic-example" target="1.5" />
-      <module name="basic-grpc" target="1.8" />
-      <module name="basic-net" target="1.8" />
-      <module name="basic-netty" target="1.8" />
-      <module name="basic-redis" target="1.8" />
+      <module name="basic-grpc" target="11}" />
+      <module name="basic-net" target="11}" />
+      <module name="basic-netty" target="11}" />
+      <module name="basic-redis" target="11}" />
     </bytecodeTargetLevel>
   </component>
 </project>
