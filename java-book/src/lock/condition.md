@@ -201,6 +201,3 @@ final boolean transferForSignal(Node node) {
 ```
 
 Condition 对象的 ```signalAll``` 方法相当于对等待队列中的每个节点都执行了一个 ```signal``` 方法，效果就是将等待队列中的所有节点全部移动到同步队列中，并唤醒每个节点的线程。
-
-
-**[Back](../../)**
