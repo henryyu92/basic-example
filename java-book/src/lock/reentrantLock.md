@@ -48,7 +48,7 @@ protected final boolean tryRelease(int releases) {
 
 ### 公平与非公平
 
-锁的公平性与否是针对获取锁的线程而言的，如果一个锁是公平的那么获取锁的顺序就应该是线程请求锁的顺序；以 ReentrantLock 中的公平锁为例，tryAcquire 中增加对是有前驱节点的判断：
+锁的公平性与否是针对获取锁的线程而言的，如果一个锁是公平的那么获取锁的顺序就应该是线程请求锁的顺序；以 `ReentrantLock` 中的公平锁为例，`tryAcquire` 中增加对是有前驱节点的判断：
 ```java
 protected final boolean tryAcquire(int acquires) {
     final Thread current = Thread.currentThread();

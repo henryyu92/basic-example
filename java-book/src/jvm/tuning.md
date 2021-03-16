@@ -1,4 +1,7 @@
+## 调优
+
 ### GC 日志
+
 ```shell
 [GC (Allocation Failure) [PSYoungGen: 6248K->792K(9216K)] 6248K->4896K(19456K), 0.0014864 secs] 
 [Times: user=0.00 sys=0.00, real=0.00 secs]
@@ -124,6 +127,7 @@ GCT
 #### jinfo
 实时查看和调整虚拟机各项参数，使用 jinfo -flag [+|-]name 或者 jinfo -flag name=value 可以修改一些运行期可写的虚拟机参数
 ```shell
+
 ```
 #### jmap
 jmp 命令用于生成堆转储快照
