@@ -3,7 +3,6 @@
 - [JVM](./jvm.md)
   * [内存管理](./jvm/memory.md)
   * [垃圾收集](./jvm/gc.md)
-  * [内存分配](./jvm/memory-allocate.md)
   * [监控调优](./jvm/tuning.md)
 - [类加载](./loader.md)
   * [类加载机制](./loader/class-load.md)
