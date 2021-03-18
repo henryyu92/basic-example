@@ -30,6 +30,17 @@ Java 中可作为 `GC Root` 的对象有：
 - **弱引用(Weak Reference)**：  被弱引用关联的对象只能生存到下一次垃圾收集发生之前；当垃圾收集器工作时，无论内存是否足够都会回收掉只被弱引用关联的对象；jdk 提供 `WeakReference` 类实现弱引用
 - **虚引用(Phantom Reference)**： 对象是否有虚引用的存在完全不会影响该对象的生存时间，也无法通过虚引用获取对象的实例。为对象设置虚引用的唯一目的就是能在这个对象被垃圾收集器回收时收到一个系统通知；jdk 提供 `PhantomReference` 类实现虚引用
 
+```java
+// 强引用
+Object o = new Object();
+// sr 持有 o 的软引用
+SoftReferenc sr = new SoftReference(o);
+
+WeakReference wr = new WeakReference(o);
+```
+
+
+
 ### 垃圾收集算法
 
 虚拟机遵循“分代收集”的理论设计，根据分代理论收集器应该将 Java 堆划分出不同的区域，然后回收对象依据其年龄(对象熬过垃圾收集过程的次数)分配到不同的区域之中存储。
@@ -150,7 +161,7 @@ HotSpot 虚拟机的垃圾收集器实现中CMS 是基于增量更新来做并�
 
 ### 垃圾收集器
 
-垃圾收集器是垃圾收集算法的具体实现，HotSpot 虚拟机实现了多种垃圾收集器，分别作用与不同分代。通过组合这些垃圾收集器可以完成整个堆的垃圾收集。
+垃圾收集器是垃圾收集算法的具体实现，HotSpot 虚拟机实现了多种垃圾收集器，分别作用于不同分代。通过组合这些垃圾收集器可以完成整个堆的垃圾收集。
 
 垃圾收集器组合：
 - Serial + Serial Old
@@ -161,9 +172,9 @@ HotSpot 虚拟机的垃圾收集器实现中CMS 是基于增量更新来做并�
 
 #### Serial 收集器
 
-Serial 垃圾收集器采用标记-复制垃圾收集算法，使用单线程进行垃圾收集，也就是说 Serial 垃圾收集器使用一个线程收集垃圾，并且在进行垃圾收集时，必须暂停所有的工作线程直到垃圾收集结束。
+Serial 垃圾收集器是新生代收集收集器，采用标记-复制垃圾收集算法，使用单线程进行垃圾收集，也就是说 Serial 垃圾收集器使用一个线程收集垃圾，并且在进行垃圾收集时，必须暂停所有的工作线程直到垃圾收集结束。
 
-![Serial 收集器](../../resources/serial.png)
+![Serial 收集器](../img/serial.png)
 
 Serial 收集器相关 JVM 参数：
 - ```-XX:+UseSerialGC```：表示新生代使用 Serial 收集器进行垃圾收集
@@ -172,12 +183,11 @@ Serial 收集器相关 JVM 参数：
 
 #### ParNew 收集器
 
-ParNew 垃圾收集器是 Serial 垃圾收集器的多线程版本，除了使用多线程进行垃圾收集之外，其余行为（包括控制参数、收集算法等）和 Serial 收集器完全一样。ParNew 收集器是使用了 -XX:+UseConcMarkSweepGC 后默认的新生代垃圾收集器。
+ParNew 垃圾收集器是 Serial 垃圾收集器的多线程版本，除了使用多线程进行垃圾收集之外，其余行为（包括控制参数、收集算法等）和 Serial 收集器完全一样。ParNew 收集器是使用了 `-XX:+UseConcMarkSweepGC`  后默认的新生代垃圾收集器。
 
-![ParNew 收集器](../../resources/parNew.png)
+![ParNew 收集器](../img/parNew.png)
 
 ParNew 收集器相关 JVM 参数：
-- ```-XX:+UseParNewGC```：表示新生代使用 ParNew 收集器进行垃圾收集
 - ```-XX:PretenureSizeThreshold=n```：设置直接晋升到老年代的对象大小，设置这个参数后，大于这个参数的对象直接在老年代分配，如 -XX:PretenureSizeThreshold=3145728(而不是 3m)
 - ```-XX:MaxTenuringThreshold=15```：设置对象经过多少次 minor gc 之后进入老年代，默认 15
 - ```-XX:ParallelGCThreads=10```：指定 ParNew 收集器进行垃圾收集的线程数，默认和 CPU 核数相同
@@ -198,6 +208,8 @@ Parallel Scavenge 垃圾收集器相关 JVM 参数：
 
 Serial Old 是 Serial 收集器的老年代版本，它同样是一个单线程收集器，使用”标记-整理“算法；主要用于 作为 CMS 收集器的后备预案，在发生 Concurrent Mode Failure 时使用；
 
+![](../img/serial.png)
+
 
 #### Parallel Old 收集器
 
@@ -210,9 +222,9 @@ Parallel Old 收集器相关 JVM 参数：
 
 #### CMS 收集器
 
-CMS(Concurrent Mark Sweep) 收集器是一种以获取最短回收停顿时间为目标的收集器。CMS 收集器是基于“标记-清除”算法实现，具体分为四个阶段：
-- 初始标记(CMS initial mark)：**初始标记需要 “Stop The World”**，它仅仅是标记一下 GC Root 能直接关联到的对象，速度很快；
-- 并发标记(CMS concurrent mark)：并发标记进行 GC Roots Tracing 的过程，比较耗时，但是并发标记可以和用户线程一起工作，所以并不会影响 GC 时间
+CMS (Concurrent Mark Sweep) 收集器是一种以获取最短回收停顿时间为目标的收集器。CMS 收集器是基于“标记-清除”算法实现，具体分为四个阶段：
+- 初始标记(CMS initial mark)：**初始标记需要 “Stop The World”**，它仅仅是标记一下 `GC Roots` 能直接关联到的对象，速度很快；
+- 并发标记(CMS concurrent mark)：并发标记是从 `GC Roots` 开始遍历整个对象图的过程，比较耗时，但是并发标记可以和用户线程一起工作，不会影响 GC 的停顿
 - 重新标记(CMS remark)：**重新标记也需要 “Stop The World”**，是为了修正并发标记期间因用户线程继续运行而导致标记产生变动的那部分对象的标记记录，停顿时间比初始标记稍长
 - 并发清除(CMS concurrent sweep)：并发清除阶段是清除被标记的对象，可以和用户线程一起工作
 
@@ -234,30 +246,28 @@ CMS 收集器相关 JVM 参数：
 
 #### Garbage First 收集器
 
-G1 收集器将整个 Java 堆划分为多个大小相等的独立区域(Region)，每个 Region 都可以根据需要为新生代的 Eden 区、Survivor 区或者老年代，收集器能够对不同角色的 Region 采用不同的策略去处理。
+G1 收集器将整个 Java 堆划分为多个大小相等的独立区域(Region)，每个 Region 都可以根据需要作为新生代的 Eden 区、Survivor 区或者老年代，收集器能够对不同角色的 Region 采用不同的策略去处理。
 
-Region 中还有一类专门用于存储大对象的 Humongous 区域，只要对象大小超过了 Region 容量的一般则被认为是大对象。每个 Region 的大小可以通过参数 ```-XX:G1HeapRegionSize``` 设定，G1 将 Humongous Region 作为老年代的一部分看待。
+Region 中还有一类专门用于存储大对象的 Humongous 区域，只要对象大小超过了 Region 容量的一半则被认为是大对象。每个 Region 的大小可以通过参数 ```-XX:G1HeapRegionSize``` 设定，取值范围为 1M~32M，G1 将 Humongous Region 作为老年代的一部分看待。
 
 G1 以 Region 作为每次回收的最小单元，即每次收集到的内存空间都是 Region 大小的整数倍，这样可以有计划的避免在整个堆中进行全区域的垃圾收集。
 
-G1 收集器跟踪各个 Region 里面垃圾堆积的价值大小(回收所获得的空间大小以及回收所需要的时间的经验值)在后台维护一个优先列表，每次根据允许的垃圾收集时间(参数 ```-XX:MaxGCPauseMillis=200``` 指定)优先回收价值最大的 Region，这种回收方法保证了 G1 收集器在有限的时间内获取尽可能高的收集效率。
-
-G1 收集器的特点：
-- 并行和并发：G1 垃圾收集器可以使用多个 CPU 来缩短 Stop-The-World 停顿时间；部分其他收集器需要停顿 Java 线程执行 GC 动作，G1 仍然可以通过并发的方式让 Java 程序继续执行
-- 分代收集：G1 收集器中依然有分代的概念，但是 G1 不需要和其他收集器配合就能独立管理整个 GC 堆
-- 空间整合：G1收集器不会产生空间碎片，有利于程序长时间运行，分配大对象时不会因为没有足够的连续内存而提前触发下一次 GC
-- 可预测停顿：G1 收集器除了追求低停顿外，还能建立可预测的停顿模型，能让使用者明确指定在一个长度为 M 毫秒的时间片段内，消耗在垃圾收集上的时间不得超过 N 毫秒
+G1 收集器跟踪各个 Region 回收所获得的空间大小以及回收所需要的时间的经验值在后台维护一个优先列表，每次根据允许的垃圾收集时间(参数 ```-XX:MaxGCPauseMillis=200``` 指定)优先回收价值最大的 Region，这种回收方法保证了 G1 收集器在有限的时间内获取尽可能高的收集效率。
 
 G1 垃圾收集器的收集过程分为四个阶段：
-- **初始标记(Initial Marking)**：仅仅只是标记一个 GC Roots 能够直接关联到的对象，并且修改 TAMS(Top at Mark Start) 的值，让下一阶段用户线程并发运行时能够在正确可用的 Region 中创建对象，这个阶段需要停顿用户线程，但是时间很短
-- **并发标记(Concurrent Maarking)**：从 GC Roots 开始对堆中的对象进行可达性分析，找出存活对象，耗时较长，但是可以和用户线程并发执行
+- **初始标记(Initial Marking)**：仅仅只是标记一个 `GC Roots` 能够直接关联到的对象，并且修改 TAMS(Top at Mark Start) 的值，让下一阶段用户线程并发运行时能够在正确可用的 Region 中创建对象，这个阶段需要停顿用户线程，但是时间很短
+- **并发标记(Concurrent Marking)**：从 `GC Roots` 开始对堆中的对象进行可达性分析，找出存活对象，耗时较长，但是可以和用户线程并发执行
 - **最终标记(Final Marking)**：修正在并发标记期间因用户线程继续运行而导致标记产生变动的那一部分标记记录，需要停顿线程，但是可以并行执行
 - **筛选回收(Live Data Counting and Evacuation)**：首先对各个的 Region 的回收价值和成本进行排序，根据用户所期望的 GC 停顿来指定回收计划，将需要回收的 Region 中的存活对象复制到空的 Region 中，然后清理整个旧的 Region，这里需要移动存活对象，因此必须暂停用户线程
+
+![G1](../img/g1.png)
+
+G1 的每个 Region 中需要维护着一份记忆集，会导致消耗更多的内存空间。
 
 G1 垃圾收集器相关参数：
 - ```-XX:+UseG1GC```：设置使用 G1 收集器进行垃圾收集
 - ```-XX:G1HeapRegionSize=n```：设置 G1 Region 大小，每个 Region 大小可选范围 1m-32m，目标是根据最小的堆内存大小划分出约 2048 个 Region
-- ```-XX:MaxGCPauseMillis=n```：设置垃圾回收的最大时间
+- ```-XX:MaxGCPauseMillis=n```：设置垃圾回收的最大时间，默认 200ms
 - ```-XX:G1NewSizePercent=n```：设置新生代最小使用的空间比率，默认为 Java 堆内存的 5%
 - ```-XX:G1MaxNewSizePercent=n```：设置新生代最大使用的空间比率，默认为 Java 堆内存的 6%
 - ```-XX:ParallelGCThreads=n```：设置 STW 工作线程的数量，与使用的 CPU 数量有关，最大值是 8。如果 CPU 数据超过8，则最多可以设置总 CPU 数量的 5/8

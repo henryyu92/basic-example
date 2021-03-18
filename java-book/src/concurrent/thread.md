@@ -1,9 +1,11 @@
 ## 线程
+
 线程(`Thread`)是操作系统进行运算调度的最小单元，是进程中的实际运行单位。一个进程可以有多个线程，每个线程都有各自的计数器、堆栈和局部变量等属性，并且能够访问共享内存变量。
 
 `JVM` 中的线程和操作系统线程对应，采用抢占式的调度模型，每个线程在运行时只会占用一个 CPU，因此在多核多 CPU 的处理上使用多线程技术可以提供程序的执行效率。
 
 ### 线程状态
+
 `JVM` 定义了线程在从创建到销毁的整个生命周期中的 6 种状态，线程在整个生命周期中的任意时间点有且只能有其中一种状态：
 
 - **New**：线程已经创建但尚未调用 start 方法启动
@@ -19,6 +21,9 @@
 ### 线程创建
 
 线程对象在构造时需要提供线程所需要的属性，如线程所属的线程组、线程优先级、是否 Daemon 线程等。
+
+新创建的线程是以当前线程为父线程，在创建线程的过程中，子线程继承了父线程的属性并被分配了唯一的 ID 来标识线程。
+
 ```java
 private void init(ThreadGroup g, Runnable target, String name,
                       long stackSize, AccessControlContext acc,
@@ -52,8 +57,6 @@ private void init(ThreadGroup g, Runnable target, String name,
   // 分配 ID
   tid = nextThreadID();
 ```
-
-新创建的线程是以当前线程为父线程，在创建线程的过程中，子线程继承了父线程的属性并被分配了唯一的 ID 来标识线程。
 
 ### 线程中断
 中断是线程的一个标识位属性，它表示一个运行中的线程是否被其他线程进行了中断操作。
@@ -153,18 +156,34 @@ public class Profiler {
     }
 }
 ```
-// todo ThreadLocal 内存泄露
+每个线程内部持有一个 `ThreadLocalMap` 的引用，而 `ThreadLocalMap` 中存放的 `Entry` 持有对 `ThreadLocal`  的软引用，如果在某个时刻 `ThreadLocal` 不存在强引用，此时 `Entry` 中的 key 将会被回收，而 value 则不会回收，从而导致在线程退出前出现内存泄漏。
+
+线程池中的线程不会轻易销毁，如果在线程池中使用 `ThreadLocal` 则需要使用 `remove()` 方法移除不再使用的数据：
+
+```java
+final ThreadLocal<T> THREAD_LCOAL = ThreadLocal.withInitial(()-> System.currentTimeMillis())
+try{
+    // ...
+}finally{
+    THREAD_LOCAL.remove()
+}
+```
+
+
 
 ### `LockSupport`
-`LockSupport` 工具类定义了一组公共静态方法，这些方法提供了基本的线程阻塞和唤醒功能，成为构建同步组件的基础工具。
+
+`LockSupport` 工具类可以阻塞当前线程以及唤醒指定被阻塞的线程，使用来创建锁以及其他同步组件的基础工具。
+
+`LockSupport` 底层采用  Unsafe 实现，和 `wait/notify` 机制不同，调用 `park/unpark` 方法并不需要获取到锁对象，线程每次调用 `park` 方法是获取许可，如果获取不到则等待，而 `unpark` 方法则是释放指定线程的许可。
 
 - ```LockSupport.park(blocker)```： 表示阻塞当前线程直到 unpark 或者线程被中断才返回，blocker 表示当前线程等待的对象，主要使用方式是 ```LockSupport.lock(this)```
 - ```LockSupport.park(blocker, nanos)```： 带超时的阻塞直到 unpark 或者线程被中断才或者如果超时时间到达，当前线程才退出等待状态
 - ```LockSupport.parkUntil(blocker, deadline)```： 阻塞到 deadline 时刻到达或者线程被中断，当前线程退出等待状态
-- ```LockSupport.unpark(example.thread)```： 唤醒等待的线程
-```java
+- ```LockSupport.unpark(thread)```： 唤醒等待的线程
 
-```
+
+
 ### 等待/通知
 
 等待/通知机制是指一个线程 A 调用了对象 O 的 `wait()` 方法进入等待状态而另一个线程 B 调用了对象 O 的 `notify()` 方法或者 `notifyAll()` 方法，线程 A 收到通知后从对象 O 的 `wait()` 方法返回进而执行后续的操作。
@@ -176,68 +195,37 @@ public class Profiler {
 - 线程从 wait 方法返回的前提是获取到了调用对象的锁
 - `notify` 或者 `notifyAll` 方法的调用并不会释放锁，只有在 synchronized 执行完毕才会释放锁
 
-等待通知机制包含生产者和消费者两部分：生产者在获取到锁之后先调用 `notify` 唤醒消费者，然后在产生数据之后调用 `wait` 释放持有的锁，此时阻塞的消费者有机会获取到锁，然后消费完数据之后调用 `notify` 唤醒生产者线程并调用 `wait` 释放持有的锁：
-```java
-// 消费者
-synchronized(lock) {
-  lock.notify();
-  consume_data();
-  while(condition){
-    lock.wait();
-  }
-}
-
-// 生产者
-synchronized(lock){
-  // 改变条件使条件满足
-  change_condition();
-  // 通知等待在此对象上的线程
-  lock.notifyAll();
-}
-```
 使用等待/通知模型让两个线程交替打印奇偶数：
 ```java
 public class WaitNotifyPrintOddEvent{
     private static int count = 0;
     private static final Object lock = new Object();
     
-    Runnable odd = ()->{
+    Runnable r = ()->{
         synchronized(lock){
-            while(count <= 100 && count & 1 == 1){
+            while(count <= 100){
             	System.out.println("Thread-" + Thread.currentThread().getName() + ": " + count++);
-                if (cout <= 100){
-                    lock.wait();
+                lock.notify();
+                if (count <= 100){
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            lock.notify();
         }
     }
     
-    Runnable even = ()->{
-        
-    }
-    
-    public static void main(String[] args){
+    public void print(){
         new Thread(r, "偶数线程").start();
+        new Thread(r, "奇数线程").start();
     }
 }
 ```
 ### 等待/超时
-等待/超时机制是在等待/通知机制上添加一个超时时间：
-```java
-// 消费者
-synchronized(lock){
-    long future = System.currentTimeMillis() + timeout;
-    long remaining = timeout;
-    // 在等待时间内等待条件满足
-    while(condition && remaining > 0){
-        wait(remaining);
-        remaining = future - System.currentTimeMillis();
-    }
-    doSomething();
-}
-```
-使用等待/超时机制从数据库连接池获取连接：
+
+等待/超时机制是在等待/通知机制上添加一个超时时间，使用等待/超时机制从数据库连接池获取连接：
 ```java
 public class ConnectionPool{
     private LinkedList<Connection> pool = new LinkedList();
@@ -288,5 +276,47 @@ public class ConnectionPool{
     }
 }
 ```
+
+
+
+### Join
+
+线程提供了等待其他线程的 `join` 方法，即当前线程需要等待指定线程终止之后才能从 `join` 返回。
+
+```java
+public class Join {
+    public static void main(String[] args) { 
+        Thread previous = Thread.currentThread();
+        for (int i = 0; i < 10; i++) {
+            Thread t = new Thread(()->{
+                
+            }, String.valueOf(i));
+            t.start();
+            previous = t;
+        }
+    }
+    
+    static class R implements Runnable {
+        private Thread thread;
+        public R(Thread thread){
+            this.thread = thread;
+        }
+        public void run() {
+            try{
+                // 当前线程需要等待 thread 线程终止
+                thread.join();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+
 
 **[Back](../../../basic-java/site/doc)**
