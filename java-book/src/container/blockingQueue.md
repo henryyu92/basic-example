@@ -156,7 +156,7 @@ public E take() throws InterruptedException {
 ```
 ### DelayQueue
 DelayQueue 是一个支持延时获取元素的无界阻塞队列，队列使用 PriorityQueue 来实现，队列中的元素必须实现 Delayed 接口，在创建元素时可以指定多久才能从队列中获取当前元素，只有在延迟期满才能从队列中提取元素。
-  
+
 DelayQueue 可以应用在多个场景：
 - 缓存系统的设计：使用 DelayQueue 保存缓存元素的有效期，一个线程循环查询 DelayQueue 一旦能从 DelayQueue 中获取元素表示缓存有效期到了
 - 定时任务调度：使用 DelayQueue 保存当天将会执行的任务和执行时间，一旦从 DelayQueue 中获取到任务就开始执行
@@ -205,7 +205,7 @@ public E take() throws InterruptedException {
         lock.unlock();
     }
 }
-```
+  ```
 
 ### SynchronousQueue
 SynchronousQueue 是一个不存储元素的阻塞队列，每一个 put 操作必须等待一个 take 操作，否则不能继续添加元素。
@@ -251,4 +251,5 @@ return awaitMatch(s, pred, e, (how == TIMED), nanos);
 ### LinkedBlockingDeque
 LinkedBlockingDeque 是一个由链表结构组成的双端阻塞队列，即可以从队列的两端插入和移除元素。在初始化 LinkedBlockingDequeue 时可以设置容量防止其过度膨胀。
 ```java
+
 ```

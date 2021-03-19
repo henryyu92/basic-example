@@ -1,6 +1,7 @@
-# CountDownLatch
+## CountDownLatch
 
-CountDownLatch 允许一个或多个线程等待其他线程完成操作。CountDownLatch 的构造函数接收一个 int 类型的参数作为计数器，表示允许等待的线程数，当调用 ```countDown()``` 方法时计数器的值就会减 1，CountDownLatch 的 ```await()``` 方法会阻塞当前线程直到计数器的值为 0。**CountDownLatch 的计数器不能重新初始化或者修改**。
+`CountDownLatch` 允许一个或多个线程等待其他线程完成操作。CountDownLatch 的构造函数接收一个 int 类型的参数作为计数器，表示允许等待的线程数，当调用 ```countDown()``` 方法时计数器的值就会减 1，CountDownLatch 的 ```await()``` 方法会阻塞当前线程直到计数器的值为 0。**CountDownLatch 的计数器不能重新初始化或者修改**。
+
 ```java
 public class CountDownLatchTest{
     static CountDownLatch c = new CountDownLatch(2);
@@ -31,7 +32,7 @@ private static final class Sync extends AbstractQueuedSynchronizer {
         return getState();
     }
     
-    // await 方法调用，只有当 state ！= 0 则线程阻塞
+    // await 方法调用，当 state ！= 0 时线程阻塞
     protected int tryAcquireShared(int acquires) {
         return (getState() == 0) ? 1 : -1;
     }

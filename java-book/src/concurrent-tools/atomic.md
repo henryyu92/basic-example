@@ -18,14 +18,31 @@ public final native boolean compareAndSwapInt(Object o, long offset,
 public final native boolean compareAndSwapLong(Object o, long offset,
                                                long expected,
                                                long x);
+
+// o		需要修改的目标对象
+// offset	需要修改的目标字段
+// expected	目标字段的新值
+// x		目标字段的旧值
 ```
 
-`Unsafe` 提供的 cas 修改数据方法需要提供 4 个参数：
+在所有通过 `Unsafe` 调用 cas 的地方需要先将需要修改的目标字段通过 `objectField` 方法转换，然后才能使用。
 
-1. 需要修改的目标对象
-2. 需要修改的目标字段
-3. 目标字段的新值
-4. 目标字段的旧值
+```java
+private static final Unsafe unsafe = Unsafe.getUnsafe();
+private static final long valueOffset;
+
+// 将需要修改的目标字段转换
+static {
+    try {
+        valueOffset = unsafe.objectFieldOffset
+            (AtomicReference.class.getDeclaredField("value"));
+    } catch (Exception ex) { throw new Error(ex); }
+}
+
+public void casOp(int newValue){
+    unsafe.compareAndSwapInt(this, valueOffset, value, newValue);
+}
+```
 
 
 
@@ -63,6 +80,7 @@ public class AtomicIntegerArrayTest {
 ### 更新引用
 - AtomicReference：原子更新引用类型
 - AtomicReferenceFieldUpdater：原子更新引用类型里的字段
+- AtomicStampedReference：使用带版本的原子更新引用，解决了 ABA 问题
 - AtomicMarkableReference：原子更新带有标记位的引用类型
 ```java
 public class AtomicReferenceTest {
@@ -91,9 +109,10 @@ public class AtomicReferenceTest {
 ### 更新属性
 - AtomicIntegerFieldUpdater：原子更新整型的字段的更新器
 - AtomicLongFieldUpdater：原子更新长整型的更新器
-- AtomicStampedReference：原子更新带有版本号的引用类型，可以用于解决使用 CAS 进行原子更新时出现的 ABA 问题
+- AtomicReferenceFieldUpdater：原子更新带有版本号的引用类型，可以用于解决使用 CAS 进行原子更新时出现的 ABA 问题
 
-要想原子的更新字段类需要两步：使用静态方法 ```newUpdater()``` 创建一个更新器并设置想要更新的类和属性；更新类的使用 public volatile 修饰的字段。
+能够原子更新的属性必须是 `public volatile` 修饰的。
+
 ```java
 public class AtomicIntegerFieldUpdaterTest{
     private static AtomicIntegerFieldUpdater<User> a = AtomicIntegerFieldUpdater.newUpdater(User.class, "old");
@@ -113,3 +132,4 @@ public class AtomicIntegerFieldUpdaterTest{
     }
 }
 ```
+

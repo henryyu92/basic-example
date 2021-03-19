@@ -22,7 +22,6 @@
 
 同步器子类通常定义为同步组件的静态内部类而同步组件不需要实现任何同步接口，且同步器支持独占式和共享式获取同步状态，这样接可以实现不同类型的的同步组件(`ReentrantLock`，`ReentrantReadWriteLock` 等)。
 
-利用队列同步器实现自定义锁：
 ```java
 public class Mutext implements Lock {
 
@@ -151,7 +150,8 @@ private Node addWaiter(Node mode) {
     return node;
 }
 ```
-addWaiter 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
+`addWaiter` 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
+
 ```java
 private Node enq(final Node node) {
     // 无限循环直到入队成功
@@ -202,6 +202,7 @@ final boolean acquireQueued(final Node node, int arg) {
     }
 }
 
+// 阻塞当前线程
 private final boolean parkAndCheckInterrupt() {
     LockSupport.park(this);
     return Thread.interrupted();
