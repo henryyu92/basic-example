@@ -1,4 +1,5 @@
 # Atomic
+
 Java 提供了 java.util.concurrent.atomic 包，这个包中的原子操作类提供了线程安全的更新，Atomic 类基本都是使用 Unsafe 实现的包装类。
 #### 原子更新基本类型
 - AtomicBoolean：原子更新布尔类型

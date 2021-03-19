@@ -23,66 +23,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d3376b9a-f9e9-49ab-a2e3-7a101cb5b744" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/java-book/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/book.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/SUMMARY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/async.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/async/completableFuture.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/atomic.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/barrier.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/exchanger.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/latch.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/phaser.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/semaphore.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/concurrent.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/container.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/jvm.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/loader.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/java-book/src/lock.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/async/async.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/async/fork-join.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/async/fork-join.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/async/thread-pool.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/async/thread-pool.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/concurrent-safe.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/concurrent/concurrent-safe.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/concurrent-tools.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/container/blockingQueue.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/container/blockingQueue.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/container/concurrentHashMap.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/container/concurrentHashMap.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/container/concurrentLinkedQueue.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/container/concurrentLinkedQueue.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/container/concurrentSkipListMap.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/container/concurrentSkipListMap.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/container/copyOnWrite.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/container/copyOnWrite.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/lock/aqs.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/lock/aqs.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/lock/condition.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/lock/condition.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/lock/readWriteLock.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/lock/readWriteLock.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/lock/reentrantLock.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/lock/reentrantLock.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/memory-model.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/concurrent/memory-model.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/concurrent/thread.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/concurrent/thread.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jmx.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/jmx.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jvm/gc.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/jvm/gc.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jvm/memory-allocate.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/jvm/memory-allocate.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jvm/runtime-memory-region.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/jvm/runtime-memory-region.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jvm/sysmtem.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/jvm/tuning.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/jvm/tuning.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/loader/class-load.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/loader/class-load.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/loader/loader.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/loader/loader.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/util/stream.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/util/time.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/doc/util/try_with_resource.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/site/img/thread.png" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/img/thread.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/META-INF/services/SpiInterface" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/concurrent/lock/BoundQueue.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/concurrent/lock/Cache.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/concurrent/lock/ConditionMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/concurrent/lock/Mutex.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/concurrent/threadpool/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/jvm/ClassLoaderMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/jvm/OutOfMemoryMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/jvm/SpiInterface.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/jvm/SpiInterfaceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/jvm/StaticInit.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/thread/NamedThreadFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic-java/src/example/thread/WaitNotifyMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/java-book/src/concurrent-tools/atomic.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/concurrent-tools/atomic.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/java-book/src/concurrent/thread.md" beforeDir="false" afterPath="$PROJECT_DIR$/java-book/src/concurrent/thread.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +53,7 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+        <option name="mavenHome" value="D:\JetBrains\IntelliJ IDEA Community Edition 2020.2\plugins\maven\lib\maven3" />
         <option name="userSettingsFile" value="/opt/maven/conf/settings.xml" />
       </MavenGeneralSettings>
     </option>

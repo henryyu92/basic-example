@@ -1,5 +1,5 @@
 ## 线程
-线程(`thread`)是操作系统进行运算调度的最小单元，是进程中的实际运行单位。一个进程可以有多个线程，每个线程都有各自的计数器、堆栈和局部变量等属性，并且能够访问共享内存变量。
+线程 (Thread) 是操作系统进行运算调度的最小单元，是进程中的实际运行单位。一个进程可以有多个线程，每个线程都有各自的计数器、堆栈和局部变量等属性，并且能够访问共享内存变量。
 
 `JVM` 中的线程和操作系统线程对应，采用抢占式的调度模型，每个线程在运行时只会占用一个 CPU，因此在多核多 CPU 的处理上使用多线程技术可以提供程序的执行效率。
 
@@ -56,13 +56,11 @@ private void init(ThreadGroup g, Runnable target, String name,
 新创建的线程是以当前线程为父线程，在创建线程的过程中，子线程继承了父线程的属性并被分配了唯一的 ID 来标识线程。
 
 ### 线程中断
-中断是线程的一个标识位属性，它表示一个运行中的线程是否被其他线程进行了中断操作。
 
-线程不能自己中断自己，必须由其他线程调用当前线程的 `interrupte()` 方法触发中断，当前线程可以检查中断标识位，当中断触发时可以执行中断操作。
+线程中断是指设置线程的中断标识位，线程中断通过调用线程的 `interrupte()` 方法触发，被中断的线程通过调用 `isInterrupted()` 方法判断是否被中断并对中断做出反应。
 
-线程通过 `isInterrupted()` 方法来判断是否被中断(只有 alive 的线程被中断了才返回 true，否则返回false)，通过静态方法 ```Thread.interrupted()``` 对当前中断标识位复位。
+线程不能自己中断自己，必须由其他线程触发，线程检测到被中断后并不一定会抛出 `InterruptedException`，Java 中抛出 `InterruptedException` 的函数在抛出异常前会先调用`Thread.interrupted()` 方法将该线程的中断标识位复位。
 
-处于 `TimeWaiting` 状态的线程在中断标志位设置后才会抛出 `InterruptedException`，在线程抛出 `InterruptedException` 时 `JVM` 会先将该线程的中断标识位清除，然后再抛出异常，此时调用 `isInterrupted()` 方法返回 false。
 ```java
 public void breakThread(Thread t){
     // false
@@ -75,17 +73,14 @@ public void breakThread(Thread t){
 利用中断操作可以用于控制线程的取消和终止，这样在线程终止时可以清理资源：
 ```java
 public class ThreadBreak {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Runner one = new Runner();
         Thread t = new Thread(one, "CountThread");
         t.start();
-        TimeUnit.SECONDS.sleep(1);
         t.interrupt();
         Runner two = new Runner();
         t = new Thread(two, "CountThread");
         t.start();
-        TimeUnit.SECONDS.sleep(1);
-        two.cancel();
     }
 
     private static class Runner implements Runnable{
