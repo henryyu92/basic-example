@@ -1,4 +1,4 @@
-# 重入锁
+## 重入锁
 
 重入锁指的是支持重进入的锁，也就是说重入锁能够支持一个线程对资源的重复加锁。实现锁的可重入需要保证：获取到锁的线程可以再次获取到锁、线程对获取了 N 次锁需要释放 N 次才能完全释放获取的锁。
 
@@ -48,7 +48,7 @@ protected final boolean tryRelease(int releases) {
 
 ### 公平与非公平
 
-锁的公平性与否是针对获取锁的线程而言的，如果一个锁是公平的那么获取锁的顺序就应该是线程请求锁的顺序；以 ReentrantLock 中的公平锁为例，tryAcquire 中增加对是有前驱节点的判断：
+锁的公平性与否是针对获取锁的线程而言的，如果一个锁是公平的那么获取锁的顺序就应该是线程请求锁的顺序；以 `ReentrantLock` 中的公平锁为例，`tryAcquire` 中增加对是有前驱节点的判断：
 ```java
 protected final boolean tryAcquire(int acquires) {
     final Thread current = Thread.currentThread();

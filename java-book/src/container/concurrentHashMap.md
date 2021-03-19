@@ -28,28 +28,6 @@ static final int TREEIFY_THRESHOLD = 8;
 static final int UNTREEIFY_THRESHOLD = 6;
 
 ```
-HashMap 中的数组存放的是链表或者红黑树，其节点由内部类 Node 以及其子类 TreeNode 表示：
-```java
-static class Node<K, V> implements Map.Entry<K, V> {
-    // 节点 hash 值
-    final int hash;
-    final K key;
-    V value;
-    Node<K, V> next;
-
-    // ...
-}
-
-static class TreeNode<K, V> extends LinkeHashMap.Entry<K, V> {
-    TreeNode<K, V> parent;
-    TreeNode<K, V> left;
-    TreeNode<K, V> right;
-    boolean red;
-
-    // ...
-}
-```
-
 ### Hash
 
 HashMap 读取或者插入数据前需要对 key 做 hash 运算确定桶的位置。HashMap 的 hash 算法是将 key 的 hashCode 的高 16 位与低 16 位做异或运算：
@@ -363,7 +341,7 @@ static final class TreeBin<K,V> extends Node<K,V> {
 
 ### Get
 
-ConcurrentHashMap 获取元素的流程和 HashMap 类似，先通过 hash 值计算数组索引位置，然后判断索引位置的数据结构，如果为红黑树则使用红黑树结果查询，如果是链表则使用链表结构铲鲟。
+ConcurrentHashMap 获取元素的流程和 HashMap 类似，先通过 hash 值计算数组索引位置，然后判断索引位置的数据结构，如果为红黑树则使用红黑树结果查询，如果是链表则使用链表结构查询。
 
 ConcuurentHashMap 获取元素的整个流程并没有加锁，因为数组中如果是链表结构则由于 val 和 next 都是 volatile 修饰的，其他线程添加了元素或者修改了元素是立即可见的，如果是红黑树结构则在 fand 方法中增加了对 lockState 的判断，因此只会锁住当前位置而其他位置不受影响。
 

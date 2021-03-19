@@ -106,7 +106,7 @@ show varaibles like 'datadir';
   可以设置 binlog_format 来更改二进制日志写入的格式，默认为 ROW：
   ```sql
   show variables like 'binlog_format';
-  ``` 
+  ```
 查看二进制文件的内容可以使用 ```mysqlbinlog``` 工具，如果二进制文件是 STATEMENT 格式则可以直接看到 SQL 语句，如果是 ROW 格式则通过 -vv 参数就能看到具体的执行信息了：
 ```sql
 mysqlbinlog --start_position=12345 test_log.0001
@@ -134,5 +134,3 @@ show variables like 'innodb_file_per_table';
 - ```innodb_log_files_in_group```：指定日志文件组中重做日志文件的数量，默认是 2
 - ```innodb_mirrored_log_groups```：指定了日志镜像文件组的数量，默认是 1
 - ```innodb_log_group_home_dir```：指定了日志文件组所在的路劲，默认为 ./ 表示在 MySQL 数据库的数据目录下
-
-**[Back](./)**

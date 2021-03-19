@@ -1,6 +1,6 @@
 # 队列同步器
 
-队列同步器 (AbstractQueuedSynchronizer) 是用来构建同步组件的基础框架，AQS 使用一个 int 成员变量 state 表示同步状态，通过内置的 FIFO 队列完成资源获取线程的排队工作。
+队列同步器 (`AbstractQueuedSynchronizer`) 是用来构建同步组件的基础框架，AQS 使用一个 int 成员变量 state 表示同步状态，通过内置的 FIFO 队列完成资源获取线程的排队工作。
 
 同步器主要使用的方式是继承，同步器提供了 3 个方法来访问和修改同步状态：
 - ```int getState()```：获取当前同步状态
@@ -20,9 +20,8 @@
 - ```void acquireShared(int)```：获取共享锁
 - ```boolean releaseShared(int)```：释放共享锁
 
-同步器子类通常定义为同步组件的静态内部类而同步组件不需要实现任何同步接口，且同步器支持独占式和共享式获取同步状态，这样接可以实现不同类型的的同步组件(ReentrantLock，ReentrantReadWriteLock 等)。
+同步器子类通常定义为同步组件的静态内部类而同步组件不需要实现任何同步接口，且同步器支持独占式和共享式获取同步状态，这样接可以实现不同类型的的同步组件(`ReentrantLock`，`ReentrantReadWriteLock` 等)。
 
-利用队列同步器实现自定义锁：
 ```java
 public class Mutext implements Lock {
 
@@ -86,7 +85,7 @@ public class Mutext implements Lock {
 ```
 #### 同步队列
 
-AbstractQueuedSynchronizer 依赖内部的同步队列（一个 FIFO 双向队列）来完成同步状态的管理。当线程获取同步状态失败时，AbstractQueuedSynchronizer 会将当前线程以及等待状态构造成一个节点并将其加入到同步队列，同时会阻塞当前线程；当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。
+`AbstractQueuedSynchronizer` 依赖内部的同步队列（一个 FIFO 双向队列）来完成同步状态的管理。当线程获取同步状态失败时，`AbstractQueuedSynchronizer` 会将当前线程以及等待状态构造成一个节点并将其加入到同步队列，同时会阻塞当前线程；当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。
 
 同步队列中的节点用来保存获取同步状态失败线程的引用、等待状态以及前驱和后继结点：
 ```java
@@ -128,9 +127,10 @@ public final void acquire(int arg) {
         selfInterrupt();
 }
 ```
-acquire 方法中首先调用 AQS 子类重写的 tryAcquire 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 addWaiter 方法构造独占式节点并加入到同步队列中，之后调用 acquireQueued 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
+acquire 方法中首先调用 AQS 子类重写的 `tryAcquire` 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 `addWaiter` 方法构造独占式节点并加入到同步队列中，之后调用 `acquireQueued` 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
 
-addWaiter 方法将当前线程包装成一个 Node 节点加入到同步队列中，加入同步队列使用的是 CAS 方式：
+`addWaiter` 方法将当前线程包装成一个 Node 节点加入到同步队列中，加入同步队列使用的是 CAS 方式：
+
 ```java
 private Node addWaiter(Node mode) {
     // 构造队列节点
@@ -150,7 +150,8 @@ private Node addWaiter(Node mode) {
     return node;
 }
 ```
-addWaiter 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
+`addWaiter` 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
+
 ```java
 private Node enq(final Node node) {
     // 无限循环直到入队成功
@@ -201,6 +202,7 @@ final boolean acquireQueued(final Node node, int arg) {
     }
 }
 
+// 阻塞当前线程
 private final boolean parkAndCheckInterrupt() {
     LockSupport.park(this);
     return Thread.interrupted();
@@ -291,5 +293,3 @@ private void doReleaseShared() {
 }
 ```
 #### 超时获取同步状态
-
-**[Back](../../)**

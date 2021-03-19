@@ -1,6 +1,13 @@
 ## Condition
 
-Condition 接口提供了类似 Object 的监视器方法，与 Lock 配合可以实现 等待/通知 模型。Condition 接口定义了 等待 和 通知两种类型的方法，线程调用这些方法前需要获取到 Condition 对象关联的锁。
+Condition 接口提供了类似 Object 的监视器方法，与 Lock 配合可以实现 等待/通知 模型。
+
+```java
+// 阻塞线程
+void await() throws InterruptedException;
+// 唤醒阻塞在锁上线程
+void signal();
+```
 
 
 Condition 对象是由 Lock 对象调用 newCondition 方法创建出来的，也就是说 Condition 对象是依赖 Lock 对象的。一般都会将 Condition 对象作为成员变量，线程获取到锁并调用 await 方法后当前线程会释放锁并在此等待，而其他线程调用 Condition 对象的 signal 方法通知当前线程后，当前线程才从 await 方法返回并且返回前已经获取了锁。
@@ -201,6 +208,3 @@ final boolean transferForSignal(Node node) {
 ```
 
 Condition 对象的 ```signalAll``` 方法相当于对等待队列中的每个节点都执行了一个 ```signal``` 方法，效果就是将等待队列中的所有节点全部移动到同步队列中，并唤醒每个节点的线程。
-
-
-**[Back](../../)**

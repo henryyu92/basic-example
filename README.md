@@ -1,5 +1,5 @@
 
-* [**java**](basic-java/site)
+* [**java**](java-book/src)
 
 * [**netty**](./basic-netty/site)
 

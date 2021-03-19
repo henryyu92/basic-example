@@ -1,0 +1,5 @@
+.idea/
+basic-dubbo/.idea/
+basic-dubbo/target/
+
+*.iml
