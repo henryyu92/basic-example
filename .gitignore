@@ -1,5 +1,6 @@
 .idea/
 basic-net/basic-dubbo/.idea/
 basic-net/basic-dubbo/target/
+basic-rust/.idea/
 
 *.iml

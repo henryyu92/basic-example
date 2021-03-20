@@ -36,7 +36,6 @@
     <modules>
         <module>basic-redis</module>
         <module>basic-net</module>
-        <module>basic-dubbo</module>
     </modules>
 
     <dependencyManagement>
@@ -69,6 +68,7 @@
             <id>jdk11</id>
             <activation>
                 <jdk>11</jdk>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
                 <jdk.version>11</jdk.version>
