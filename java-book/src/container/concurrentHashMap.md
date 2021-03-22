@@ -1,8 +1,29 @@
-# ConcurrentHashMap
+## ConcurrentHashMap
 
 ConcurrentHashMap 是 HashMap 的线程安全实现，内部采用 volatile 以及 cas 的方式保证在多线程情况下的插入和扩容安全。
 
-## HashMap
+### Hash
+
+HashMap 和 ConcurrentHashMap 在存储以及获取元素之前需要对 key 进行哈希操作从而获取元素所在桶的位置。
+
+```java
+// hash 算法将 hashCode 的高 16 参与计算是为了在数组长度小于 16 时做到尽可能的散列
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+
+// 计算 hash 值
+int h = spread(key.hashCode());
+// 根据 hash 值计算 key 所在的桶
+(n - 1) & h)
+```
+
+HashMap 使用 ```hash&(len-1)``` 确定数据的索引位置，当 len 为 2 的幂次时等同于 ```hash%len```，相比取模运算，位与运算效率会高得多。
+
+当扩容时，由于 len 是 2 的幂次，所以 ```hash&(len-1)``` 的结果要么是当前索引，要么是当前索引加上扩容前的长度，红黑树转移数据时根据 ```hash&len``` 是否为 0 将整个树分裂成两部分为，为 0 的部分表示扩容后的仍然是当前索引，不为 0 的部分表示扩容后的索引为当前索引加上扩容前的长度。
+
+### HashMap
 
 HashMap 是基于 k-v 存储的容器，其中 key 和 value 都可以为 null，HashMap 不能保证放入元素的顺序，也不能保证多线程条件下的并发安全。
 
@@ -28,20 +49,10 @@ static final int TREEIFY_THRESHOLD = 8;
 static final int UNTREEIFY_THRESHOLD = 6;
 
 ```
-### Hash
 
-HashMap 读取或者插入数据前需要对 key 做 hash 运算确定桶的位置。HashMap 的 hash 算法是将 key 的 hashCode 的高 16 位与低 16 位做异或运算：
-```java
-static final int hash(Object key) {
-    int h;
-    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
-}
-```
-HashMap 使用 ```hash&(len-1)``` 确定数据的索引位置，当 len 为 2 的幂次时等同于 ```hash%len```，相比取模运算，位与运算效率会高得多。hash 算法将 hashCode 的高 16 参与计算是为了在数组长度小于 16 时做到尽可能的散列。
 
-当扩容时，由于 len 是 2 的幂次，所以 ```hash&(len-1)``` 的结果要么是当前索引，要么是当前索引加上扩容前的长度，红黑树转移数据时根据 ```hash&len``` 是否为 0 将整个树分裂成两部分为，为 0 的部分表示扩容后的仍然是当前索引，不为 0 的部分表示扩容后的索引为当前索引加上扩容前的长度。
+#### Get
 
-### Get
 HashMap 的查找流程比较简单，先计算 key 的 hash 值，然后通过 ```getNode``` 方法查找对应的值，在查找时由于索引位置有可能是红黑树结构也有可能是链表结构，所以第一个位置要首先判断。
 
 ```java
@@ -70,7 +81,7 @@ final Node<K,V> getNode(int hash, Object key) {
 }
 ```
 
-### Put
+#### Put
 
 HashMap 的插入操作比较复杂，在插入前需要判断 Node 数组是否初始化，然后在插入的过程中需要判断是否已经存在相同 key 的元素，如果存在则覆盖元素的值。
 
@@ -130,7 +141,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 }
 ```
 
-### Remove
+#### Remove
 
 HashMap 删除元素前需要确定元素的位置，如果在索引位置则直接使用下一个元素替换并返回，如果在红黑树结构上则使用红黑树结构删除元素，如果在链表上则使用链表结果后删除。
 
@@ -185,7 +196,7 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
 } 
 ```
 
-### ReSize
+#### ReSize
 
 HashMap 数组在初始化时或者扩容时都会调用 ReSize 过程创建新的数组，初始化时直接创建默认大小或者指定大小和负载因子的数组，扩容时创建 2 倍大小的数组并重新计算负载因子。
 
@@ -282,7 +293,7 @@ final Node<K,V>[] resize() {
 }
 ```
 
-## ConcurrentHashMap
+### ConcurrentHashMap
 
 ConcurrentHashMap 是 HashMap 的线程安全实现，ConcurrentHashMap 依然采用数组加链表和红黑树的数据结构，链表到红黑树的转换阈值依然是 8，ConcurrentHashMap 依然采用双倍扩容的方式扩容数组，只是在扩容的时候采用了机制保证并发安全。
 
@@ -339,11 +350,11 @@ static final class TreeBin<K,V> extends Node<K,V> {
 }
 ```
 
-### Get
+#### Get
 
 ConcurrentHashMap 获取元素的流程和 HashMap 类似，先通过 hash 值计算数组索引位置，然后判断索引位置的数据结构，如果为红黑树则使用红黑树结果查询，如果是链表则使用链表结构查询。
 
-ConcuurentHashMap 获取元素的整个流程并没有加锁，因为数组中如果是链表结构则由于 val 和 next 都是 volatile 修饰的，其他线程添加了元素或者修改了元素是立即可见的，如果是红黑树结构则在 fand 方法中增加了对 lockState 的判断，因此只会锁住当前位置而其他位置不受影响。
+ConcuurentHashMap 获取元素的整个流程并没有加锁，因为数组中如果是链表结构则由于 val 和 next 都是 volatile 修饰的，其他线程添加了元素或者修改了元素是立即可见的，如果是红黑树结构则在 find 方法中增加了对 lockState 的判断，因此只会锁住当前位置而其他位置不受影响。
 
 ```java
 public V get(Object key) {
@@ -370,7 +381,7 @@ public V get(Object key) {
     }
 }
 ```
-### Put
+#### Put
 
 ConcurrentHashMap 的 put 操作核心思想依然是根据 key 的 hash 值计算节点插入 table 的位置，如果该位置为空则直接插入，否则插入到链表或者红黑树中，如果 table 负载超过阈值则进行扩容和 rehash 过程。
 
@@ -448,7 +459,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
     return null;
 }
 ```
-### InitTable
+#### InitTable
 
 ConcurrentHashMap 在插入数据时会检查数组是否初始化，如果没有则调用 initTable 方法来初始化。ConcurrentHashMap 初始化时检查 sizeCtl 变量，如果为负数表示容器正在初始化或者扩容，其中 -1 表示正在初始化，此时线程让出执行调度让其他线程完成初始化或者扩容。否则以 CAS 方式将 sizeCtl 变量设置为 -1 表示当前线程在执行初始化。
 
@@ -481,9 +492,11 @@ private final Node<K,V>[] initTable() {
     return tab;
 }
 ```
-### Resize
+#### Resize
 
 ConcurrentHashMap 在插入数据之后检查是否需要扩容，如果达到负载因子阈值则需要扩容，ConcurrentHashMap 扩容操作在 transfer 方法中完成。
+
+// todo ConcurrentHashMap 扩容分析
 
 ```java
 private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
@@ -635,7 +648,10 @@ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
 
 在多线程时，扩容遍历到的节点如果是 ForwardingNode 则表示该节点已经处理过继续遍历，如果不是则对该节点加锁放置其他线程进入。
 
-### Remove
+#### Remove
+
+删除操作属于写类型的操作，所以在进行删除的时候需要对table中的index位置加锁，ConcurrentHashMap使用synchronized关键字将table中的index位置锁住，然后进行删除，remove方法调用了replaceNode方法来进行实际的操作，而删除操作的步骤首先依然是计算记录的hashCode，然后根据hashCode来计算table中的index值，然后根据table中的index位置上是一条链表还是一棵红黑树来使用不同的方法来删除这个记录，删除记录的操作需要进行记录数量的更新（调用addCount方法进行）。
+
 ```java
 final V replaceNode(Object key, V value, Object cv) {
   int hash = spread(key.hashCode());
@@ -703,10 +719,13 @@ final V replaceNode(Object key, V value, Object cv) {
   return null;
 }
 ```
-删除操作属于写类型的操作，所以在进行删除的时候需要对table中的index位置加锁，ConcurrentHashMap使用synchronized关键字将table中的index位置锁住，然后进行删除，remove方法调用了replaceNode方法来进行实际的操作，而删除操作的步骤首先依然是计算记录的hashCode，然后根据hashCode来计算table中的index值，然后根据table中的index位置上是一条链表还是一棵红黑树来使用不同的方法来删除这个记录，删除记录的操作需要进行记录数量的更新（调用addCount方法进行）。
 
-### Size
-ConcurrentHashMap 通过 size 方法来获得记录数量，size 方法返回的是一个不精确的值，因为在进行统计的时候有其他线程正在进行插入和删除操作：
+
+#### Size
+ConcurrentHashMap 通过 size 方法来获得记录数量，size 方法返回的是一个不精确的值，因为在进行统计的时候有其他线程正在进行插入和删除操作。
+
+ConcurrentHashMap的记录数量需要结合baseCount和counterCells数组来得到，通过累计两者的数量即可获得当前ConcurrentHashMap中的记录总量。推荐使用 ```mappingCount()``` 方法获取容量大小。
+
 ```java
 public int size() {
 	long n = sumCount();
@@ -728,4 +747,4 @@ final long sumCount() {
 	return sum;
 }
 ```
-ConcurrentHashMap的记录数量需要结合baseCount和counterCells数组来得到，通过累计两者的数量即可获得当前ConcurrentHashMap中的记录总量。推荐使用 ```mappingCount()``` 方法获取容量大小。
+

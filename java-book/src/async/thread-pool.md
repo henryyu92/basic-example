@@ -1,4 +1,4 @@
-# 线程池
+## 线程池
 
 Java 线程和操作系统线程是一对一的，线程的创建、调度以及销毁会消耗 CPU 资源，因此如果创建大量短生命周期的线程会降低系统的性能。
 
@@ -6,7 +6,7 @@ Java 提供了线程池重复的利用已经创建的线程从而避免线程的
 
 `ThreadPoolExecutor` 和 `ScheduledThreadPoolExecutor` 是线程池体系中核心的组件，其中 `ThreadPoolExecutor` 用于执行异步的任务，而 `ScheduledThreadPoolExecutor` 能够周期性的执行异步任务。
 
-## 创建线程池
+### 创建线程池
 
 `ScheduledThreadPoolExecutor` 继承自 `ThreadPoolExecutor`，它们在创建时需要指定几个核心参数，根据不同的参数可以创建不同策略的线程池。
 ```java
@@ -51,14 +51,14 @@ public ThreadPoolExecutor(int corePoolSize,
   - ```DiscardOldestPolicy``` 表示丢弃阻塞队列头的任务，并执行当前任务
   - `DiscardPolicy` 表示直接丢弃当前任务
 
-## 任务提交
+### 任务提交
 
 线程池创建完成之后，只需要向线程池提交任务即可，线程池会自动分配线程处理提交的任务。线程池支持两种任务提交方式：
 
 - ```execute``` 方法用于提交不需要返回值的任务，无法判断任务是否执行成功
-- ```submit``` 方法用于提交需要返回值的任务，返回 FutureTask 的异步结果，可以使用 FutureTask 的 get 方法等待任务执行完成返回结果
+- ```submit``` 方法用于提交需要返回值的任务，返回 Future 作为任务的结果，使用 get 方法可以阻塞的等待任务执行完返回结果
 
-## 任务处理
+### 任务处理
 
 任务通过 ```submit``` 或者 ```execute``` 提交到线程池之后，线程池根据创建时的参数进行调度任务的执行.
 
@@ -111,18 +111,26 @@ public void execute(Runnable command) {
 }
 ```
 
-## 关闭线程池
+### 关闭线程池
 
 调用 ```shutdown``` 或者 ```shutdownNow``` 方法可以关闭线程池，其内部通过遍历线程池中的工作线程然后调用线程的 ```interrupt``` 方法来中断线程。
 
+- ```shutdownNow``` 方法首先将线程池的状态设置为 STOP 然后尝试停止所有的正在执行或暂停任务的线程并返回等待执行任务的列表
 
-```shutdownNow``` 方法首先将线程池的状态设置为 STOP 然后尝试停止所有的正在执行或暂停任务的线程并返回等待执行任务的列表
-
-```shutdown``` 方法将线程池的状态设置为 SHUTDOWN 然后中断所有没有执行任务的线程。
+- ```shutdown``` 方法将线程池的状态设置为 SHUTDOWN 然后中断所有没有执行任务的线程。
 
 线程池关闭后，调用 ```isShutdown``` 方法就会返回 true，但是只有所有的任务都已经关闭后才表示线程池成功关闭，此时调用 ```isTerminate``` 返回 true。
 
-## 线程池监控
+```java
+// 调用 shutdown 之后线程池并未立即完全关闭
+threadPool.shutdown();
+// 等待线程池完全关闭
+threadPool.awaitTermination(long timeout, TimeUnit unit)
+```
+
+
+
+### 线程池监控
 
 线程池提供了可以监控线程池状态的方法：
 - ```getTaskCount```：线程池需要执行的任务数量
@@ -133,9 +141,10 @@ public void execute(Runnable command) {
 
 通过继承线程池来自定义线程池，重写线程池的 ```beforeExecute```、```afterExecute``` 和 ```terminated``` 方法可以在任务执行前、执行后和线程池关闭前执行一些代码进行监控。
 ```java
+
 ```
 
-## 线程池调优
+### 线程池调优
 创建线程池时根据不同的应用场景选择合适的参数可以达到更佳的性能，线程池中任务可以从几个方面分析：
 - 任务的性质：CPU 密集型任务、IO 密集型任务 和 混合型任务
 - 任务的优先级
@@ -151,5 +160,3 @@ public void execute(Runnable command) {
 对于有外部依赖的任务，若外部依赖导致任务出现较长时间的等待则可以将线程池中的线程数调大，这样 CPU 的利用率会得到更好的使用
 
 线程池的阻塞队列用于存储等待执行的任务，如果使用无界队列的话可能会导致在有大量任务而线程池负载较重的情况下线程池会积压大量任务，从而导致内存溢出；而使用有界队列时当队列满了就会触发拒绝策略而不会导致大量积压。
-
-

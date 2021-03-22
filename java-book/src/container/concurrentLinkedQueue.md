@@ -1,4 +1,4 @@
-# ConcurrentLinkedQueue
+## ConcurrentLinkedQueue
 
 ConcurrentLinkedQueue 是基于链表实现的无界线程安全队列，采用 CAS 的方式实现无锁入队和出队。`ConcrruentListQueue` 内部维护着指向头节点的指针 head 和指向尾节点的指针 tail。
 ```java
