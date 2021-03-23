@@ -59,19 +59,4 @@ SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
 - OP_READ：读操作，1
 - OP_WRITE：写操作，4
 
-#### Channel
-
-Channel 本身不能存储数据，需要配合 Buffer 来完成数据传输。
-
-
-
-Channel 是 NIO 的数据管道，网络数据通过 Channel 读取和写入，和流不同的是 Channel 是双工的，即 Channel 可以同时进行读写操作。
-
-Channel 有 FileChannel、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类：
-- ```FileChannel```：用于文件的数据读写，通过文件流的 getChannel 方法将流转换成 Channel，或者直接调用静态方法 ```FileChannel#open``` 以 Channel 的方式读写文件
-- ```DatagramChannel```：用于 udp 协议的数据读写
-- ```ServerSocketChannel 和 SocketChannel```：用于 tcp 协议的数据读写
-
-### AIO
-
 **[Back](../)**

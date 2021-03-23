@@ -54,7 +54,7 @@ func rotateRight(head *ListNode, k int) *ListNode {
 	for i := 0; i < n-k%n-1; i++ {
 		curr = curr.Next
 	}
-	new_head := curr.Next
+	head := curr.Next
 	curr.Next = nil
-	return new_head
+	return head
 }
