@@ -1,10 +1,9 @@
-package example.hader;
+package example.header;
 
 import example.helloworld.GreeterGrpc;
 import example.helloworld.HelloReply;
 import example.helloworld.HelloRequest;
 import io.grpc.*;
-import org.ietf.jgss.ChannelBinding;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;

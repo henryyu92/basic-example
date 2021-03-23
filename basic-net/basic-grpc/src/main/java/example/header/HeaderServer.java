@@ -1,4 +1,4 @@
-package example.hader;
+package example.header;
 
 import example.helloworld.GreeterImpl;
 import io.grpc.Server;
