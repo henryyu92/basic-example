@@ -7,10 +7,10 @@ import io.netty.handler.timeout.IdleStateEvent;
 public class BeatHeartHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent){
+        if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             String eventType = null;
-            switch (event.state()){
+            switch (event.state()) {
                 case READER_IDLE:
                     eventType = "读空闲";
                     break;

@@ -1,43 +1,10 @@
 ## Netty
+
 Netty 提供异步的、基于事件驱动的网络应用程序框架，用以开发高性能、高可靠的网络 IO 程序
 
 Netty 基于 Reactor 模型，相对于阻塞式 IO 模型，Reactor 模型使用了 I/O 复用模型，多个连接公用一个阻塞对象，应用程序只需要在一个阻塞对象等待而无需阻塞等待所有连接。Reactor 模型还利用了线程池资源，不再为每个连接创建线程，将连接完成后的业务处理任务分配给线程进行处理，一个线程可以处理多个连接的任务。
 
-
-
-#### Netty 线程模型
-
-
-```
-                                        Boss Group
-        +-------------------------------------------------------------------------------+  
-        |                              NioEventLoopGroup                                |
-        |  +--------------------------------+      +--------------------------------+   |
-        |  |         NioEventLoop           |      |         NioEventLoop           |   |
-        |  |  +----------+    +----------+  |      |  +----------+    +----------+  |   |
-        |  |  | Selector |--->| Acceptor |  |      |  | Selector |--->| Acceptor |  |   |
-        |  |  +----|-----+    +----------+  |      |  +----|-----+    +----------+  |   |
-        |  +-------|------------------------+      +-------|------------------------+   |
-        |          |                                       |                            |
-        +----------|---------------------------------------|----------------------------+ 
-                   |                                            
-                   | SocketChannel -->  NIOSocketChannel
-                   |
-                   | register          Worker Group
-       +--------------------------------------------------------------------------+
-       |                             NioEventLoopGroup
-       |  +--------------------------------+
-       |  |         NioEventLoop           |
-       |  |  +----------+    +----------+  |
-       |  |  | Selector |--->| Acceptor |  |
-       |  |  +----|-----+    +----------+  |
-       |  |  +----|-----+    +----------+  |
-       |  +-------|------------------------+
-       +----------|----------------------------------------------------------------+
-
-         Pipeline
-         +-----------------+
-```
+### Netty 线程模型
 
 Boss Group 维护 Selector 只关注 Accept 事件，当接收到 Accept 事件获取到对应的 SocketChannel 封装成 NIOSocketChannel 并注册到 Workder，Worker 线程监听到 Channel 的事件后就分发到 Handler 处理
 
@@ -98,7 +65,7 @@ ChannelOption.SO_KEEPALIVE：一直保持连接活动状态
 #### EventLoopGroup 和 NioEventLoopGroup
 
 EventLoopGroup 是一组 EventLoop 的抽象，Netty 为了更好的利用多核 CPU 资源，一般会有多个 EventLoop 同时工作，每个 EventLoop 维护着一个 Selector 实例。
- 
+
 EventLoopGroup 提供 next 接口，可以从组里面按照一定规则获取其中一个 EventLoop 来处理任务，在 Netty 服务器端编程中，一般需要提供两个 EventLoopGroup
 一个服务器端口即一个 ServerSocketChannel 对应一个 Selector 和一个 EventLoop 线程，BossEventLoop 负责接收客户端的连接并将 SocketChannel 交给 WorkerEventLoop 来进行 IO 处理。
 

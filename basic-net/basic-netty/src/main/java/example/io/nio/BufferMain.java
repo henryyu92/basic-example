@@ -57,16 +57,15 @@ public class BufferMain {
                     byteRead += l;
                     System.out.println("byteRead = " + byteRead);
 
-                    Arrays.asList(buffers)
-                            .stream()
-                            .map(buffer -> "position = " + buffer.position() + ". limit = " + buffer.limit())
-                            .forEach(System.out::println);
+                    Arrays.stream(buffers)
+                        .map(buffer -> "position = " + buffer.position() + ". limit = " + buffer.limit())
+                        .forEach(System.out::println);
                 }
 
                 Arrays.asList(buffers).forEach(Buffer::flip);
 
                 long byteWrite = 0;
-                while (byteWrite < messageLength){
+                while (byteWrite < messageLength) {
                     long w = socketChannel.write(buffers);
                     byteWrite += w;
                 }

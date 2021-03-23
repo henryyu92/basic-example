@@ -95,40 +95,42 @@ buffer.mark();
 
 `Buffer` 是 NIO 双工模式中用于存储数据的载体，可以同时进行读写。Buffer 的每次读写操作使得 position 增加直到达到 limit，此后再次读取数据则会抛出 `BufferUnderflowException`，再次写入数据则会抛出 `BufferOverflowException`。
 
-`Buffer`
+`Buffer` 只有 position 表示当前的位置，因此在数据写完之后需要调用 `flip` 才能从头读取数据，同理在数据读取之后需要调用 `clear` 从头开始写数据。
 
 ```java
 // limit 设置为 position
 // position 设置为 0
 // mark 设置为 -1
 buffer.flip();
-
+// position = 0; limit = capacity; mark = -1
 buffer.clear();
 ```
 
-ByteBuffer 是 Buffer 常用的实现类，其有堆内分配和对外分配两种方式，使用 ```ByteBuffer#allocate``` 方法返回的是堆内分配的 ByteBuffer，使用 ```ByteBuffer#allocateDirect``` 方法返回的是堆外分配的 ByteBuffer。
+Java 提供了基础数据类型的 Buffer，最常用的是用于传输字节的  `ByteBuffer`。Buffer 可以分配在堆内和堆外，堆内的 Buffer 由 JVM 管理，在使用完之后会释放占用的内存，堆外的 Buffer 则需要由应用程序自己管理，如果未能及时释放则会导致内存泄漏。
+
+```java
+// 堆内 Buffer
+ByteBuffer.allocate(capacity);
+// 堆外 Buffer
+ByteBuffer.allocateDirect(capacity);
+```
+
+Java 还提供了将文件直接映射成 Buffer 的 `MappedByteBuffer`，通过将文件映射成 Buffer，数据可以直接写入文件或者从文件读取而不需要经过系统 io 调用，可以提升 io 效率
+
+```java
+// 将文件直接映射成 Buffer
+FileChannel.map(MapMode.READ_WRITE, 0, file.length())
+```
 
 
 
 ## 零拷贝
 
-操作系统处理网络数据有两个阶段：等待数据和拷贝数据。等待数据是系统内核等待网卡接收到数据并写入到内核中，拷贝数据就是将内核中的数据拷贝到应用进程的空间中。
+数据的 io 操作包括两部分：等待数据和拷贝数据。写操作时应用进程将数据写入用户空间缓冲区，然后 CPU 将用户空间数据拷贝到内核空间，最后将数据写入外部存储；读操作时外部存储将数据写入内核缓冲区，然后 CPU 将数据拷贝到用户空间，最有应用进程可以读取到数据。
 
-![网络数据处理]()
+![数据 io 处理]()
 
-应用进程的每一次写操作都会把数据写到用户空间的缓冲区中，再由 CPU 将数据拷贝到系统内核的缓冲区中，之后再由 DMA 将数据拷贝到网卡中，最后由网卡发送出去。
-
-应用程序的读操作则需要先由 DMA 将数据从网卡拷贝到内核缓冲区，然后由 CPU 将数据拷贝到用户空间的缓冲区，之后应用进程才能读取到数据。
-
-应用进程的一次完整的读写操作需要在用户空间和内核空间进行数据拷贝，并需要 CPU 在用户空间和内核空间之间切换，通过零拷贝的方式可以减少数据的拷贝以及用户空间和内核空间的切换。
-
-零拷贝(Zero-copy)技术就是取消用户空间和内核空间之间的数据拷贝，应用进程的读写操作如同直接写入内核空间一样从而无需进行数据拷贝。零拷贝有两种实现方式：mmap+write 方式和 sendfile 方式。
-
-
-
-
-
-传统网络 IO 分析：
+应用进程进行一次写操作需要两次数据拷贝以及两次上下文切换，读操作也会有两次数据拷贝以及两次上下文切换。数据拷贝和上下文的切换需要消耗系统资源，通过减少数据拷贝以及上下文的切换能够提高 io 的效率。
 
 ```java
 read(file, tmp_buf, len)
@@ -140,14 +142,11 @@ write(socket, tmp_buf, len)
 - 程序使用 write 方法，系统由用户态切换为内核态，数据从用户缓冲区写入到网络缓冲区(socket buffer)，这个过程需要 CPU 参与
 - 系统由内核态切换到用户态，网络缓冲区的数据通过 DMA 的方式传输到网卡驱动中
 
-内存映射(MMAP) 方式 IO 分析：
+零拷贝(Zero-copy)技术就是取消用户空间和内核空间之间的数据拷贝，应用进程的读写操作如同直接写入内核空间一样从而无需进行数据拷贝。
 
-```java
-tmp_buf = mmap(file, len);
-write(socket, tmp_buf, len);
-```
+### MMAP
 
-MMAP 原理是将用户缓冲区的内存地址和内核缓冲区的地址做一个映射，也就是说在用户态可以直接读取并操作内核空间数据。
+MMAP (内存映射) 原理是将用户缓冲区的内存地址和内核缓冲区的地址映射，也就是在用户态就可以直接读取并操作内核空间数据。
 
 - 程序使用 mmap 方法，系统由用户态切换到内核态，采用 DMA 方式将磁盘的数据读取到内核缓冲区
 - 系统由内核态切换为用户态，由于用户缓冲区和内核缓冲区有映射，所以不需要消耗 CPU 将内核缓冲区数据拷贝到用户缓冲区
@@ -156,7 +155,19 @@ MMAP 原理是将用户缓冲区的内存地址和内核缓冲区的地址做一
 
 使用 MMAP 技术减少了一次数据拷贝，并没有减少上下文切换次数，在多线程操作同一块内存映射时需要采用并发编程的技术保证数据一致性。
 
-sendfile 方式 IO 分析：
+Java 提供了对 MMAP 的支持，`MappedByteBuffer` 底层采用内存映射的方式将内核缓冲区和用户缓冲区进行了映射，适合大文件的处理：
+
+```java
+MappedByteBuffer mappedByteBuffer = new Random(file, "r")
+    .getChannel()
+    .map(FileChannel.MapMode.READ_ONLY, 0, len);
+```
+
+### SendFile
+
+sendfile 方式不通应用进程写数据，而是通过系统在内核态通过 DMA 技术将数据直接拷贝到内核缓冲区，然后通过 CPU 将数据拷贝到输出设备缓冲区，最后切换到用户态通过 DMA 技术将数据从内核缓冲区拷贝到外部存储。
+
+使用 sendfile 方式只需要执行两次 DMA 拷贝、一次 CPU 拷贝以及两次的上下文切换。
 
 ```java
 snedfile(socket, file, len)
@@ -166,7 +177,11 @@ snedfile(socket, file, len)
 - 系统依然在内核态，内核缓冲区中的数据通过 CPU 拷贝到网络缓冲区
 - 系统由内核态切换到用户态，并使用 DMA 将网络缓冲区的数据发送到网卡驱动
 
+Java 对 sendFile 的支持是通过 `transferTo/transferForm` 实现：
 
-Java 中常用的零拷贝有 mmap（内存映射）和 sendFile。 mmap 通过内存映射，将文件映射到内核缓冲区，用户空间和内核空间可以共享内核空间的数据，减少用户空间到内核空间的数据拷贝(4 次减少到 3 次)。sendFile 是数据不经过用户态，直接从内核缓冲区进入到 SocketBuffer，在减少数据拷贝的同时也减少了状态上下文切换。
+```JAVA
+FileChannel sourceChannel = new RandomAccessFile(source, "rw").getChannel();
+SocketChannel socketChannel = SocketChannel.open();
+sourceChannel.transferTo(0, sourceChannel.size(), socketChannel);
+```
 
-mmap 适合小数据量读写，sendFile 适合大文件传输；mmap 需要 4 次上下文切换，3 次数据拷贝，sendFile 需要 3 次上下文切换，最少 2 次数据拷贝；sendFile 可以利用 DMA 方式，减少 CPU 拷贝， mmap 则不能，必须从内核拷贝到 socket 缓冲区

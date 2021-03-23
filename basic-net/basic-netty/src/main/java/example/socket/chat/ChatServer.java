@@ -1,4 +1,4 @@
-package example.io.nio.chat;
+package example.socket.chat;
 
 
 

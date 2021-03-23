@@ -19,26 +19,26 @@ public class BeatHeartServer {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try{
+        try {
             ServerBootstrap bootstrap = new ServerBootstrap();
 
             bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
 
-                            ChannelPipeline pipeline = ch.pipeline();
+                        ChannelPipeline pipeline = ch.pipeline();
 
-                            pipeline.addLast(new IdleStateHandler(3, 5, 7, TimeUnit.SECONDS))
-                                    // 处理空闲事件
-                                    .addLast(new BeatHeartHandler());
-                        }
-                    });
+                        pipeline.addLast(new IdleStateHandler(3, 5, 7, TimeUnit.SECONDS))
+                            // 处理空闲事件
+                            .addLast(new BeatHeartHandler());
+                    }
+                });
             ChannelFuture future = bootstrap.bind(7000).sync();
             future.channel().closeFuture().sync();
-        }finally {
+        } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }

@@ -1,4 +1,4 @@
-package example.io.nio;
+package example.socket;
 
 
 import java.net.InetSocketAddress;
