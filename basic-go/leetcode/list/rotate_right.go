@@ -1,3 +1,5 @@
+package list
+
 // 给定一个链表，将链表的每个节点向右移动 k 个位置
 
 // 找到倒数 k 个节点，断开链接，然后将尾节点指向头节点
@@ -27,7 +29,7 @@ func rotateRight(head *ListNode, k int) *ListNode {
 	}
 
 	fast.Next = head
-	head := slow.Next
+	head = slow.Next
 	slow.Next = nil
 	return head
 
@@ -35,7 +37,7 @@ func rotateRight(head *ListNode, k int) *ListNode {
 
 // 将链表转换成环形链表，然后找到倒数 k 位置断开链接
 // k = n - (k % n)
-func rotateRight(head *ListNode, k int) *ListNode {
+func rotateRight1(head *ListNode, k int) *ListNode {
 
 	if head == nil || head.Next == nil {
 		return head

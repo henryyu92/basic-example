@@ -1,3 +1,5 @@
+package list
+
 // 给定两个非空的链表，每位数字按照逆序方式存储，每个节点只能存储一位数字
 
 // 非递归版本，引入额外的进位 carry
@@ -47,4 +49,3 @@ func addTowNumbersHelper(l1 *ListNode, l2 *ListNode, carry int) *ListNode {
 	dummy.Next = addTowNumbersHelper(l1, l2, sum/10)
 	return dummy
 }
-

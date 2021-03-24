@@ -50,7 +50,7 @@ public class RetryingClient {
         if (enableRetries) {
             Map<String, ?> serviceConfig = getRetryingServiceConfig();
             logger.info("Client started with retrying configuration: " + serviceConfig);
-
+            // ManagedChannelServiceConfig
             channelBuilder.defaultServiceConfig(serviceConfig).enableRetry();
         }
         channel = channelBuilder.build();

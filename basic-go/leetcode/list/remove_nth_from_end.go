@@ -13,6 +13,7 @@ type ListNode struct {
 
 func removeNthFromEnd(head *ListNode, n int) *ListNode {
 
+	// 使用哑节点可以简化对 header 的判断
 	dummy := &ListNode{0, head}
 	left, right := dummy, dummy
 	i := 0
@@ -21,9 +22,11 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 		right = right.Next
 		i++
 	}
+	// 链表长度小于 n 则直接返回
 	if i < n {
 		return nil
 	}
+	// 快慢指针同时移动，直到快指针到达链表尾部
 	for right.Next != nil {
 		left = left.Next
 		right = right.Next
