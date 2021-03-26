@@ -66,10 +66,3 @@ func deleteDuplicates2(head *ListNode) *ListNode {
 	head.Next = deleteDuplicates(head.Next)
 	return head
 }
-
-// 双指针法
-// prev		第一个重复节点的前指针
-// curr		当前指针
-func deleteDuplicates3(head *ListNode) *ListNode {
-
-}
