@@ -20,13 +20,24 @@ public class RouteGuideClient {
 
     private final RouteGuideGrpc.RouteGuideBlockingStub blockingStub;
     private final RouteGuideGrpc.RouteGuideStub asyncStub;
+    private final RouteGuideGrpc.RouteGuideFutureStub futureStub;
 
     private Random random = new Random();
     private TestHelper testHelper;
 
     public RouteGuideClient(Channel channel) {
+        /**
+         * Creates a new blocking-style stub that supports unary and streaming output calls on the service
+         */
         blockingStub = RouteGuideGrpc.newBlockingStub(channel);
+        /**
+         * Creates a new async stub that supports all call types for the service
+         */
         asyncStub = RouteGuideGrpc.newStub(channel);
+        /**
+         * Creates a new ListenableFuture-style stub that supports unary calls on the service
+         */
+        futureStub = RouteGuideGrpc.newFutureStub(channel);
     }
 
     private void info(String msg, Object... params) {

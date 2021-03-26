@@ -17,7 +17,7 @@
   * [重入锁](./lock/reentrantLock.md)
   * [读写锁](./lock/readWriteLock.md)
   * [Condition](./lock/condition.md)
-- [并发工具类](sync/sync.md)
+- [同步工具类](sync/sync.md)
   * [Atomic](sync/atomic.md)
   * [CountDownLatch](sync/latch.md)
   * [CyclicBarrier](sync/barrier.md)

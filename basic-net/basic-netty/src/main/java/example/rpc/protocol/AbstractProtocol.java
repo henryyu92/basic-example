@@ -9,9 +9,9 @@ public abstract class AbstractProtocol<T> implements Protocol<T> {
     }
 
     @Override
-    public void refer() {
+    public T refer() {
         check();
-        doRefer();
+        return doRefer();
     }
 
     /**
@@ -21,5 +21,5 @@ public abstract class AbstractProtocol<T> implements Protocol<T> {
 
     protected abstract void doExport();
 
-    protected abstract void doRefer();
+    protected abstract T doRefer();
 }

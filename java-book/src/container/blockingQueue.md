@@ -1,4 +1,4 @@
-# BlockingQueue
+## BlockingQueue
 
 阻塞队列(BlockingQueue)是作支持阻塞的插入和移除的队列。阻塞的插入是当队列满时，队列会阻塞插入元素的线程直到线程 NotFull；阻塞的移除是当队列为空时，获取元素的线程会等待直到队列变为 NotEmpty。
 
@@ -13,7 +13,8 @@
 - `peek`：获取但不删除队列头的元素，如果成功则返回这个元素，如果失败则返回 null
 - `take`：移除队列头元素，如果队列为空则一直阻塞直到队列不为空
 ### ArrayBlockingQueue
-ArrayBlockingQueue 是一个由数组结构组成的有界阻塞队列，此队列按照先进先出(FIFO)的原则对元素进行排序。默认情况下不保证线程公平的访问队列，也可以创建公平的阻塞队列：
+`ArrayBlockingQueue` 是一个由数组结构组成的有界阻塞队列，此队列按照先进先出 (FIFO) 的原则对元素进行排序。默认情况下不保证线程公平的访问队列，也可以创建公平的阻塞队列：
+
 ```java
 public ArrayBlockingQueue(int capacity, boolean fair) {
     if (capacity <= 0)
@@ -24,7 +25,8 @@ public ArrayBlockingQueue(int capacity, boolean fair) {
     notFull =  lock.newCondition();
 }
 ```
-ArrayBlockingQueue 向队列中添加元素时先要获取到锁，然后判断队列是否满，如果队列为满则一直等待直到其他线程调用 ```notFull.signal``` 告知队列不满，否则进行入队操作，入队操作是会调用 ```notEmpty.signal()``` 方法告知其他出队线程队列非空：
+`ArrayBlockingQueue` 向队列中添加元素时先要获取到锁，然后判断队列是否满，如果队列为满则一直等待直到其他线程调用 ```notFull.signal``` 告知队列不满，否则进行入队操作，入队操作完成会调用 `notEmpty.signal` 方法唤醒其他出队线程：
+
 ```java
 public void put(E e) throws InterruptedException {
     checkNotNull(e);
@@ -39,8 +41,19 @@ public void put(E e) throws InterruptedException {
         lock.unlock();
     }
 }
+
+private void enqueue(E x) {
+    final Object[] items = this.items;
+    items[putIndex] = x;
+    if (++putIndex == items.length)
+        putIndex = 0;
+    count++;
+    // 唤醒等待的读线程
+    notEmpty.signal();
+}
 ```
-ArrayBlockingQueue 的出队操作也需要先获取到锁，然后判断队列是否为空，如果为空则一直等待直到其他线程调用 ```notEmpty.signal()``` 告知队列非空，否则进行出队操作，出队操作会调用 ```notFull.signal()``` 方法告知其他入队线程队列非满：
+`ArrayBlockingQueue` 的出队操作也需要先获取到锁，然后判断队列是否为空，如果为空则一直等待直到其他线程调用 `notEmpty.signal` 告知队列非空，否则进行出队操作，出队操作会调用 ```notFull.signal``` 方法唤醒其他入队线程：
+
 ```java
 public E take() throws InterruptedException {
     final ReentrantLock lock = this.lock;
@@ -53,12 +66,30 @@ public E take() throws InterruptedException {
         lock.unlock();
     }
 }
+
+private E dequeue() {
+    final Object[] items = this.items;
+    @SuppressWarnings("unchecked")
+    E x = (E) items[takeIndex];
+    items[takeIndex] = null;
+    if (++takeIndex == items.length)
+        takeIndex = 0;
+    count--;
+    if (itrs != null)
+        itrs.elementDequeued();
+    // 唤醒等待的写线程
+    notFull.signal();
+    return x;
+}
 ```
 ### LinkedBlockingQueue
 
-LinkedBlockingQueue 是一个用链表实现的有界阻塞队列，此队列的默认长度和最大长度为 `Integer.MAX_VALUE`，此队列按照先进先出的原则对元素进行排序。LinkedBlockingQueue 持有两把锁 putLock 和 takeLock 分别作用于向队列添加元素和移除元素，两把锁的方式可以减少所竞争。
+`LinkedBlockingQueue` 是一个用链表实现的有界阻塞队列，其默认长度和最大长度为 `Integer.MAX_VALUE`，队列按照先进先出的原则对元素进行排序。
 
-LinkedBlockingQueue 的入队操作先要获取 putLock，然后判断队列是否满，如果是则等待否则入队并且判断入队之后队列是否满，此处判断是因为读线程只会在队列满了并移除了元素才会通知写线程，而队列从满到不满之间可能会有多个读线程移除元素，所以写线程在发现队列不满时需要通知其他写线程队列可写：
+`LinkedBlockingQueue` 持有两把锁 putLock 和 takeLock 分别作用于向队列添加元素和移除元素，两把锁的方式可以减少所竞争。
+
+`LinkedBlockingQueue` 的入队操作先要获取 putLock，然后判断队列是否满，如果是则等待否则入队并且判断入队之后队列是否满，此处判断是因为读线程只会在队列满了并移除了元素才会通知写线程，而队列从满到不满之间可能会有多个读线程移除元素，所以写线程在发现队列不满时需要通知其他写线程队列可写：
+
 ```java
 public void put(E e) throws InterruptedException {
     if (e == null) throw new NullPointerException();
@@ -110,9 +141,9 @@ public E take() throws InterruptedException {
 ```
 ### PriorityBlockingQueue
 
-PriorityBlockingQueue 是一个支持优先级的无界阻塞队列，默认情况下元素采取自然顺序升序排列，也可以自定义类实现 `compareTo()` 方法来指定元素排序规则，或者初始化 PriorityBlockingQueue 时指定构造参数 Comparator 来对元素进行排序。
+`PriorityBlockingQueue` 是一个支持优先级的无界阻塞队列，默认情况下元素采取自然顺序升序排列，也可以自定义类实现 `compareTo()` 方法来指定元素排序规则，或者指定 `Comparator` 来对元素进行排序。
 
-入队
+入队操作先需要获取到锁，然后通过比较器以及二差堆排序算法对入对的数据进行排序并插入到合适的 位置，最后唤醒等待的读线程。 `PriorityBlockingQueue` 是一个无界队列，因此写线程获取到锁之后不会由于队列以满而阻塞。
 ```java
 public boolean offer(E e) {
     if (e == null)
@@ -126,11 +157,13 @@ public boolean offer(E e) {
         tryGrow(array, cap);
     try {
         Comparator<? super E> cmp = comparator;
+        // 通过 Comparator 比较，然后通过二叉堆实现排序
         if (cmp == null)
             siftUpComparable(n, e, array);
         else
             siftUpUsingComparator(n, e, array, cmp);
         size = n + 1;
+        // 通知阻塞的读线程
         notEmpty.signal();
     } finally {
         lock.unlock();
@@ -248,8 +281,3 @@ return awaitMatch(s, pred, e, (how == TIMED), nanos);
 ```
 第一行代码试图把存放当前元素的节点 s 设置为尾节点；第二行代码是让 CPU 自旋等待消费者消费元素，因为自旋会消耗 CPU 所以自旋一定次数后使用 Thread.yield() 方法来暂停当前正在执行的线程
 - **tryTransfer 方法**：tryTransfer 方法是用来试探生产者传入的元素是否能直接传给消费者，如果没有消费者等待接收元素则返回 false；和 transfer 方法不同的是该方法无论消费者是否接收都会立即返回。
-### LinkedBlockingDeque
-LinkedBlockingDeque 是一个由链表结构组成的双端阻塞队列，即可以从队列的两端插入和移除元素。在初始化 LinkedBlockingDequeue 时可以设置容量防止其过度膨胀。
-```java
-
-```

@@ -37,7 +37,7 @@ public class QuickSort {
         // 遍历划分为三部分
         while (left < more){
             if (arr[left] < arr[right]){
-                swap(arr, less++, left++);
+                swap(arr, ++less, left++);
             }else if (arr[left] > arr[right]){
                 swap(arr, left, --more);
             }else{

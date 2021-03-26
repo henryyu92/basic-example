@@ -25,6 +25,6 @@ public interface Protocol<T> {
     /**
      * 引用服务
      */
-    void refer();
+    T refer();
 
 }

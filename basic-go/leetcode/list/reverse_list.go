@@ -13,13 +13,13 @@ func reverseList(head *ListNode) *ListNode {
 	return prev
 }
 
-// 穿针引线法
+// 穿针引线法: prev 和 curr 不需要移动，不断将 curr.Next 节点移动到 prev.Next 即可完成反转
 func reverseInsertion(head *ListNode) *ListNode {
 	dummy := &ListNode{0, head}
 	prev, curr := dummy, head
 	for curr.Next != nil {
 		next := curr.Next
-		prev.Next, curr.Next, next.Next = next, next.Next, curr
+		prev.Next, curr.Next, next.Next = next, next.Next, prev.Next
 	}
 	return dummy.Next
 }
@@ -47,14 +47,14 @@ func recursiveReverseList(head *ListNode) *ListNode {
 func reverseBetween(head *ListNode, left int, right int) *ListNode {
 	dummy := &ListNode{0, head}
 	prev := dummy
-	for i := 0; i < left; i++ {
+	for i := 0; i < left-1; i++ {
 		prev = prev.Next
 	}
 	curr := prev.Next
 	// curr 指向需要反转部分的第一个节点，随着后续节点的插入会移动到需要反转的部分的尾部
-	for i := left; i <= right; i++ {
+	for i := left; i < right; i++ {
 		next := curr.Next
-		prev.Next, curr.Next, next.Next = next, next.Next, curr
+		prev.Next, curr.Next, next.Next = next, next.Next, prev.Next
 	}
 	return dummy.Next
 }

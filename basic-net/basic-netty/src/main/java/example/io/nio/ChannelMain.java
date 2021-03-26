@@ -17,7 +17,7 @@ public class ChannelMain {
         // 使用 Channel 从文件中读取数据
 
         // Stream 关闭的时候关联的 Channel 也会关闭
-        try(FileOutputStream out = new FileOutputStream("test.txt")){
+        try (FileOutputStream out = new FileOutputStream("test.txt")) {
             FileChannel channel = out.getChannel();
 
             ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -30,7 +30,7 @@ public class ChannelMain {
 
         }
         // 使用 Channel 从文件中读取
-        try(FileInputStream in = new FileInputStream("test.txt")){
+        try (FileInputStream in = new FileInputStream("test.txt")) {
             FileChannel channel = in.getChannel();
 
             ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -44,25 +44,26 @@ public class ChannelMain {
 
     /**
      * 使用 Buffer 可以将多个 Channel 串联起来形成一个 Pipeline
+     *
      * @param src
      * @param dest
      * @throws Exception
      */
-    public static void fileChannelCopy(String src, String dest) throws Exception{
-        try(FileInputStream in = new FileInputStream(src);
-            FileOutputStream out = new FileOutputStream(dest)){
+    public static void fileChannelCopy(String src, String dest) throws Exception {
+        try (FileInputStream in = new FileInputStream(src);
+             FileOutputStream out = new FileOutputStream(dest)) {
 
             FileChannel inChannel = in.getChannel();
             FileChannel outChannel = out.getChannel();
 
             ByteBuffer buffer = ByteBuffer.allocate(512);
 
-            while (true){
+            while (true) {
 
                 buffer.clear();
 
                 int read = inChannel.read(buffer);
-                if (read == -1){
+                if (read == -1) {
                     break;
                 }
 
@@ -75,13 +76,14 @@ public class ChannelMain {
 
     /**
      * transferFrom/transferTo 方法可以直接从一个 Channel 将数据转移到另外一个 Channel
-     * @param src       sourceChannel
-     * @param dest      destinationChannel
+     *
+     * @param src  sourceChannel
+     * @param dest destinationChannel
      * @throws Exception
      */
-    public static void fileChannelTransfor(String src, String dest) throws Exception{
-        try(FileInputStream in = new FileInputStream(src);
-            FileOutputStream out = new FileOutputStream(dest)){
+    public static void fileChannelTransfer(String src, String dest) throws Exception {
+        try (FileInputStream in = new FileInputStream(src);
+             FileOutputStream out = new FileOutputStream(dest)) {
 
             FileChannel srcChannel = in.getChannel();
             FileChannel destChannel = out.getChannel();
@@ -93,8 +95,7 @@ public class ChannelMain {
     }
 
 
-
-    public static void channelZeroCopy(Channel src, Channel dest){
+    public static void channelZeroCopy(Channel src, Channel dest) {
 
     }
 }

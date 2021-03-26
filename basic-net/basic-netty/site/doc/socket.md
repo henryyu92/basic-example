@@ -1,6 +1,7 @@
 ## 网络编程
 
-Java 网络编程支持三种 I/O 模型：
+Java 支持基于 Socket 的网络编程，服务器端和客户端需要通过 Socket 建立连接，之后才能相互通信。Java 网络编程支持三种 I/O 模型：
+
 - BIO：同步阻塞模型，服务器为客户端的每个连接启动一个线程处理，这种方式在高并发时受限于系统的线程数，对于短连接来说会频繁的创建和销毁线程，消耗大量系统资源
 - NIO：同步非阻塞模型，客户端发起的请求会注册到多路复用器上，服务器轮询多路复用器，将轮询到的请求在一个线程中处理
 - AIO：异步非阻塞模型，采用 Proactor 模式，由操作系统完成之后通知服务端程序处理请求，一般适用于连接数较多且连接时间较长的应用
@@ -25,6 +26,16 @@ BIO 的问题在与对于每个连接都需要创建新的线程来处理链路�
 
 Socket 是阻塞的，且是以流的形式读写的，当一个连接由于网络问题数据传输比较慢，则在读取数据期间线程一直处于空闲。
 
+```java
+ServerSocket serverSocket = new ServerSocket(port);
+// Acceptor 线程阻塞直到连接创建
+Socket socket = serverSocket.accpet();
+// 阻塞的获取数据
+InputStream in = socket.getInputStream();
+socket.close();
+serverSocket.close();
+```
+
 ### NIO
 
 NIO 是基于 Selector、Channel 和 Buffer 处理网络连接和读写。其中 Selector 是多路复用的 Acceptor，所有 Channel 都会向 Selector 注册并被监听，当有连接或者读写事件发生时才会处理；Channel 是一个双向数据管道，Socket 中的数据通过 Channel 进行读写；Buffer 是一个缓冲，数据都是通过 Buffer 才能从 Channel 中读写。
@@ -44,6 +55,22 @@ Selector 作为 Acceptor 线程监听注册的 Channel 的连接以及读写事�
 
 每个 Channel 都有一个对应的 Buffer 与之交换数据，从 Channel 中读取数据使用 read 方法，往 Channel 中写数据使用 write 方法。 
 
+```java
+ServerSocketChannel serverChannel = ServerSocketChannel.open();
+serverChannel.configureBlocking(false);
+serverChannel.bind(new InetSocketAddress("localhost", 9999));
+
+Selector selector = Selector.open();
+// 注册 channel
+selector.register(selector, SelectionKey.OP_ACCEPT);
+// Acceptor 监听事件
+while(selector.accpet()){
+    
+}
+```
+
+
+
 #### Selector
 
 Selector 是一个多路复用器，Channel 将事件注册到 Selector 上后会被监听，当注册的事件发生时 Selector 就能感知到，然后将事件发生的 Channel 返回到后续操作。Java 使用 epoll 使得只需要一个线程负责 Selector 的监听，就可以实现上千万的客户端接入。
@@ -59,19 +86,8 @@ SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
 - OP_READ：读操作，1
 - OP_WRITE：写操作，4
 
-#### Channel
-
-Channel 本身不能存储数据，需要配合 Buffer 来完成数据传输。
-
-
-
-Channel 是 NIO 的数据管道，网络数据通过 Channel 读取和写入，和流不同的是 Channel 是双工的，即 Channel 可以同时进行读写操作。
-
-Channel 有 FileChannel、DatagramChannel、ServerSocketChannel、SocketChannel 等实现类：
-- ```FileChannel```：用于文件的数据读写，通过文件流的 getChannel 方法将流转换成 Channel，或者直接调用静态方法 ```FileChannel#open``` 以 Channel 的方式读写文件
-- ```DatagramChannel```：用于 udp 协议的数据读写
-- ```ServerSocketChannel 和 SocketChannel```：用于 tcp 协议的数据读写
-
 ### AIO
+
+
 
 **[Back](../)**
