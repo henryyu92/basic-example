@@ -140,7 +140,7 @@ public class MaxSubArray {
         Pair include = new Pair(0, 0, arr[0]);
 
         for (int i = 1; i < arr.length; i++){
-            //
+            // 计算包含 j+1 的最大子数组
             int sum = arr[i] + include.maxValue;
             if (sum > arr[i]){
                 include = new Pair(include.left, i, sum);
