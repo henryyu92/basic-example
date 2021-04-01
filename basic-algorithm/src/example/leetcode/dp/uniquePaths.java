@@ -29,4 +29,37 @@ public class uniquePaths {
         }
         return dp[m - 1][n - 1];
     }
+
+
+    /**
+     * 从 M * N 的网格左上角移动到右下角，每次只能向下或者向右移动一步，总共有多少种不同的路径
+     * 如果网格中有障碍物则不能通过，有障碍物用 1 表示
+     *
+     *
+     *
+     *  dp[j-1] 表示当前行的前一列位置的路径数
+     *  dp[j] 在更新前存储着上一行当前列位置的路径数
+     */
+    public int uniquePathsWithObstacles_dp(int[][] obstacleGrid){
+        int row = obstacleGrid.length;
+        int col = obstacleGrid[0].length;
+
+        int[] dp = new int[col];
+
+        dp[0] = obstacleGrid[0][0] == 1 ? 0 : 1;
+
+        for (int i = 0; i < row; i++){
+            for (int j = 0;j < col; j++){
+                if (obstacleGrid[i][j] == 1){
+                    dp[j] = 0;
+                    continue;
+                }
+                if (j-1 > 0 && obstacleGrid[i][j-1] == 0){
+                    dp[j] += dp[j-1];
+                }
+            }
+        }
+
+        return dp[col-1];
+    }
 }
