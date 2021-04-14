@@ -98,3 +98,9 @@ InnoDB 通过 `force log at commit` 机制实现事务的持久性，也就是�
 数据在事务中修改的时候还会记录 `undo log`，其中记录的是修改之前的数据，在进行回滚时会读取到相应的数据进行回滚。在 MVCC 中通过版本号实现非锁定的一致性读。
 
 当事务提交时，InnoDB 不会立即删除 `undo log`，而是将事务对应的 `undo log` 放到删除列表中，由 purge 来删除。
+
+
+
+
+
+http://mysql.taobao.org/monthly/2017/12/01/
