@@ -60,6 +60,42 @@ git fetch 是将远程仓库的最新内容拉到本地，用户在检查了以�
 - git fetch <远程主机> <分支>：将远程主机的指定分支更新拉取到本地
 ### git cherry-pick
 git cherry-pick 通常用于把特定提交从仓库的一个分支引入到其他分支中。
+
+```
+a <- b <- c <- d    master
+     | <- f <- g	feature
+    
+// 切换到 Master 分支
+git checkout master
+// 将 f 提交应用到 master
+git cherry-pick f
+
+a <- b <- c <- d <- f	master
+     | <- f <- g		feature
+```
+
+
+
+```
+// 将指定的 commit 应用于当前分支
+git cherry-pick <commitHash>
+
+// 支持多个 commit
+git cherry-pick <commitA> <commitB>
+
+// 区间内的 commit
+git cherry-pick <commitA>..<commitB>
+```
+
+- `-m`：如果提交是一个合并点，来自两个分支的合并，那么 cherry-pick 将默认失败，因为不知道采用哪个分支的变动。`-m` 参数用于指定采用的分支，1 表示接受合并的分支，2表示变动来源分支
+
+  ```
+  // cherry-pic 合并点时需要用 -m 指定采用的分支
+  git cherry-pick -m 1 <mergeHash>
+  ```
+
+  
+
 ### git rebase
 使用 git merge 提交时由于分支有其他提交，因此会将两个分支的最新快照(c3 和 c4)以及二者最近的共同祖先(c2)进行三方合并生成一个新的快照(c5)并提交，因而导致提交历史出现了分叉。
 ```
