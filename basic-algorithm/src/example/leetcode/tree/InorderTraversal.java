@@ -1,13 +1,10 @@
 package example.leetcode.tree;
 
-import sun.awt.X11.XStateProtocol;
-
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 /**
  * 二叉树中序遍历
@@ -82,6 +79,10 @@ public class InorderTraversal {
      *          - 如果 prev 有右子结点，则说明已经左子树已经遍历完成，此时需要断开链接并转入右子树
      *          - 如果 prev 没有子结点，说明还没有建立线索二叉树，此时将 current = prev.next，然后进入左子树
      *
+     *
+     *  时间复杂度： O(N)，每个结点会被访问两次
+     *  空间复杂度： O(1)
+     *
      */
     public List<Integer> inorderTraversal_morris(TreeNode root){
 
@@ -122,13 +123,9 @@ public class InorderTraversal {
 
     public static void main(String[] args) {
 
+        TreeNode root = TreeTestUtil.getTree(20, 1, 20);
+
         InorderTraversal inorderTraversal = new InorderTraversal();
-
-        List<Integer> nodes = inorderTraversal.initNodes(20, 1, 20);
-
-        System.out.println("pre inorder: " + nodes);
-
-        TreeNode root = inorderTraversal.buildTree(nodes);
 
         List<Integer> recursive = inorderTraversal.inorderTraversal_recursive(root);
 
@@ -146,30 +143,4 @@ public class InorderTraversal {
         }
     }
 
-    private List<Integer> initNodes(int length, int rangeLeft, int rangeRight){
-        List<Integer> nodes = new ArrayList<>(length);
-        for (int i = 0; i < length; i++){
-            nodes.add((int) (Math.random() * (rangeRight - rangeLeft)));
-        }
-        return nodes;
-    }
-
-    private TreeNode buildTree(List<Integer> nodes){
-        TreeNode root = new TreeNode(nodes.get(0));
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.add(root);
-        TreeNode next;
-        int i = 1, l = nodes.size();
-        while ((next = queue.poll()) != null){
-            if (i < l){
-                next.left = new TreeNode(nodes.get(i++));
-                queue.add(next.left);
-            }
-            if (i < l){
-                next.right = new TreeNode(nodes.get(i++));
-                queue.add(next.right);
-            }
-        }
-        return root;
-    }
 }
