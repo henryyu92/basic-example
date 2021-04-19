@@ -1,7 +1,5 @@
 package example.leetcode.tree;
 
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
-
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -72,8 +70,9 @@ public class PathSum {
      *
      *      1, 深度优先 + 回溯法：采用深度优先遍历所有叶子结点，如果不满足则回溯到上层结点
      *      2. 递归： 将问题转换为左子树路径和等于 target - node.val 的路径和右子树路径和等于 target - node.val 的路径
+     *      3. 广度优先搜索： todo
      */
-    public List<List<Integer>> pathSum_1(TreeNode root, int targetSum){
+    public List<List<Integer>> pathSum_2_dfs(TreeNode root, int targetSum){
         List<List<Integer>> result = new ArrayList<>();
         if (root == null){
             return result;
@@ -98,9 +97,55 @@ public class PathSum {
         if (node.right != null){
             dfs(node.right, target, currentSum, currentPath, result);
         }
-        // 回溯
+        // 叶子结点不满足目标，回溯
         currentPath.remove(currentPath.size() - 1);
-        currentSum -= node.val;
+    }
+
+    /**
+     * 时间复杂度：
+     *
+     */
+    public List<List<Integer>> pathSum_2_recursive(TreeNode root, int targetSum){
+        List<List<Integer>> result = new ArrayList<>();
+        if (root.left == null && root.right == null && root.val == targetSum){
+            List<Integer> newPath = new ArrayList<>();
+            newPath.add(root.val);
+            result.add(newPath);
+        }
+        if (root.left != null){
+            List<List<Integer>> left = pathSum_2_recursive(root.left, targetSum - root.val);
+            if (left.size() != 0){
+                for (List<Integer> path : left){
+                    ArrayList<Integer> newPath = new ArrayList<>();
+                    newPath.add(root.val);
+                    newPath.addAll(path);
+                    result.add(newPath);
+                }
+            }
+        }
+        if (root.right != null){
+            List<List<Integer>> right = pathSum_2_recursive(root.right, targetSum - root.val);
+            if (right.size() != 0){
+                for (List<Integer> path : right){
+                    ArrayList<Integer> newPath = new ArrayList<>();
+                    newPath.add(root.val);
+                    newPath.addAll(path);
+                    result.add(newPath);
+                }
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     *  路径总和 - 3：给定二叉树根结点和目标整数，找出路径和等于给定值的路径总数，路径不需要从根结点开始也不需要在叶子结点结束，但方向必须是向下的
+     *
+     *
+     */
+    public int pathSum_3(TreeNode root, int targetSum){
+
+        return 0;
     }
 
     public static void main(String[] args) {
@@ -108,7 +153,14 @@ public class PathSum {
         TreeNode root = TreeTestUtil.getTree(20, 1, 20);
 
         PathSum hasPathSum = new PathSum();
+
+        // HashPathSum Test
         System.out.println(hasPathSum.hasPathSum_1_recursive(root, 10));
         System.out.println(hasPathSum.hasPathSum_1_bfs(root, 10));
+
+        // PathSum Test
+        System.out.println(hasPathSum.pathSum_2_dfs(root, 30));
+        System.out.println(hasPathSum.pathSum_2_recursive(root, 30));
+
     }
 }
