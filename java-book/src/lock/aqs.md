@@ -1,4 +1,4 @@
-# 队列同步器
+## 队列同步器
 
 队列同步器 (`AbstractQueuedSynchronizer`) 是用来构建同步组件的基础框架，AQS 使用一个 int 成员变量 state 表示同步状态，通过内置的 FIFO 队列完成资源获取线程的排队工作。
 
