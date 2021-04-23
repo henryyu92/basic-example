@@ -1,4 +1,4 @@
-# Semaphore
+## Semaphore
 
 Semaphore(信号量) 用来控制同时访问特定资源的线程数量，它通过协调各个线程保证合理的使用公共资源。
 

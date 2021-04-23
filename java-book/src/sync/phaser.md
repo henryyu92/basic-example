@@ -1,4 +1,4 @@
-# Phaser
+## Phaser
 
 Phaser又称“阶段器”，用来解决控制多个线程分阶段共同完成任务的情景问题。它与 CountDownLatch 和 CyclicBarrier 类似，都是等待一组线程完成工作后再执行下一步工作。
 

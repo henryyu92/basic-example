@@ -1,4 +1,4 @@
-## `CyclicBarrier`
+`CyclicBarrier`
 
 `CyclicBarrier` 能将一组线程阻塞在某个屏障，直到组内所有的线程都到达了屏障时，被阻塞的线程才会继续执行。
 

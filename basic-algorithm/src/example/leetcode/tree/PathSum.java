@@ -82,7 +82,6 @@ public class PathSum {
     }
 
     // 回溯法需要将结果作为参数传入方法中记录
-    // todo
     public void dfs(TreeNode node, int target, int currentSum, List<Integer> currentPath, List<List<Integer>> result){
         currentPath.add(node.val);
         currentSum += node.val;
@@ -90,14 +89,16 @@ public class PathSum {
         if (node.left == null && node.right == null && currentSum == target){
             // 需要拷贝当前的路径，应为后续会有改动
             result.add(new ArrayList<>(currentPath));
+            return;
         }
+        // 做选择
         if (node.left != null){
             dfs(node.left, target, currentSum, currentPath, result);
         }
         if (node.right != null){
             dfs(node.right, target, currentSum, currentPath, result);
         }
-        // 叶子结点不满足目标，回溯
+        // 撤销选择，回溯
         currentPath.remove(currentPath.size() - 1);
     }
 

@@ -158,12 +158,19 @@ public class Profiler {
 线程池中的线程不会轻易销毁，如果在线程池中使用 `ThreadLocal` 则需要使用 `remove()` 方法移除不再使用的数据：
 
 ```java
-final ThreadLocal<T> THREAD_LCOAL = ThreadLocal.withInitial(()-> System.currentTimeMillis())
+final ThreadLocal<T> THREAD_LCOAL = ThreadLocal.withInitial(()-> System.currentTimeMillis());
 try{
     // ...
 }finally{
-    THREAD_LOCAL.remove()
+    THREAD_LOCAL.remove();
 }
+```
+
+`ThreadLocal` 存储的数据不能在父子线程中共享，如果需要在父子线程中共享存储的数据，需要使用 `InheritableThreadLocal`
+
+```java
+final ThreadLocal<T> THREAD_LOCAL = InheritableThreadLocal.withInitail(()->
+    System.currentTimeMills());
 ```
 
 

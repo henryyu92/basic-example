@@ -8,7 +8,7 @@ import java.lang.reflect.Array;
 public class MaximalSquare {
 
     /**
-     *  动态规划：考虑 dp(i,j) 表示以 (i,j) 为正方形右下角的正方形的最大边长，则
+     *  动态规划：考虑 dp(i,j) 表示以 (i,j) 为正方形右下角且只包含 1 的最大正方形边长，则
      *     - 如果 (i, j) = 0 则 dp(i, j) = 0
      *     - 如果 (i, j) != 0 则 dp(i, j) = min(dp(i-1,j), dp(i, j-1), dp(i-1,j-1)) + 1
      */

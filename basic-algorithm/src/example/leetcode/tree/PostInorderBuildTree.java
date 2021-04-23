@@ -12,11 +12,20 @@ public class PostInorderBuildTree {
      */
     public TreeNode buildTree_recursive(int[] inorder, int[] postorder){
 
+        return null;
     }
 
     public TreeNode buildTreeRecursiveHelper(int[] inorder, int inorderLeft, int inorderRight, int[] postorder, int postorderLeft, int postorderRight){
         TreeNode root = new TreeNode(postorder[postorderRight]);
+        if (inorderLeft > inorderRight){
+            return null;
+        }
+        int i = inorderLeft;
+        while (inorder[i] != postorder[postorderRight]){
+            i++;
+        }
+//        root.left = buildTreeRecursiveHelper(inorder, inorderLeft, i-1, postorder, postorderLeft, )
 
-
+        return null;
     }
 }
