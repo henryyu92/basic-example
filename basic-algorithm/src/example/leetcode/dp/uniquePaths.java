@@ -35,7 +35,10 @@ public class uniquePaths {
      * 从 M * N 的网格左上角移动到右下角，每次只能向下或者向右移动一步，总共有多少种不同的路径
      * 如果网格中有障碍物则不能通过，有障碍物用 1 表示
      *
+     *      dp[i][j] = dp[i-1][j] + dp[i][j-1]
+     *      dp[i][j] = 0 where arr[i][j] = 1
      *
+     *  由于　dp[i][j] 只与 dp[i-1][j] 和 dp[i][j-1] 相关，因此只需要保留一个数组即可
      *
      *  dp[j-1] 表示当前行的前一列位置的路径数
      *  dp[j] 在更新前存储着上一行当前列位置的路径数
@@ -54,7 +57,7 @@ public class uniquePaths {
                     dp[j] = 0;
                     continue;
                 }
-                if (j-1 > 0 && obstacleGrid[i][j-1] == 0){
+                if (j-1 >= 0 && obstacleGrid[i][j-1] == 0){
                     dp[j] += dp[j-1];
                 }
             }

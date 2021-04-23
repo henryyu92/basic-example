@@ -89,7 +89,6 @@ public class PathSum {
         if (node.left == null && node.right == null && currentSum == target){
             // 需要拷贝当前的路径，应为后续会有改动
             result.add(new ArrayList<>(currentPath));
-            return;
         }
         // 做选择
         if (node.left != null){
