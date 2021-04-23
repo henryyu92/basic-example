@@ -3,11 +3,12 @@ package example.leetcode.tree;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BuildTree {
+/**
+ * 根据树的前序遍历和中序遍历构造二叉树
+ */
+public class PreInorderBuildTree {
 
     /**
-     *  根据树的前序遍历和中序遍历构造二叉树
-     *
      *      递归：
      *          前序遍历： [根结点, [左子树前序遍历], [右子树前序遍历]]
      *          中序遍历： [[左子树中序遍历], 根结点, [右子树中序遍历]]
@@ -71,7 +72,7 @@ public class BuildTree {
      *  todo
      *
      */
-    public TreeNode buildTree(int[] preorder, int inorder){
+    public TreeNode buildTree_stack(int[] preorder, int inorder){
 
         return null;
     }
