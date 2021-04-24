@@ -45,7 +45,7 @@ public static <S> ServiceLoader<S> load(Class<S> service) {
   return ServiceLoader.load(service, cl);
 }
 ```
-#### SPI
+### SPI
 SPI(Service Provider Interface) 是一种服务提供发现机制，用在不同模块间通过接口调用服务，避免对具体服务接口实现类的耦合。Java SPI 的使用步骤：
 - 服务调用方通过 ```ServiceLoader#load``` 加载服务接口的实现类实例
 - 服务提供方实现服务接口后，在 META-INF/services 目录下新建一个接口全限定名的文件并将具体实现类全限定名写入
