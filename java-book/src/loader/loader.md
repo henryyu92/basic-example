@@ -37,7 +37,29 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
     throw new ClassNotFoundException(name);
 }
 ```
+### 类加载器
+
+- URLClassLoader：用于从指定的 URL 表示的 jar 包中加载类
+
+```java
+URL url = new URL("/path/of/jar.jar");
+URLClassLoader loader = new URLClassLoader(new URL[]{url});
+Class clzz = loader.findClass("class_full_name");
+```
+
+- 使用类加载器读取 classpath 下的文件
+
+  ```java
+  InputStream stream = getClass().getClassLoader().getResourceAsStream("file-name");
+  Properties properties = new Properties(stream);
+  ```
+
+  
+
+
+
 ### 线程上下文类加载器
+
 Java 提供一个线程上下文类加载器(Thread Context ClassLoader)，这个类加载器可以通过```java.lang.Thread#setContextClassLoader()```方法设置，如果线程创建时还未设置则从父线程继承一个，如果在应用程序的全局范围内都没有设置则这个类加载器就是应用程序类加载器(AppClassLoader)。使用```Thread.currentThread().getContextClassLoader()``` 获取线程上下文类加载器，Java SPI 机制就是采用线程上下文类加载器实现。
 ```java
 public static <S> ServiceLoader<S> load(Class<S> service) {

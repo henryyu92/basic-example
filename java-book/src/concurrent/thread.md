@@ -199,6 +199,26 @@ final ThreadLocal<T> THREAD_LOCAL = InheritableThreadLocal.withInitail(()->
 - 线程从 wait 方法返回的前提是获取到了调用对象的锁
 - `notify` 或者 `notifyAll` 方法的调用并不会释放锁，只有在 synchronized 执行完毕才会释放锁
 
+等待/通知模型：
+
+```java
+synchronized(obj){
+    // 条件不满足则释放锁
+    while(!test(condition)){
+		await();
+	}
+    // 否则执行
+    doAction();
+    // 更改条件
+    changeCondition();
+    // 通知其他线程
+    notifyAll();
+}
+
+```
+
+
+
 使用等待/通知模型让两个线程交替打印奇偶数：
 ```java
 public class WaitNotifyPrintOddEvent{

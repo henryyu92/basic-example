@@ -12,65 +12,48 @@ import java.util.function.Predicate;
  */
 public class WaitNotifyMain {
 
-    Object lock = new Object();
-    volatile int count = 0;
+    final Object lock = new Object();
+    int count = 0;
+    int max;
+
+    public WaitNotifyMain(int max){
+        this.max = max;
+    }
 
 
     private void print(Predicate<Integer> p, Consumer<Integer> c) {
-        synchronized (lock) {
-            while (p.test(count)) {
-                try {
-                    lock.wait();
-                    c.accept(count);
-                    count++;
-                    lock.notify();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        while (count < max){
+            synchronized (lock) {
+                // 条件不满足则等待
+                while (!p.test(count)) {
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                // 满则则执行
+                c.accept(count);
+                // 改变条件
+                count++;
+                // 通知其他线程
+                lock.notify();
             }
         }
+
     }
 
 
     public static void main(String[] args) throws InterruptedException {
 
-        WaitNotifyMain wn = new WaitNotifyMain();
+        WaitNotifyMain wn = new WaitNotifyMain(100);
 
-//        Thread evenThread = new Thread(() -> wn.print(x -> x % 2 == 0, System.out::println), "evenThread");
-//        evenThread.start();
-//
-//        Thread oddThread = new Thread(() -> wn.print(x -> x % 2 != 0, System.out::println), "oddThread");
-//        oddThread.start();
-//
-//        Thread.currentThread().join();
-    }
+        Thread evenThread = new Thread(() -> wn.print(x -> x % 2 == 0, System.out::println), "evenThread");
+        evenThread.start();
 
-    /**
-     * 打印偶数
-     *
-     * @throws InterruptedException
-     */
-    public void printEven() throws InterruptedException {
-        // 获取锁
-        synchronized (lock) {
-            while (count % 2 != 0) {
-                lock.wait();
-            }
-            System.out.println(count);
-            count++;
-            lock.notify();
-        }
-    }
+        Thread oddThread = new Thread(() -> wn.print(x -> x % 2 != 0, System.out::println), "oddThread");
+        oddThread.start();
 
-    public void printOdd() throws InterruptedException {
-        synchronized (lock) {
-            while (count % 2 == 0) {
-                lock.wait();
-            }
-            System.out.println(count);
-            count++;
-            lock.notify();
-        }
     }
 
 }
