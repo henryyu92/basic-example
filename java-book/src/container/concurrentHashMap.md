@@ -1,132 +1,149 @@
-## ConcurrentHashMap
-
-ConcurrentHashMap 是 HashMap 的线程安全实现，内部采用 volatile 以及 cas 的方式保证在多线程情况下的插入和扩容安全。
-
-### HasMap
+## HashMap
 
 HashMap 是基于 k-v 存储的容器，其中 key 和 value 都可以为 null，HashMap 不能保证放入元素的顺序，也不能保证多线程条件下的并发安全。
 
-HashMap 底层存储结构采用数据和红黑树(或者链表)，数据插入和读取时先将 key 进行 hash 运算得到对应的位置，然后从将数据插入位置上的红黑树或者从对应位置的红黑树中读取数据。
+HashMap 底层存储结构采用数组和红黑树(或者链表)，数据插入和读取时先将 key 进行 hash 运算得到对应的位置，然后从将数据插入位置上的红黑树或者从对应位置的红黑树中读取数据。HashMap 插入数据时如果链表的长度超过 8 则会将链表转换为红黑树。
 
 HashMap 定义了负载因子，当数组中存储数据的比例超过负载因子则会触发数组扩容。HashMap 扩容是将组数扩大为原来的 2 倍，然后将原来数据上的数据全部重新插入新的数组。
 
-HashMap 插入数据到对应的桶时，如果桶中的数据小于 8 则使用链表结构，如果超过 8 则使用红黑树结构。
+### Get
 
-#### Get
+`get` 方法返回 key 对应的 value，如果不存在则返回 null。`get` 方法获取 key 对应 value 的逻辑在 `getNode` 方法中实现，主要流程为：
 
-- 计算 key 的 hash 值
-- 根据 hash 值计算 key 在 table 中对应的位置
-- 如果 table 对应位置的节点为空则返回 null，如果为树节点(TreeNode)则利用红黑树查找，否则根据链表查找，如果查找不到则返回 null
-
-#### Put
-
-- 判断 Node 数组是否初始化，如果没有则初始化数组
-- 根据 hash 值计算 key 在数组对应的位置
-- 如果数组对应位置为 null 则创建节点，
-
-### Hash
-
-HashMap 和 ConcurrentHashMap 在存储以及获取元素之前需要对 key 进行哈希操作从而获取元素所在桶的位置。
+- 根据 key 的 hash 值定位数组的位置。数组定位通过取模的方式，因为 hashMap 的数组长度为 2 的幂次，因此取模操作可以直接简化位操作 `(n-1) & hash`；hashMap 允许 key 为 null，此时 key 的 hash 值为 0，也就是会从数组的第一个位置查找
+- 判断数组中保存的 Node 是否是需要查找的数据，如果是则直接返回，判断的条件是 hash 值相等并且 key 相等
+- 如果数组中保存的 Node 不是需要查找的数据，则会沿着链表或者红黑树进行查找，如果遍历完没有查找到则返回 null
 
 ```java
-// hash 算法将 hashCode 的高 16 参与计算是为了在数组长度小于 16 时做到尽可能的散列
-static final int hash(Object key) {
-    int h;
-    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+final Node<K,V> getNode(int hash, Object key) {
+    Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (first = tab[(n - 1) & hash]) != null) {
+        if (first.hash == hash && // always check first node
+            ((k = first.key) == key || (key != null && key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+            if (first instanceof TreeNode)
+                return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+            do {
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
 }
-
-// 计算 hash 值
-int h = spread(key.hashCode());
-// 根据 hash 值计算 key 所在的桶
-(n - 1) & h)
 ```
 
-HashMap 使用 ```hash&(len-1)``` 确定数据的索引位置，当 len 为 2 的幂次时等同于 ```hash%len```，相比取模运算，位与运算效率会高得多。
+### Put
 
-当扩容时，由于 len 是 2 的幂次，所以 ```hash&(len-1)``` 的结果要么是当前索引，要么是当前索引加上扩容前的长度，红黑树转移数据时根据 ```hash&len``` 是否为 0 将整个树分裂成两部分为，为 0 的部分表示扩容后的仍然是当前索引，不为 0 的部分表示扩容后的索引为当前索引加上扩容前的长度。
+`put` 操作将指定的 key 和指定的 value 存储到 map 中并返回旧的 value，如果 key 对应的 value 已经存在则直接覆盖。`put` 方法的实现在 `putVal` 方法中，主要流程为：
 
-### HashMap
+- 如果数组还未初始化，则初始化数组，数组的初始化长度为 16
+- 根据 hash 值定位数组对应的位置，如果数组对应位置为 null，则创建新的 Node 并返回
+- 判断数组对应位置的 Node 是否是 key 对应的节点，如果是则直接覆盖值，否则继续查找
+- 沿着红黑树或者链表查找，如果查找到则直接覆盖值，否则创建新的节点
 
+- 如果是链表创建新节点后需要判断节点数是否小于 8，如果小于则需要调用 `treeifyBin` 方法尝试转换成红黑树，`treeifyBin` 方法会判断数组长度是否小于 64，如果小于则会调用 `resize` 方法对数组扩容，否则将链表转换为红黑树
 
+### Remove
 
-#### Put
+`Remove` 操作删除给定 key 对应的 Node，并返回旧的值，如果不存在则返回 null。`remove` 操作的实现在 `removeNode` 方法中，主要流程为：
 
-HashMap 的插入操作比较复杂，在插入前需要判断 Node 数组是否初始化，然后在插入的过程中需要判断是否已经存在相同 key 的元素，如果存在则覆盖元素的值。
+- 利用查找流程查找到 key 对应的 Node
+- 如果 Node 在红黑树上，则删除红黑树节点；如果 Node 在链表上则删除链表节点
 
-HashMap 在向桶中插入元素时如果是链表结构则直接插入到链表尾部，然后判断是否达到阈值，如果达到则需要将桶中的元素转换成红黑树结构。
+### Resize
 
+`Resize` 操作用于初始化数组或者数组扩容，初始化时会创建大小为 16，负载因子为 0.75 的数组，当数组的节点数达到阈值后会进行扩容，扩容时创建 2 倍大小的新数组并且将旧数组中的节点移动到新的数组。
 
-
-#### Remove
-
-HashMap 删除元素前需要确定元素的位置，如果在索引位置则直接使用下一个元素替换并返回，如果在红黑树结构上则使用红黑树结构删除元素，如果在链表上则使用链表结果后删除。
-
-#### ReSize
-
-HashMap 数组在初始化时或者扩容时都会调用 ReSize 过程创建新的数组，初始化时直接创建默认大小或者指定大小和负载因子的数组，扩容时创建 2 倍大小的数组并重新计算负载因子。
-
-扩容时创建两倍大小数组后需要将元素组中的数据转移到新的数组中，由于是两倍扩容并且数组长度是 2 的幂次，因此根据 hash 算法扩容后再次 hash 只有两种可能，因此将索引位置的元素根据 ```hash&oldCap``` 是否为 0 分为两部分，为 0 的部分表示扩容后再次 hash 之后还是在当前索引处，所以数据不需要移动，只需要调整指针即可；为 0 的部分表示扩容后再次 hash 之后索引位置为当前索引位置加扩容前的容量即 ```index+oldCap```，这部分需要移动。
+由于是两倍扩容并且数组长度是 2 的幂次，因此根据 hash 算法扩容后再次 hash 只有两种可能，因此将索引位置的元素根据 ```hash&oldCap``` 是否为 0 分为两部分，为 0 的部分表示扩容后再次 hash 之后还是在当前索引处，所以数据不需要移动，只需要调整指针即可；为 0 的部分表示扩容后再次 hash 之后索引位置为当前索引位置加扩容前的容量即 ```index+oldCap```，这部分需要移动。
 
 对于索引位置为红黑树结构来说，在将元素分为两部分时判断元素的个数是否到达阈值 ```UNTREEIFY_THRESHOLD```，默认是 6，如果到达了则需要将红黑树结构转换成链表结构。
 
-### ConcurrentHashMap
+```java
+do {
+	next = e.next;
+    // 原位置，不需要移动
+	if ((e.hash & oldCap) == 0) {
+		if (loTail == null)
+			loHead = e;
+		else
+			loTail.next = e;
+		loTail = e;
+	}
+    // 需要移动到 index + oldCap 位置
+	else {
+		if (hiTail == null)
+			hiHead = e;
+		else
+			hiTail.next = e;
+		hiTail = e;
+	}
+} while ((e = next) != null);
+// 移动拆分的链表到新的数组中
+if (loTail != null) {
+    loTail.next = null;
+    newTab[j] = loHead;
+}
+if (hiTail != null) {
+    hiTail.next = null;
+    newTab[j + oldCap] = hiHead;
+}
+```
+
+
+
+## ConcurrentHashMap
 
 ConcurrentHashMap 是 HashMap 的线程安全实现，ConcurrentHashMap 依然采用数组加链表和红黑树的数据结构，链表到红黑树的转换阈值依然是 8，ConcurrentHashMap 依然采用双倍扩容的方式扩容数组，只是在扩容的时候采用了机制保证并发安全。
 
-和 HashMap 不同的是，ConcurrentHashMap 的 key 和 value 都不允许为 null。
+ConcurrentHashMap 的 key 和 value 都不允许为 null。
+
+ConcurrentHashMap 定义了几个常量
 
 ```java
-
-// 数组最大容量
-private static final int MAXIMUM_CAPACITY = 1 << 30;
-    
-// 数组默认初始化的容量
-private static final int DEFAULT_CAPACITY = 16;
-
-// 负载因子，达到阈值时需要扩容
-private static final float LOAD_FACTOR = 0.75f;
-
-// 链表长度达到阈值时转化成一棵红黑树
-static final int TREEIFY_THRESHOLD = 8;
+// 控制数组的初始化以及扩容
+// -1 表示数组正在初始化， -(1+n) 表示有 n 个线程正在执行扩容
+// 如果数组为 null 则表示数组初始化大小，如果数组初始化完成则表示数组的容量，默认是数组大小的 0.75
+private transient volatile int sizeCtl;
 ```
-ConcurrentHashMap 元素依然是包装成 Node 和 TreeNode 后插入链表或者红黑树：
+
+### InitTable
+
+`IniiTable` 方法用于初始化数组，初始化时会检查 `sizeCtl` 变量，如果值为负数则表示其他线程正在执行初始化或者扩容，于是当前线程需要让出调度从而使得其他线程能够完成初始化或者扩容，否则使用 CAS 的方式将 `sizeCtl` 设置为 -1 表示当前线程正在执行初始化。
+
 ```java
-static class Node<K,V> implements Map.Entry<K,V> {
-    final int hash;
-    final K key;
-    // volatile 修饰表示当前线程的修改其他线程立即可见
-    volatile V val;
-    volatile Node<K,V> next;
-
-    // ...
-}
-
-static class TreeNode<K, V> extends LinkeHashMap.Entry<K, V> {
-    TreeNode<K, V> parent;
-    TreeNode<K, V> left;
-    TreeNode<K, V> right;
-    boolean red;
-
-    // ...
-}
-```
-TreeNode 是红黑树实际存储数据的节点，ConcurrentHashMap 还定义了 TreeBin 数据结构指向红黑树的根节点，并维护了读写锁用于控制数据写入时的并发安全：
-```java
-static final class TreeBin<K,V> extends Node<K,V> {
-    TreeNode<K,V> root;
-    volatile TreeNode<K,V> first;
-    volatile Thread waiter;
-    volatile int lockState;
-    // values for lockState
-    static final int WRITER = 1; // set while holding write lock
-    static final int WAITER = 2; // set when waiting for write lock
-    static final int READER = 4; // increment value for setting read lock
-
-    // ...
+private final Node<K,V>[] initTable() {
+    Node<K,V>[] tab; int sc;
+    while ((tab = table) == null || tab.length == 0) {
+        // sizeCtl < 0 表示有其他线程在进行初始化或扩容操作
+        if ((sc = sizeCtl) < 0)
+            Thread.yield(); // lost initialization race; just spin
+        // CAS 设置共享变量成功表示由该线程初始化 table，其他线程需要自旋
+        else if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
+            try {
+                if ((tab = table) == null || tab.length == 0) {
+                    // 初始大小为 16
+                    int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
+                    @SuppressWarnings("unchecked")
+                    Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
+                    table = tab = nt;
+                    sc = n - (n >>> 2);
+                }
+            } finally {
+                // 初始化完成保存 table 的容量，默认是 table 大小的 0.75
+                sizeCtl = sc;
+            }
+            break;
+        }
+    }
+    return tab;
 }
 ```
 
-#### Get
+### Get
 
 ConcurrentHashMap 获取元素的流程和 HashMap 类似，先通过 hash 值计算数组索引位置，然后判断索引位置的数据结构，如果为红黑树则使用红黑树结果查询，如果是链表则使用链表结构查询。
 
@@ -157,263 +174,107 @@ public V get(Object key) {
     }
 }
 ```
-#### Put
+
+### Put
 
 ConcurrentHashMap 的 put 操作核心思想依然是根据 key 的 hash 值计算节点插入 table 的位置，如果该位置为空则直接插入，否则插入到链表或者红黑树中，如果 table 负载超过阈值则进行扩容和 rehash 过程。
 
-ConcurrentHashMap 插入数据的流程在 putVal 中实现，如果插入数据时数组为空则需要执行初始化流程；如果索引位置没有元素则创建新的 Node 并以 CAS 方式插入数据；如果容器正在扩容则在扩容转移数据时完成插入；否则将当前索引位置加上锁，之后执行插入操作。数据插入完毕之后检查数组是否需要扩容，如果需要则扩容并转移数据。
+`ConcurrentHashMap` 的 `put` 操作是在 `putVal` 方法中实现，其主要流程为：
+
+- 判断数组是否为空，如果为空则调用 `initTable` 方法初始化数组
+- 通过 hash 值定位到数组的索引位置，如果该位置没有元素则创建 Node 并以 CAS 的方式添加
+- 如果索引位置存在 Node 并且该 Node 的 hash 值为 -1 则表示数组正在扩容，当前线程调用 `helpTransfer` 方法协助数组扩容并且将数据添加到新的数组中
+- 数组索引位置可以添加，则当前线程会通过 `synchronized` 对索引位置的 Node 加锁，然后根据索引位置的 Node 判断是链表还是红黑树，如果 Node 的 hash 值大于等于 0 则表示是链表，则创建链表结点加入链表；如果是 `TreeBin` 则表示是红黑树，于是将元素添加到红黑树中
+- 如果是链表结构则在添加元素之后需要判断结点数是否超过 8，如果超过则调用 `treeifyBin` 方法尝试将链表结构转换成红黑树
+- 添加元素之后调用 `addCount` 将 `ConcurrentHashMap` 的元素个数 +1，增加元素时如果数组正在扩容也会帮助扩容
+
+`put` 操作只会对数组中的单个索引位置加锁，因此其他索引位置的操作不会受到影响。
+
+#### HelpTransfer
+
+`helpTransfer`  方法是辅助方法，在添加元素或者删除元素时如果数组正在扩容则调用该方法协助数组扩容。
+
+如果数组正在扩容则数组中的 Node 是 `ForwardingNode` 的实例，此时的 `sizeCtl` 必然是负数。
 
 ```java
-
-final V putVal(K key, V value, boolean onlyIfAbsent) {
-    if (key == null || value == null) throw new NullPointerException();
-    // 计算 hashCode 的散列值
-    int hash = spread(key.hashCode());
-	// 记录槽中 Node 的个数
-    int binCount = 0;
-    for (Node<K,V>[] tab = table;;) {
-        Node<K,V> f; int n, i, fh;
-        // table 为 null 则进行初始化
-        if (tab == null || (n = tab.length) == 0)
-            tab = initTable();
-        // 如果 i 位置没有节点则直接插入，CAS 保证不需要加锁
-        else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
-            if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
-                break;                   // no lock when adding to empty bin
-        }
-        // 元素为扩容是的首元素，说明正在进行扩容
-        else if ((fh = f.hash) == MOVED)
-            tab = helpTransfer(tab, f);
-        else {
-            V oldVal = null;
-            // 槽加锁
-            synchronized (f) {
-                if (tabAt(tab, i) == f) {
-                    // 链表结构
-                    if (fh >= 0) {
-                        binCount = 1;
-                        for (Node<K,V> e = f;; ++binCount) {
-                            K ek;
-							// onlyIfAbsent 为 true 表示存在则不插入，false 表示存在则覆盖
-                            if (e.hash == hash && ((ek = e.key) == key || (ek != null && key.equals(ek)))) {
-                                oldVal = e.val;
-                                if (!onlyIfAbsent)
-                                    e.val = value;
-                                break;
-                            }
-                            Node<K,V> pred = e;
-                            if ((e = e.next) == null) {
-                                pred.next = new Node<K,V>(hash, key, value, null);
-                                break;
-                            }
-                        }
-                    }
-                    // 树节点，按照树的插入操作进行插入
-                    else if (f instanceof TreeBin) {
-                        Node<K,V> p;
-                        binCount = 2;
-                        if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key, value)) != null {
-                            oldVal = p.val;
-                            if (!onlyIfAbsent)
-                                p.val = value;
-                        }
-                    }
-                }
-            }
-            if (binCount != 0) {
-                // 链表长度超过阈值则转换为红黑树
-                if (binCount >= TREEIFY_THRESHOLD)
-                    treeifyBin(tab, i);
-                if (oldVal != null)
-                    return oldVal;
+final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
+    Node<K,V>[] nextTab; int sc;
+    // 数组结点为 ForwardingNode 表示正在进行移动元素
+    if (tab != null && (f instanceof ForwardingNode) &&
+        (nextTab = ((ForwardingNode<K,V>)f).nextTable) != null) {
+        int rs = resizeStamp(tab.length);
+        while (nextTab == nextTable && table == tab &&
+               (sc = sizeCtl) < 0) {
+            if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                sc == rs + MAX_RESIZERS || transferIndex <= 0)
+                break;
+            if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1)) {
+                transfer(tab, nextTab);
                 break;
             }
         }
+        return nextTab;
     }
-	// 调整 Node 数组大小确定是否需要扩容
-    addCount(1L, binCount);
-    return null;
+    return table;
 }
 ```
-#### InitTable
 
-ConcurrentHashMap 在插入数据时会检查数组是否初始化，如果没有则调用 initTable 方法来初始化。ConcurrentHashMap 初始化时检查 sizeCtl 变量，如果为负数表示容器正在初始化或者扩容，其中 -1 表示正在初始化，此时线程让出执行调度让其他线程完成初始化或者扩容。否则以 CAS 方式将 sizeCtl 变量设置为 -1 表示当前线程在执行初始化。
 
-ConcurrentHashMap 初始化时先创建默认大小的数组，然后计算 ```cap - (cap>>>2)``` 赋值给 sizeCtl，该值在后续扩容时使用。
+
+#### TreeifyBin
+
+`TreeifyBin` 方法尝试将链表转换成红黑树结构，如果当前数组的长度小于 64，则不会转换成红黑树而是对数组进行扩容。
 
 ```java
-private final Node<K,V>[] initTable() {
-    Node<K,V>[] tab; int sc;
-    while ((tab = table) == null || tab.length == 0) {
-        // sizeCtl < 0 表示有其他线程在进行初始化或扩容操作
-        if ((sc = sizeCtl) < 0)
-            Thread.yield(); // lost initialization race; just spin
-        // CAS 设置共享变量成功表示由该线程初始化 table，其他线程需要自旋
-        else if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
-            try {
-                if ((tab = table) == null || tab.length == 0) {
-                    // 初始大小为 16
-                    int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
-                    @SuppressWarnings("unchecked")
-                    Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
-                    table = tab = nt;
-                    sc = n - (n >>> 2);
+private final void treeifyBin(Node<K,V>[] tab, int index) {
+    Node<K,V> b; int n, sc;
+    if (tab != null) {
+        if ((n = tab.length) < MIN_TREEIFY_CAPACITY)
+            // 扩容数组
+            tryPresize(n << 1);
+        else if ((b = tabAt(tab, index)) != null && b.hash >= 0) {
+            synchronized (b) {
+                // 双重检锁并将链表节点转换为红黑树结点
+                if (tabAt(tab, index) == b) {
+                    TreeNode<K,V> hd = null, tl = null;
+                    for (Node<K,V> e = b; e != null; e = e.next) {
+                        TreeNode<K,V> p =
+                            new TreeNode<K,V>(e.hash, e.key, e.val,
+                                              null, null);
+                        if ((p.prev = tl) == null)
+                            hd = p;
+                        else
+                            tl.next = p;
+                        tl = p;
+                    }
+                    // 将 TreeNode 添加到红黑树
+                    setTabAt(tab, index, new TreeBin<K,V>(hd));
                 }
-            } finally {
-                sizeCtl = sc;
             }
-            break;
         }
     }
-    return tab;
 }
 ```
-#### Resize
 
-ConcurrentHashMap 在插入数据之后检查是否需要扩容，如果达到负载因子阈值则需要扩容，ConcurrentHashMap 扩容操作在 transfer 方法中完成。
+#### AddCount
 
-// todo ConcurrentHashMap 扩容分析
 
-```java
-private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
-	int n = tab.length, stride;
-	// 每个核处理的量
-	if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
-		stride = MIN_TRANSFER_STRIDE; // subdivide range
-	if (nextTab == null) {            // initiating
-		try {
-			@SuppressWarnings("unchecked")
-			Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];
-			nextTab = nt;
-		} catch (Throwable ex) {      // try to cope with OOME
-			sizeCtl = Integer.MAX_VALUE;
-			return;
-		}
-		nextTable = nextTab;
-		transferIndex = n;
-	}
-	int nextn = nextTab.length;
-	ForwardingNode<K,V> fwd = new ForwardingNode<K,V>(nextTab);
-	// advance 为 true 表示已经处理过了
-	boolean advance = true;
-	boolean finishing = false; // to ensure sweep before committing nextTab
-	for (int i = 0, bound = 0;;) {
-		Node<K,V> f; int fh;
-		// 遍历 hash 表中的节点
-		while (advance) {
-			int nextIndex, nextBound;
-			if (--i >= bound || finishing)
-				advance = false;
-			else if ((nextIndex = transferIndex) <= 0) {
-				i = -1;
-				advance = false;
-			}
-			// CAS 更新 transferIndex
-			else if (U.compareAndSwapInt
-					 (this, TRANSFERINDEX, nextIndex,
-					  nextBound = (nextIndex > stride ?
-								   nextIndex - stride : 0))) {
-				bound = nextBound;
-				i = nextIndex - 1;
-				advance = false;
-			}
-		}
-		if (i < 0 || i >= n || i + n >= nextn) {
-			int sc;
-			if (finishing) {
-				nextTable = null;
-				table = nextTab;
-				sizeCtl = (n << 1) - (n >>> 1);
-				return;
-			}
-			// CAS 扩容
-			if (U.compareAndSwapInt(this, SIZECTL, sc = sizeCtl, sc - 1)) {
-				if ((sc - 2) != resizeStamp(n) << RESIZE_STAMP_SHIFT)
-					return;
-				finishing = advance = true;
-				i = n; // recheck before commit
-			}
-		}
-		else if ((f = tabAt(tab, i)) == null)
-			advance = casTabAt(tab, i, null, fwd);
-		// f.hash == -1 表示遍历到了 ForwardingNode 节点，意味着该节点已经处理过了
-		else if ((fh = f.hash) == MOVED)
-			advance = true; // already processed
-		else {
-			synchronized (f) {
-				if (tabAt(tab, i) == f) {
-					Node<K,V> ln, hn;
-					if (fh >= 0) {
-						int runBit = fh & n;
-						Node<K,V> lastRun = f;
-						for (Node<K,V> p = f.next; p != null; p = p.next) {
-							int b = p.hash & n;
-							if (b != runBit) {
-								runBit = b;
-								lastRun = p;
-							}
-						}
-						if (runBit == 0) {
-							ln = lastRun;
-							hn = null;
-						}
-						else {
-							hn = lastRun;
-							ln = null;
-						}
-						for (Node<K,V> p = f; p != lastRun; p = p.next) {
-							int ph = p.hash; K pk = p.key; V pv = p.val;
-							if ((ph & n) == 0)
-								ln = new Node<K,V>(ph, pk, pv, ln);
-							else
-								hn = new Node<K,V>(ph, pk, pv, hn);
-						}
-						setTabAt(nextTab, i, ln);
-						setTabAt(nextTab, i + n, hn);
-						setTabAt(tab, i, fwd);
-						advance = true;
-					}
-					else if (f instanceof TreeBin) {
-						TreeBin<K,V> t = (TreeBin<K,V>)f;
-						TreeNode<K,V> lo = null, loTail = null;
-						TreeNode<K,V> hi = null, hiTail = null;
-						int lc = 0, hc = 0;
-						for (Node<K,V> e = t.first; e != null; e = e.next) {
-							int h = e.hash;
-							TreeNode<K,V> p = new TreeNode<K,V>
-								(h, e.key, e.val, null, null);
-							if ((h & n) == 0) {
-								if ((p.prev = loTail) == null)
-									lo = p;
-								else
-									loTail.next = p;
-								loTail = p;
-								++lc;
-							}
-							else {
-								if ((p.prev = hiTail) == null)
-									hi = p;
-								else
-									hiTail.next = p;
-								hiTail = p;
-								++hc;
-							}
-						}
-						ln = (lc <= UNTREEIFY_THRESHOLD) ? untreeify(lo) :
-							(hc != 0) ? new TreeBin<K,V>(lo) : t;
-						hn = (hc <= UNTREEIFY_THRESHOLD) ? untreeify(hi) :
-							(lc != 0) ? new TreeBin<K,V>(hi) : t;
-						setTabAt(nextTab, i, ln);
-						setTabAt(nextTab, i + n, hn);
-						setTabAt(tab, i, fwd);
-						advance = true;
-					}
-				}
-			}
-		}
-	}
-}
-```
+
+### Remove
+
+`remove` 操作将 key 对应的 Node 删除，如果 `ConcurrentHashMap` 中不存在对应的元素则直接返回。`remove` 操作的实现在 `replaceNode` 方法中， 其流程为：
+
+- 根据 hash 值定位到数组对应的索引位置，如果找不到则直接返回 null
+- 如果索引位置结点的 hash 值为 -1 表示数组正在扩容，则当前线程调用 `helpTransfer` 方法协助扩容，扩容完成后返回 null
+- 对索引位置的 Node 加锁，根据 Node 判断是链表结构还是红黑树结构。如果 Node 的 `hash` 大于等于 0 则表示是链表，则删除链表对应的节点；如果 Node 是 `TreeBin` 则表示是红黑树，于是删除红黑树对应的结点
+- 删除结点后需要调用 `addCount` 将 `ConcurrentHashMap` 的数量 -1
+
+
+
+### Transfer
+
+`transfer` 方法实现了数组的扩容，`ConcurrentHashMap` 采用 CAS 实现了多线程并发扩容，每个线程负责指定的区间。
+
 - 为每个内核分配任务，保证每个内核任务量不小于 16
 - 检查 nextTable 是否为 null，如果是则初始化 nextTab，使其容量为 2*table
 - 死循环遍历节点直到 finished，将节点从 table 复制到 nextTable：
@@ -423,104 +284,4 @@ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
 - 所有节点复制完成后将 table 指向 nextTable，同时更新 sizeCtl=nextTable * 0.75，完成扩容操作
 
 在多线程时，扩容遍历到的节点如果是 ForwardingNode 则表示该节点已经处理过继续遍历，如果不是则对该节点加锁放置其他线程进入。
-
-#### Remove
-
-删除操作属于写类型的操作，所以在进行删除的时候需要对table中的index位置加锁，ConcurrentHashMap使用synchronized关键字将table中的index位置锁住，然后进行删除，remove方法调用了replaceNode方法来进行实际的操作，而删除操作的步骤首先依然是计算记录的hashCode，然后根据hashCode来计算table中的index值，然后根据table中的index位置上是一条链表还是一棵红黑树来使用不同的方法来删除这个记录，删除记录的操作需要进行记录数量的更新（调用addCount方法进行）。
-
-```java
-final V replaceNode(Object key, V value, Object cv) {
-  int hash = spread(key.hashCode());
-  for (Node<K,V>[] tab = table;;) {
-    Node<K,V> f; int n, i, fh;
-    if (tab == null || (n = tab.length) == 0 || (f = tabAt(tab, i = (n - 1) & hash)) == null)
-      break;
-	// 有线程在进行扩容则先扩容
-    else if ((fh = f.hash) == MOVED)
-      tab = helpTransfer(tab, f);
-    else {
-      V oldVal = null;
-      boolean validated = false;
-      synchronized (f) {
-        if (tabAt(tab, i) == f) {
-		  // 链表
-          if (fh >= 0) {
-            validated = true;
-            for (Node<K,V> e = f, pred = null;;) {
-              K ek;
-              if (e.hash == hash && ((ek = e.key) == key || (ek != null && key.equals(ek)))) {
-                V ev = e.val;
-                if (cv == null || cv == ev || (ev != null && cv.equals(ev))) {
-                  oldVal = ev;
-                  if (value != null)
-                    e.val = value;
-                  else if (pred != null)
-                    pred.next = e.next;
-                  else
-                    setTabAt(tab, i, e.next);
-                }
-                break;
-              }
-              pred = e;
-              if ((e = e.next) == null)
-                break;
-            }
-		  } else if (f instanceof TreeBin) {
-            validated = true;
-            TreeBin<K,V> t = (TreeBin<K,V>)f;
-            TreeNode<K,V> r, p;
-            if ((r = t.root) != null && (p = r.findTreeNode(hash, key, null)) != null) {
-              V pv = p.val;
-              if (cv == null || cv == pv || (pv != null && cv.equals(pv))) {
-                oldVal = pv;
-                if (value != null)
-                  p.val = value;
-                else if (t.removeTreeNode(p))
-                  setTabAt(tab, i, untreeify(t.first));
-              }
-            }
-		  }
-		}
-	  }
-	  if (validated) {
-		if (oldVal != null) {
-		  if (value == null)
-			addCount(-1L, -1);
-		  return oldVal;
-		}
-		break;
-	  }
-	}
-  }
-  return null;
-}
-```
-
-
-#### Size
-ConcurrentHashMap 通过 size 方法来获得记录数量，size 方法返回的是一个不精确的值，因为在进行统计的时候有其他线程正在进行插入和删除操作。
-
-ConcurrentHashMap的记录数量需要结合baseCount和counterCells数组来得到，通过累计两者的数量即可获得当前ConcurrentHashMap中的记录总量。推荐使用 ```mappingCount()``` 方法获取容量大小。
-
-```java
-public int size() {
-	long n = sumCount();
-	return ((n < 0L) ? 0 :
-			(n > (long)Integer.MAX_VALUE) ? Integer.MAX_VALUE :
-			(int)n);
-}
-
-final long sumCount() {
-	CounterCell[] as = counterCells; CounterCell a;
-	// baseCount 是当前 Map 的真实元素个数
-	long sum = baseCount;
-	if (as != null) {
-		for (int i = 0; i < as.length; ++i) {
-			if ((a = as[i]) != null)
-				sum += a.value;
-		}
-	}
-	return sum;
-}
-```
 

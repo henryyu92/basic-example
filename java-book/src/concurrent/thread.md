@@ -16,6 +16,9 @@
 - **Terminated**：已经终止线程的线程状态，线程已经结束执行
 
 线程在生命周期中并不是固定地处于某个状态，而是随着程序的运行在不同的状态之间切换
+
+
+
 ![线程状态切换](../img/thread.png)
 
 ### 线程创建
@@ -186,6 +189,10 @@ final ThreadLocal<T> THREAD_LOCAL = InheritableThreadLocal.withInitail(()->
 - ```LockSupport.parkUntil(blocker, deadline)```： 阻塞到 deadline 时刻到达或者线程被中断，当前线程退出等待状态
 - ```LockSupport.unpark(thread)```： 唤醒等待的线程
 
+```java
+
+```
+
 
 
 ### 等待/通知
@@ -312,9 +319,7 @@ public class Join {
     public static void main(String[] args) { 
         Thread previous = Thread.currentThread();
         for (int i = 0; i < 10; i++) {
-            Thread t = new Thread(()->{
-                
-            }, String.valueOf(i));
+            Thread t = new Thread(new R(previous), "thread-" + i);
             t.start();
             previous = t;
         }

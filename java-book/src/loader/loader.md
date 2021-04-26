@@ -3,7 +3,7 @@
 ### 系统类加载器
 - **启动类加载器(Bootstrap ClassLoader)**：负责将存放在 ```JAVA_HOME\lib``` 目录中或者被 ```-Xbootclasspath``` 参数所指定的路径中并且是虚拟机识别的类库加载到虚拟机内存中，由虚拟机实现(C++ 语言)，不能直接引用。
 - **扩展类加载器(Extension ClassLoader)**：负责加载 ```JAVA_HOME\lib\ext``` 目录或者 ```java.ext.dirs``` 指定的路径中的所有类库，由 ```sun.misc.Laucher$ExtClassLoader``` 实现，可以直接引用。
-- **应用程序类加载器(Application ClassLoader)**：负责加载用户类路径(classpath)上所指定的类库，由 ```sun.misc.Laucher$AppClassLoader``` 实现，也是 ```getSystemClassLoader()```的返回值，可以直接引用。
+- **应用程序类加载器(Application ClassLoader)**：负责加载用户类路径(classpath)上所指定的类库，由 ```sun.misc.Laucher$AppClassLoader``` 实现，也是 ```ClassLoader.getSystemClassLoader()```的返回值，可以直接引用。
 ### 双亲委派模型
 双亲委派模型要求除了顶层的启动类加载器外，其他的类加载器都应当有自己的父类加载器，这里的父子关系是以组合的方式实现。
 
@@ -37,15 +37,13 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
     throw new ClassNotFoundException(name);
 }
 ```
-### 类加载器
-
 - URLClassLoader：用于从指定的 URL 表示的 jar 包中加载类
 
-```java
-URL url = new URL("/path/of/jar.jar");
-URLClassLoader loader = new URLClassLoader(new URL[]{url});
-Class clzz = loader.findClass("class_full_name");
-```
+  ```java
+  URL url = new URL("/path/of/jar.jar");
+  URLClassLoader loader = new URLClassLoader(new URL[]{url});
+  Class clzz = loader.findClass("class_full_name");
+  ```
 
 - 使用类加载器读取 classpath 下的文件
 
@@ -53,9 +51,6 @@ Class clzz = loader.findClass("class_full_name");
   InputStream stream = getClass().getClassLoader().getResourceAsStream("file-name");
   Properties properties = new Properties(stream);
   ```
-
-  
-
 
 
 ### 线程上下文类加载器
@@ -98,7 +93,7 @@ public class HelloServiceImpl implements HelloService{
 	}
 }
 
-// META-INFO/services/org.test.HelloService 文件下添加实现类全限定名
+// META-INF/services/org.test.HelloService 文件下添加实现类全限定名
 org.testimpl.HelloServiceImpl
 ```
 

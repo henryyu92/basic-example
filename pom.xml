@@ -35,7 +35,6 @@
 
     <modules>
         <module>basic-redis</module>
-        <module>basic-net</module>
     </modules>
 
     <dependencyManagement>
