@@ -2,7 +2,11 @@
 
 Java 线程和操作系统线程是一对一的，线程的创建、调度以及销毁会消耗 CPU 资源，因此如果创建大量短生命周期的线程会降低系统的性能。
 
-Java 提供了线程池重复的利用已经创建的线程从而避免线程的反复创建和销毁，此外线程池利用了阻塞队列可以控制系统的任务从而避免由于大量任务运行使得系统负载很重，最后线程池还提供了对线程的管理和监控等功能。
+Java 提供了线程池用于异步的执行任务，使用线程池技术有多个好处：
+
+- 通过重复利用已经创建的线程降低创建和销毁线程造成的资源消耗
+- 利用阻塞队列以及拒绝策略避免任务积累导致内存溢出
+- 监控和管理线程
 
 `ThreadPoolExecutor` 和 `ScheduledThreadPoolExecutor` 是线程池体系中核心的组件，其中 `ThreadPoolExecutor` 用于执行异步的任务，而 `ScheduledThreadPoolExecutor` 能够周期性的执行异步任务。
 
@@ -35,9 +39,9 @@ public ThreadPoolExecutor(int corePoolSize,
     this.handler = handler;
 }
 ```
-- `corePoolSize` 表示线程池中保持的线程的数量，当任务提交到线程池时如果当前工作线程数小于 corePoolSize 那么即使其他线程空闲也会创建新线程执行任务。
+- `corePoolSize` 表示线程池中保持的线程的数量，当任务提交到线程池时如果当前工作线程数小于 `corePoolSize` 那么即使其他线程空闲也会创建新线程执行任务。
 - `maximumPoolSize` 表示线程池允许创建的最大线程数，如果队列满了并且已创建的线程数小于最大线程数就会创建新线程执行任务
-- `keepAliveTime` 表示超过 corePoolSize 的空闲线程保持存活的最长时间，当任务较多可以适当调大空闲线程的存活时间
+- `keepAliveTime` 表示超过 `corePoolSize` 的空闲线程保持存活的最长时间，当任务较多可以适当调大空闲线程的存活时间
 - `unit` 表示线程存活时间的单位
 - `workQueue` 是一个阻塞队列， 当工作线程数超过 corePoolSize，新提交的任务会加入此阻塞队列，常用的阻塞队列有：
   - `ArrayBlockingQueue` 是一个基于数组结构的有界阻塞队列，按照 FIFO 原则对元素进行排序
@@ -50,6 +54,14 @@ public ThreadPoolExecutor(int corePoolSize,
   - `CallerRunsPolicy` 表示执行 execute 方法所在线程来运行任务
   - ```DiscardOldestPolicy``` 表示丢弃阻塞队列头的任务，并执行当前任务
   - `DiscardPolicy` 表示直接丢弃当前任务
+
+默认情况下小于 `corePoolSize` 的线程不会销毁，如果需要使线程能够被销毁则需要将 `allowCoreThreadTimeOut` 设置为 true：
+
+```java
+pool.allowCoreThreadTimeOut(true);
+```
+
+
 
 ### 任务提交
 
