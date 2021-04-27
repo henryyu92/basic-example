@@ -1,17 +1,17 @@
-package sample.basic;
+package example.provider;
 
+import example.provider.hello.HelloServiceImpl;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
-import sample.basic.api.DemoService;
-import sample.basic.impl.DemoServiceImpl;
+import example.api.hello.HelloService;
 
 public class BasicProvider {
 
     public static void main(String[] args) {
 
-        DemoService demoService = new DemoServiceImpl();
+        HelloService helloService = new HelloServiceImpl();
 
         // application
         ApplicationConfig application = new ApplicationConfig("demoService");
@@ -24,11 +24,11 @@ public class BasicProvider {
         protocol.setThreads(2);
 
         // service
-        ServiceConfig<DemoService> service = new ServiceConfig<>();
+        ServiceConfig<HelloService> service = new ServiceConfig<>();
         service.setApplication(application);
         service.setRegistry(registry);
         service.setProtocol(protocol);
-        service.setRef(demoService);
+        service.setRef(helloService);
 
         // export service
         service.export();

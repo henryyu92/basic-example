@@ -1,4 +1,4 @@
-package sample.generic;
+package example.provider.generic;
 
 /**
  * 泛化

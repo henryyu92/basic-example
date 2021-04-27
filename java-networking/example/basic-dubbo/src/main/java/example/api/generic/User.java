@@ -1,4 +1,4 @@
-package sample.generic.api;
+package example.api.generic;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

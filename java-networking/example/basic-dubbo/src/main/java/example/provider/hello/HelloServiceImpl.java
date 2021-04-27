@@ -1,12 +1,12 @@
-package sample.basic.impl;
+package example.provider.hello;
 
 import org.apache.dubbo.rpc.RpcContext;
-import sample.basic.api.DemoService;
+import example.api.hello.HelloService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DemoServiceImpl implements DemoService {
+public class HelloServiceImpl implements HelloService {
     @Override
     public String sayHello(String name) {
 

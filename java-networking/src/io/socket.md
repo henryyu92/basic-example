@@ -69,8 +69,6 @@ while(selector.accpet()){
 }
 ```
 
-
-
 #### Selector
 
 Selector 是一个多路复用器，Channel 将事件注册到 Selector 上后会被监听，当注册的事件发生时 Selector 就能感知到，然后将事件发生的 Channel 返回到后续操作。Java 使用 epoll 使得只需要一个线程负责 Selector 的监听，就可以实现上千万的客户端接入。
@@ -87,7 +85,3 @@ SelectionKey 表示 Selector 和 Channel 的注册关系，共有 4 中：
 - OP_WRITE：写操作，4
 
 ### AIO
-
-
-
-**[Back](../)**

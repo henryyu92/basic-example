@@ -1,6 +1,6 @@
 ## StampedLock
 
-`StampedLock` 采用乐观锁的机制，使得读的过程中也可以写入数据。`StampedLock` 提供了三种锁的模式：独占的写锁、独占的读锁 和 共享的读锁。
+`StampedLock` 是 `ReentrantReadWriteLock` 的增强，采用乐观锁的机制，使得读的过程中也可以写入数据。`StampedLock` 提供了三种锁的模式：独占的写锁、独占的读锁 和 共享的读锁。
 
 ```java
 public class Point {

@@ -94,7 +94,7 @@ Channel 是 Netty 通信组件中用于执行网络 I/O 的组件，通过 Chann
 
 ChannelHandler 是一个用于处理 I/O 事件的接口，ChannelHandler 有多个实现类:
 
-![ChannelHandler 实现类](../resources/handler.png)
+![ChannelHandler 实现类](../../example/basic-netty/site/resources/handler.png)
 
 其中 ```ChannelInboundHandler``` 接口用于处理 inbound 事件，```ChannelOutbound``` 接口用于处理 outbound 事件，而 ```ChannelInboundHandlerAdapter``` 和 ```ChannelOutboundHandlerAdapter``` 两个实现类提供了接口的默认处理，实际应用中一般通过继承这两个实现类的方式自定义 Handler。
 

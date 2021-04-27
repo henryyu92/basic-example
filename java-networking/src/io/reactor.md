@@ -10,7 +10,7 @@ Reactor 模型两个核心组件：
 
 在传统的服务设计模式中，每一个连接都会创建一个新的线程用于处理连接的所有事件，在有大量客户端连接时会受到系统线程数限制，且线程的创建和销毁会消耗大量系统资源。
 
-![old](../resources/old.png)
+![old](../asset/io/old.png)
 
 
 ### 单 Reactor 单线程
@@ -19,7 +19,7 @@ Selector 可以实现应用程序通过一个阻塞对象监听多路连接请�
 
 单 Reactor 单线程模型使用一个线程通过多路复用完成所有 IO 操作，在客户端连接数量较多时无法支撑
 
-![basic](../resources/basic.png)
+![basic](../asset/io/basic.png)
 
 
 ### 单 Reactor 多线程
@@ -29,7 +29,7 @@ Reactor 对象通过 select 监控客户端请求事件，收到事件后通过 
 将业务处理与数据读写分离，利用多线程完成复杂业务处理
 Reactor 处理了所有的事件监听和响应，在单线程运行，在高并发场景容易出现瓶颈
 
-![pool](../resources/pool.png)
+![pool](../asset/io/pool.png)
 
 
 ### 主从 Reactor 多线程
@@ -43,6 +43,6 @@ MainReactor 可以对应多个 Reactor 子线程
 
 父线程与子线程的数据交互简单，Reactor 主线程只需要把新连接传给子线程，子线程无需返回数据
 
-![multi](../resources/multi.png)
+![multi](../asset/io/multi.png)
 
 ### Proactor

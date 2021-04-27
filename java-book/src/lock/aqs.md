@@ -119,7 +119,7 @@ public abstract class AbstractQueuedSynchronizer{
 
 #### 独占式同步状态获取
 
-AQS 使用 acquire 方法获取同步状态，该方法对中断不敏感，也就是说如果线程获取同步状态失败进入同步队列之后对其进行中断操作不会导致节点从队列移除。
+AQS 使用 `acquire` 方法获取同步状态，该方法对中断不敏感，也就是说如果线程获取同步状态失败进入同步队列之后对其进行中断操作不会导致节点从队列移除。
 ```java
 public final void acquire(int arg) {
     if (!tryAcquire(arg) &&
@@ -127,7 +127,7 @@ public final void acquire(int arg) {
         selfInterrupt();
 }
 ```
-acquire 方法中首先调用 AQS 子类重写的 `tryAcquire` 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 `addWaiter` 方法构造独占式节点并加入到同步队列中，之后调用 `acquireQueued` 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
+`acquire` 方法中首先调用 AQS 子类重写的 `tryAcquire` 方法保证线程安全的获取同步状态，如果获取同步状态失败则通过 `addWaiter` 方法构造独占式节点并加入到同步队列中，之后调用 `acquireQueued` 方法以死循环的方式获取同步状态，如果获取不到则阻塞节点中的线程，而阻塞线程的唤醒主要依靠前驱结点的出队或者阻塞线程被中断来实现。
 
 `addWaiter` 方法将当前线程包装成一个 Node 节点加入到同步队列中，加入同步队列使用的是 CAS 方式：
 
@@ -150,7 +150,7 @@ private Node addWaiter(Node mode) {
     return node;
 }
 ```
-`addWaiter` 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 enq 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
+`addWaiter` 方法构造节点之后判断 tail 结点是否是 null，如果是则直接调用 `enq` 方法入队，否则先将节点的前驱设置为当前尾结点，然后使用 CAS 将 tail 结点设置为当前节点，如果 CAS 操作成功则将当前节点加入队尾，否则说明已经有节点被加入到队列尾部，调用 enq 方法将当前节点入队。
 
 ```java
 private Node enq(final Node node) {
@@ -173,9 +173,9 @@ private Node enq(final Node node) {
     }
 }
 ```
-enq 方法是通过死循环的方式将线程节点加入等待队列，如果队列不存在则初始化队列，否则进行入队操作直到当前线程被设置为 tail 节点才返回；使用 compareAndSetTail 方法保证只有一个节点被设置为 tail 结点，通过死循环和 CAS 使得并发入队变得串行化了。
+`enq` 方法是通过死循环的方式将线程节点加入等待队列，如果队列不存在则初始化队列，否则进行入队操作直到当前线程被设置为 tail 节点才返回；使用 `compareAndSetTail` 方法保证只有一个节点被设置为 tail 结点，通过死循环和 CAS 使得并发入队变得串行化了。
 
-阻塞线程进入同步队列后就调用 acquireQueued 方法使每个节点自旋（死循环）判断前驱节点是否是 head 节点（已经获取到同步状态）并且尝试获取同步状态，如果成功则将自己设置为 head 节点返回，否则就进入等待状态直到被 pre 节点中断唤醒；
+阻塞线程进入同步队列后就调用 `acquireQueued` 方法使每个节点自旋（死循环）判断前驱节点是否是 head 节点（已经获取到同步状态）并且尝试获取同步状态，如果成功则将自己设置为 head 节点返回，否则就进入等待状态直到被 pre 节点中断唤醒；
 ```java
 final boolean acquireQueued(final Node node, int arg) {
     boolean failed = true;
@@ -211,7 +211,7 @@ private final boolean parkAndCheckInterrupt() {
 
 #### 独占式同步状态释放
 
-通过调用 AQS 的 release 方法释放同步状态，使得其他线程能够获取同步状态；该方法在释放了同步状态之后会唤醒其后继节点。release 方法释放同步状态后，如果 head 节点不为空且等待状态不为 0 则唤醒 head 节点的后继节点：
+AQS 通过 `release` 方法释放同步状态，使得其他线程能够获取同步状态；该方法在释放了同步状态之后会唤醒其后继节点。release 方法释放同步状态后，如果 head 节点不为空且等待状态不为 0 则唤醒 head 节点的后继节点：
 ```java
 public final boolean release(int arg) {
     // 释放同步状态
@@ -228,14 +228,16 @@ public final boolean release(int arg) {
 
 #### 共享式同步状态获取
 
-AQS 作为 Java 中锁的基础组件，不仅提供了独占式的获取同步状态，也提供了共享式获取同步状态。共享式获取同步状态由 AQS 的 acquireShared 方法提供，该方法与独占式获取同步状态的区别在于获取同步状态时会判断同步状态的值：
+AQS 作为 Java 中锁的基础组件，不仅提供了独占式的获取同步状态，也提供了共享式获取同步状态。共享式获取同步状态由 AQS 的 `acquireShared` 方法提供，该方法与独占式获取同步状态的区别在于获取同步状态时会判断同步状态的值：
 ```java
 public final void acquireShared(int arg) {
+    // 如果获取共享同步状态失败则返回负数
     if (tryAcquireShared(arg) < 0)
         doAcquireShared(arg);
 }
 
 private void doAcquireShared(int arg) {
+    // 加入到同步队列
     final Node node = addWaiter(Node.SHARED);
     boolean failed = true;
     try {

@@ -1,6 +1,6 @@
 ## BlockingQueue
 
-阻塞队列(BlockingQueue)是作支持阻塞的插入和移除的队列。阻塞的插入是当队列满时，队列会阻塞插入元素的线程直到线程 NotFull；阻塞的移除是当队列为空时，获取元素的线程会等待直到队列变为 NotEmpty。
+阻塞队列(BlockingQueue)是作支持阻塞的添加和移除的队列。阻塞的添加是当队列满时，队列会阻塞添加元素的线程直到队列 NotFull；阻塞的移除是当队列为空时，获取元素的线程会等待直到队列变为 NotEmpty。
 
 阻塞队列常用于生产者和消费者的场景，生产者是向队列里添加元素的线程，消费者是从队列里获取元素的线程，阻塞队列用于生产者存放元素、消费者获取元素的容器。**生产者和消费者在生产和消费的过程中能够高效的通信是因为阻塞队列中大量使用了等待通知模型**，当生产者往满队列里添加元素时会阻塞线程，当消费者消费了队列元素时会通知生产者当前队列可用，等待通知使用了 ReentrantLock 和 Condition 来实现。
 
@@ -36,6 +36,7 @@ public void put(E e) throws InterruptedException {
     try {
         while (count == items.length)
             notFull.await();
+        // 添加元素到队列
         enqueue(e);
     } finally {
         lock.unlock();
@@ -86,7 +87,7 @@ private E dequeue() {
 
 `LinkedBlockingQueue` 是一个用链表实现的有界阻塞队列，其默认长度和最大长度为 `Integer.MAX_VALUE`，队列按照先进先出的原则对元素进行排序。
 
-`LinkedBlockingQueue` 持有两把锁 putLock 和 takeLock 分别作用于向队列添加元素和移除元素，两把锁的方式可以减少所竞争。
+`LinkedBlockingQueue` 持有两把锁 putLock 和 takeLock 分别作用于向队列添加元素和移除元素，两把锁的方式可以减少锁竞争。
 
 `LinkedBlockingQueue` 的入队操作先要获取 putLock，然后判断队列是否满，如果是则等待否则入队并且判断入队之后队列是否满，此处判断是因为读线程只会在队列满了并移除了元素才会通知写线程，而队列从满到不满之间可能会有多个读线程移除元素，所以写线程在发现队列不满时需要通知其他写线程队列可写：
 
@@ -99,6 +100,7 @@ public void put(E e) throws InterruptedException {
     Node<E> node = new Node<E>(e);
     final ReentrantLock putLock = this.putLock;
     final AtomicInteger count = this.count;
+    // 获取添加元素的锁
     putLock.lockInterruptibly();
     try {
         while (count.get() == capacity) {
@@ -106,6 +108,7 @@ public void put(E e) throws InterruptedException {
         }
         enqueue(node);
         c = count.getAndIncrement();
+        // 通知其他写线程
         if (c + 1 < capacity)
             notFull.signal();
     } finally {
@@ -280,4 +283,5 @@ Node pred = tryAppend(s, haveData);
 return awaitMatch(s, pred, e, (how == TIMED), nanos);
 ```
 第一行代码试图把存放当前元素的节点 s 设置为尾节点；第二行代码是让 CPU 自旋等待消费者消费元素，因为自旋会消耗 CPU 所以自旋一定次数后使用 Thread.yield() 方法来暂停当前正在执行的线程
+
 - **tryTransfer 方法**：tryTransfer 方法是用来试探生产者传入的元素是否能直接传给消费者，如果没有消费者等待接收元素则返回 false；和 transfer 方法不同的是该方法无论消费者是否接收都会立即返回。

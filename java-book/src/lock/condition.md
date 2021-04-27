@@ -19,7 +19,7 @@ public void conditionWait() throw InterruptedException{
     // 获取到锁
     lock.lock();
     try{
-        // 释放锁并在此等待
+        // 释放锁并在此等待，等待返回时已经获取到锁
         condition.await();
     }finally{
         lock.unlock();

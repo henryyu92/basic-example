@@ -1,4 +1,4 @@
-package sample.sentinel.api;
+package example.api.sentinel;
 
 public interface FooService {
 

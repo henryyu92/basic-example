@@ -8,12 +8,16 @@
         <groupId>org.mooc</groupId>
         <artifactId>basic-example</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modules>
         <module>basic-grpc</module>
         <module>basic-netty</module>
         <module>basic-dubbo</module>
+        <module>basic-dubbo/api</module>
+        <module>basic-dubbo/consumer</module>
+        <module>basic-dubbo/provider</module>
     </modules>
 
     <artifactId>examples</artifactId>
