@@ -99,9 +99,7 @@ if (hiTail != null) {
 
 ConcurrentHashMap 是 HashMap 的线程安全实现，ConcurrentHashMap 依然采用数组加链表和红黑树的数据结构，链表到红黑树的转换阈值依然是 8，ConcurrentHashMap 依然采用双倍扩容的方式扩容数组，只是在扩容的时候采用了机制保证并发安全。
 
-ConcurrentHashMap 的 key 和 value 都不允许为 null。
-
-ConcurrentHashMap 定义了几个常量
+ConcurrentHashMap 的 key 和 value 都不允许为 null。ConcurrentHashMap 定义了几个常量
 
 ```java
 // 控制数组的初始化以及扩容
@@ -133,7 +131,7 @@ private final Node<K,V>[] initTable() {
                     sc = n - (n >>> 2);
                 }
             } finally {
-                // 初始化完成保存 table 的容量，默认是 table 大小的 0.75
+                // 初始化完成保存 table 的容量，默认是 table 大小的 0.75 即 (n - (n >>> 2))
                 sizeCtl = sc;
             }
             break;
@@ -179,14 +177,16 @@ public V get(Object key) {
 
 ConcurrentHashMap 的 put 操作核心思想依然是根据 key 的 hash 值计算节点插入 table 的位置，如果该位置为空则直接插入，否则插入到链表或者红黑树中，如果 table 负载超过阈值则进行扩容和 rehash 过程。
 
-`ConcurrentHashMap` 的 `put` 操作是在 `putVal` 方法中实现，其主要流程为：
+`ConcurrentHashMap` 的 `put` 操作是在 `putVal` 方法中实现。`putVal` 方法以死循环的方式执行添加元素的动作，如果数组正在执行扩容并且当前索引位置正在执行迁移则需要等待扩容完成后将元素添加到新的数组中，其主要流程为：
 
 - 判断数组是否为空，如果为空则调用 `initTable` 方法初始化数组
 - 通过 hash 值定位到数组的索引位置，如果该位置没有元素则创建 Node 并以 CAS 的方式添加
-- 如果索引位置存在 Node 并且该 Node 的 hash 值为 -1 则表示数组正在扩容，当前线程调用 `helpTransfer` 方法协助数组扩容并且将数据添加到新的数组中
+- 如果索引位置存在 Node 并且该 Node 的 hash 值为 -1 则表示数组正在扩容，当前线程调用 `helpTransfer` 方法协助数组扩容，扩容完成后 tab 引用新的数组
 - 数组索引位置可以添加，则当前线程会通过 `synchronized` 对索引位置的 Node 加锁，然后根据索引位置的 Node 判断是链表还是红黑树，如果 Node 的 hash 值大于等于 0 则表示是链表，则创建链表结点加入链表；如果是 `TreeBin` 则表示是红黑树，于是将元素添加到红黑树中
 - 如果是链表结构则在添加元素之后需要判断结点数是否超过 8，如果超过则调用 `treeifyBin` 方法尝试将链表结构转换成红黑树
 - 添加元素之后调用 `addCount` 将 `ConcurrentHashMap` 的元素个数 +1，增加元素时如果数组正在扩容也会帮助扩容
+
+`pub` 操作会对数组中的单个索引位置加锁，如果该索引位置正在执行添加操作时，数组对该索引位置的迁移会阻塞直到添加操作完成；同理如果执行添加操作时节点正在迁移则添加动作阻塞直到迁移完成，此时 `tabAt(tab, i) == f` 将不再成立，添加操作会重新循环执行添加
 
 `put` 操作只会对数组中的单个索引位置加锁，因此其他索引位置的操作不会受到影响。
 
@@ -194,12 +194,10 @@ ConcurrentHashMap 的 put 操作核心思想依然是根据 key 的 hash 值计�
 
 `helpTransfer`  方法是辅助方法，在添加元素或者删除元素时如果数组正在扩容则调用该方法协助数组扩容。
 
-如果数组正在扩容则数组中的 Node 是 `ForwardingNode` 的实例，此时的 `sizeCtl` 必然是负数。
-
 ```java
 final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
     Node<K,V>[] nextTab; int sc;
-    // 数组结点为 ForwardingNode 表示正在进行移动元素
+    // 数组结点为 ForwardingNode 表示索引位置的节点已经迁移完成
     if (tab != null && (f instanceof ForwardingNode) &&
         (nextTab = ((ForwardingNode<K,V>)f).nextTable) != null) {
         int rs = resizeStamp(tab.length);
@@ -273,15 +271,61 @@ private final void treeifyBin(Node<K,V>[] tab, int index) {
 
 ### Transfer
 
-`transfer` 方法实现了数组的扩容，`ConcurrentHashMap` 采用 CAS 实现了多线程并发扩容，每个线程负责指定的区间。
+`transfer` 方法实现了数组的扩容，并将原数组上的元素拷贝到新的数组上。`ConcurrentHashMap` 采用 CAS 实现了多线程并发扩容，每个线程负责指定的区间。
 
-- 为每个内核分配任务，保证每个内核任务量不小于 16
-- 检查 nextTable 是否为 null，如果是则初始化 nextTab，使其容量为 2*table
-- 死循环遍历节点直到 finished，将节点从 table 复制到 nextTable：
-  - 如果节点 f 为 null，插入 ForwardingNode
-  - 如果 f 为链表头节点(fh>=0)，则先构造一个反序链表，然后把他们分别放在 nextTab 的 i 和 i+n 位置，并将 ForwardingNode 插入原节点位置表示已经处理过了
-  - 如果 f 为 TreeBin 节点，同样构造反序，同时需要判断是否需要进行 untreeify 操作，并把处理的结果分别插入到 nextTab 的 i 和 i+n 位置，并在原节点位置插入 ForwardingNode 节点
+`transfer` 方法在扩容时首先会为每个 cpu 内核分配需要处理的桶，保证每个 cpu 内核处理的桶不少于 16 个，然后初始化新的数组 nextTab 使得其容量为原始数组的 2 倍：
+
+```java
+int n = tab.length, stride;
+// stride 表示每个 cpu 分配到的桶数
+if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
+    stride = MIN_TRANSFER_STRIDE; // subdivide range
+// 初始化新的数组
+if (nextTab == null) {            // initiating
+    try {
+        // 新数组长度为旧数组的 2 倍
+        Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];
+        nextTab = nt;
+    } catch (Throwable ex) {      // try to cope with OOME
+        sizeCtl = Integer.MAX_VALUE;
+        return;
+    }
+    nextTable = nextTab;
+    transferIndex = n;
+}
+```
+
+`transfer` 方法中完成新数组的初始化后以死循环的方式复制旧数组中的元素到新数组中，在开始复制数组前需要确定当前线程负责的桶，采用 cas 的方式将 `transferIndex` 修改为下一个线程的区间起始位置：
+
+```java
+Node<K,V> f; int fh;
+// advance 为 false 表示当前线程对应的桶已经确定
+while (advance) {
+    int nextIndex, nextBound;
+    if (--i >= bound || finishing)
+        advance = false;
+    else if ((nextIndex = transferIndex) <= 0) {
+        i = -1;
+        advance = false;
+    }
+    // 以 cas 的方式将 transferIndex 修改为下一个线程的起始位置，修改失败则说明多个线程在分配桶
+    else if (U.compareAndSwapInt
+             (this, TRANSFERINDEX, nextIndex,
+              nextBound = (nextIndex > stride ?
+                           nextIndex - stride : 0))) {
+        bound = nextBound;
+        i = nextIndex - 1;
+        advance = false;
+    }
+}
+```
+
+确定每个线程扩容时负责的桶之后，`transfer` 方法开始执行元素的复制迁移。
+
+- 如果数组索引位置为 null 则直接插入 `ForwardingNode` 表示当前位置的元素已经迁移完成
+- 如果数组索引位置节点的 hash 为 -1 表示其他线程已经处迁移完成，否则需要迁移当前索引位置的节点
+- 对索引位置的节点加锁，然后处理索引位置上的链表或者红黑树
+  - 如果是链表节点则遍历链表根据 `(hash & n)` 为 0 或者为 1 将节点构成两个新的反序链表，然后将值为 0 的链表的头节点添加到 `i` 位置(和节点在原数组的位置相同)，将值为 1 的链表的头节点添加到 `i+n` 位置，最后将原数组的索引位置的节点修改为 `ForwardingNode` 表示当前索引位置已经迁移完成
+  - 如果是红黑树节点，则遍历树结点并根据 `hash & n` 为 0 或者 1 将树结点构造成两个新的红黑树结构，然后和链表同样的规则将树的头结点添加到指定的索引位置，不同的是红黑树结构在添加到索引位置之前需要判断是否需要将红黑树结构转换为链表结构，如果需要则通过 `untreeify` 方法转换
 - 所有节点复制完成后将 table 指向 nextTable，同时更新 sizeCtl=nextTable * 0.75，完成扩容操作
-
-在多线程时，扩容遍历到的节点如果是 ForwardingNode 则表示该节点已经处理过继续遍历，如果不是则对该节点加锁放置其他线程进入。
 
