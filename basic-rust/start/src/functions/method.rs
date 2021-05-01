@@ -38,9 +38,28 @@ impl Rectangle {
         let Point { x: x2, y: y2 } = self.p2;
         2.0 * ((x1 - x2).abs() + (y1 - y2).abs())
     }
+
+    // $mut self 是 self: &mut Self 的语法糖，表示是可变引用
+    fn translate(&mut self, x: f64, y: f64) {
+        self.p1.x += x;
+        self.p2.x += x;
+
+        self.p1.y += y;
+        self.p2.y += y;
+    }
 }
 
 struct Pair(Box<i32>, Box<i32>);
+
+impl Pair{
+    // 方法获取 self 的所有权
+    fn destroy(self){
+        let Pair(first, second) = self;
+        println!("Destroying Pair({}, {})", first, second);
+
+        // 离开作用域之后就会释放
+    }
+}
 
 fn test_method() {
     let rectangle = Rectangle {
@@ -52,8 +71,15 @@ fn test_method() {
     println!("Rectangle perimeter: {}", rectangle.perimeter());
     println!("Rectangle area: {}", rectangle.area());
 
-    let mut square = Rectangle{
+    let mut square = Rectangle {
         p1: Point::origin(),
         p2: Point::new(1.0, 1.0),
     };
+
+    // square 需要是 mut 的
+    square.translate(1.0, 1.0);
+
+    let pair = Pair(Box::new(1), Box::new(2));
+    // pair 所有权转移到方法中，然后释放
+    pair.destroy()
 }
