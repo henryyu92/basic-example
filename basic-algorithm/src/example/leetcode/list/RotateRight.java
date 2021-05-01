@@ -8,7 +8,7 @@ public class RotateRight {
 
     public ListNode rotateRight(ListNode head, int k){
 
-        /**
+        /*
          * 注意 K 有可能会大于链表长度
          */
         int length = 0;
