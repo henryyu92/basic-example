@@ -25,11 +25,22 @@ def EXPIREAT(key, expire_time_in_sec):
   expire_time_in_ms = sec_to_ms(expire_time_in_sec)
   PEXPIREAT(key, expire_time_in_ms)
 ```
-过期设置只有在删除 key 和修改 key 内容的情况下才会失效。如果使用 rename 重命名，那么过期设置将会转移到新的 key，使用 ttl 命令可以查看过期剩余时间。使用 PERSIST 命令也可以移除键的过期时间，使用 PERSIST 命令可以将键值对持久化。
+过期时间只有在删除或者覆盖 key 的内容才会被清除，包括 `del`、`set`、`getset` 等命令。也就是说如果只是修改 key 对应的值而不是覆盖则不会影响过期时间，例如 `incr`、`lpush`、`hset` 等命令不会改变 key 对应的过期时间。
+
+如果使用 rename 重命名，那么过期设置将会转移到新的 key，使用 ttl 命令可以查看过期剩余时间。使用 PERSIST 命令也可以移除键的过期时间，使用 PERSIST 命令可以将键值对持久化。
+
 ```
 set k v px 20
 ttl k
 ```
+对已经设置了过期的 key 再次使用 `EXPIRE` 命令则会将对应 key 的过期时间更新。
+
+```
+set k v px 30
+```
+
+
+
 ### 过期策略
 
 Redis 过期有两种方式：passive 和 active
@@ -66,5 +77,7 @@ Redis key 的过期信息是以绝对的 Unix 时间戳的方式存储的，这�
 - 为了避免缓存雪崩，在 Redis 中缓存数据的过期时间需要随机，且为了避免由于 Redis 异常导致缓存不可用需要使用 Redis 集群，以及业务需要设置限流和降级处理。
 - 为了避免缓存穿透需要在 Redis 中为这种查询缓存默认值，这样请求就不会到数据库。
 - 为了避免缓存击穿，可以设置缓存不过期，或者在查询前随机自旋一段时间使得缓存能够重新构建
+
+### 缓存一致性
 
 **[Back](../)**

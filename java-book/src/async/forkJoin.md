@@ -1,5 +1,13 @@
-## Fork/Join
-Fork/Join 是一个用于并发执行任务的框架，其把大任务分割成若干个小任务并且最终汇总每个小任务结果后得到大任务结果。Fork 就是把一个大任务切分为若干个子任务并行执行，Join 就是合并这些子任务的执行结果得到最终结果。
+## ForkJoin
+
+ForkJoin 是一个用于并发执行任务的框架，其把大任务分割成若干个小任务，然后汇总每个小任务结果后得到大任务结果。Fork 就是把一个大任务切分为若干个子任务并行执行，Join 就是合并这些子任务的执行结果得到最终结果。
+
+ForkJoin 框架采用工作窃取 (work-stealing) 算法实现：每个工作线程都拥有自己的任务队列，工作线程从队列尾部获取任务执行，线程完成自己任务队列中的任务后，从其他线程的任务队列头部获取任务执行。
+
+ForkJoin 框架包含两个组件
+
+- `ForkJoinTask`：ForkJoin 框架中执行的任务
+- ForkJoinPool：执行分割出来的子任务，使用工作窃取算法来执行任务
 
 ```java
 public class CountTask extends RecursiveTask<Integer> {
@@ -35,16 +43,26 @@ public class CountTask extends RecursiveTask<Integer> {
 }
 ```
 
+
+
+### ForkJoinTask
+
+`ForkJoinTask` 是执行的任务，Fork/Join 框架提供了两类任务：
+
+- `RecursiveAction`：没有结果返回的任务
+- `RecursiveTask`：有返回结果的任务
+
 ForkJoinTask 在执行的时候可能会抛出异常但是该异常无法捕获，因此 ForkJoinTask 提供了 ```isCompletedAbnormally()``` 方法和 ```getException()``` 方法用于检测获取运行时异常。
 
-Fork/Join 使用两个类完成任务的分割和结果的合并：
-
-- RecursiveAction/RecursiveTask：创建自定义的 ForkJoin 任务，继承 RecursiveAction（无返回结果）或者 RecursiveTask（有返回结果），并且执行 fork 和 join 操作
-- ForkJoinPool：执行分割出来的子任务，使用工作窃取算法来执行任务
-
-Fork/Join 机制采用工作窃取 (work-stealing) 算法实现：每个工作线程都拥有自己的任务队列，工作线程从队列尾部获取任务执行，线程完成自己任务队列中的任务后，从其他线程的任务队列头部获取任务执行。
-
 ### ForkJoinPool
+
+`ForkJoinPool` 除了有全局任务队列外，每个线程还有自己的局部队列。
+
+```java
+
+```
+
+
 
 ForkJoinPool 由 ForkJoinTask 数组和 ForkJoinWorkerThread 数组构成，ForkJoinTask 数组负责存放程序提交给 ForkJoinPool 的任务，ForkJoinWorkerThread 数组负责执行这些任务。
 

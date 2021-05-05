@@ -1,8 +1,6 @@
 ## CompletableFuture
 
-`Future` 表示异步任务的执行结果，但是 `Future` 并没有提供通知机制，因此需要阻塞线程等待结果返回。
-
-`CompletableFuture` 扩展了 `Future`，使得异步任务完成之后能够继续执行操作而无需等待。
+`Future` 表示异步任务的执行结果，但是 `Future` 并没有提供通知机制，因此需要阻塞线程等待结果返回。`CompletableFuture` 扩展了 `Future`，使得异步任务完成之后能够继续执行操作而无需等待。
 
 `CompletableFuture` 能够将任务结果回调和任务在不同的线程中执行，也能将回调作为继续执行的同步函数在与任务相同的线程中执行。
 
@@ -114,11 +112,7 @@ CompletableFuture<String> f = CompletableFuture
   - `anyOf`
 
 ```java
-CompletableFuture<String> f1 = new CompletableFuture("hello");
-CompletableFuture<String> f2 = new CompletableFuture("world");
 
-CompletableFuture<Void> fr = f1.runAfterBoth(f2, ()->{});
-CompletableFuture<String>
 ```
 
 
