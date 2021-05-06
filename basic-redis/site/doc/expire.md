@@ -1,8 +1,7 @@
 ## 过期
 
-正常情况下，在没有显式删除一个已经创建的 key 之前，该 key 会永远存在。EXPIRE 系列命令只需要占用 key 的一些额外内存，就可以实现当某个 key 设置了过期，Redis 保证当过期时间到达就会删除这个 key。
+`EXPIRE` 系列命令可以为指定的 key 设置生存时间，当过期时间到达时则会自动删除对应的 key。Redis 有四个不同的命令可以用于设置键的生存时间或过期时间：
 
-Redis 有四个不同的命令可以用于设置键的生存时间或过期时间：
 - ```EXPIRE <key> <ttl>```：将 key 的生存时间设置为 ttl 秒
 - ```PEXPIRE <key> <ttl>```：将 key 的生存时间设置为 ttl 毫秒
 - ```EXPIREAT <key> <timestamp>```：将 key 的过期时间设置为 timestamp 所指定的秒数时间戳
@@ -25,22 +24,18 @@ def EXPIREAT(key, expire_time_in_sec):
   expire_time_in_ms = sec_to_ms(expire_time_in_sec)
   PEXPIREAT(key, expire_time_in_ms)
 ```
-过期时间只有在删除或者覆盖 key 的内容才会被清除，包括 `del`、`set`、`getset` 等命令。也就是说如果只是修改 key 对应的值而不是覆盖则不会影响过期时间，例如 `incr`、`lpush`、`hset` 等命令不会改变 key 对应的过期时间。
+- 过期时间只有通过使用删除或者覆盖  key 对应 value 的命令才会被清除，包括 `del`、`set`、`getset` 等。修改 key 对应的 value 是不会影响过期时间，也就是说 `incr`、`lpush`、`hset` 等命令不会改变 key 对应的过期时间
 
-如果使用 rename 重命名，那么过期设置将会转移到新的 key，使用 ttl 命令可以查看过期剩余时间。使用 PERSIST 命令也可以移除键的过期时间，使用 PERSIST 命令可以将键值对持久化。
+-  `rename` 命令会将过期时间从旧的 key 转移到新的 key，即使新的 key 已经存在
+- 使用 `ttl` 命令可以查看剩余的生存时间
+- 如果使用 `expire/pexpire` 的值为负数，或者 `expireat/pexpireat` 的值为过去的时间则会立即删除 key 而不是使 key 过期
+- 对已经设置了过期时间的 key 使用 `expire` 命令会更新该 key 的过期时间
+- 如果使用了 `persist` 命令则该 key 的过期时间会被移除
 
 ```
 set k v px 20
 ttl k
 ```
-对已经设置了过期的 key 再次使用 `EXPIRE` 命令则会将对应 key 的过期时间更新。
-
-```
-set k v px 30
-```
-
-
-
 ### 过期策略
 
 Redis 过期有两种方式：passive 和 active

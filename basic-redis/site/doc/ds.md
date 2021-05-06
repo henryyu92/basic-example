@@ -6,7 +6,6 @@ Redis 中的数据是以 K-V 的模型存储的，Redis 支持 String, List, Set
 
 > C 语言中字符串是以 \0 结尾，如果字符串中包含 \0 就会被截断，即非二进制安全。Redis 使用 len 判断字符串是否结束因此是二进制安全的。
 
-SDS 的数据结构：
 ```c
 struct sdshdr {
     // buf 中已经使用的字节数量
