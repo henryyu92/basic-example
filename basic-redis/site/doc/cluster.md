@@ -1,5 +1,7 @@
 ## 集群
 
+Redis Cluster 是 Redis 的分布式实现，
+
 Redis Cluster 是 Redis 的集群实现，能够自动的将数据分片到每个节点上。
 
 Redis Cluster 功能的特点：
