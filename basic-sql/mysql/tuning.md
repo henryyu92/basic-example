@@ -2,48 +2,11 @@
 
 MySQL 调优一般是通过慢查询日志找到需要优化的 SQL，然后通过 explain 信息得到该 SQL 的执行计划，根据执行计划调整 SQL。
 
-### Explain
-  + id：MySQL Query Optimizer 选定的执行计划中查询的序列号
-  + select_type: 所使用的查询类型，主要有以下几种查询类型
-    - DEPENDENT SUBQUERY: 子查询内层的第一个 select，依赖喻外部查询的结果集
-    - DEPENDENT UNION：子查询中的 union 且为 union 中从第二个 select 开始的后面所有 select，依赖于外部查询的结果集
-    - PRIMARY：子查询中的最外层查询，注意并不是主键查询
-    - SIMPLE：除子查询或 union 之外的其他查询；
-    - SUBQUERY：子查询内层查询的第一个 select 结果不依赖于外部查询
-    - UNCACHEABLE SUBQUERY：结果集无法缓存的子查询
-    - UNION：union 语句中的第二个 select 开始后面的所有 select，第一个 select 为 PRIMAY
-    - UNION RESULT：union 中的合并结果
-  + table：显示这一步所访问的数据库中的表的名称
-  + type：表的访问方式，主要包含如下类型
-    - all：全表扫描
-    - const：读常量，最多只会有一条记录匹配，由于是常量，实际上只需要读一次
-    - eq_ref：最多只会有一条匹配结果，一般是通过主键或唯一索引来访问
-    - fulltext：进行全文索引检索
-    - index：全索引扫描
-    - index_merge：查询中同时使用两个(或更多)索引，让后对索引结果进行合并(merge)，再读取表数据
-    - index_subquery：子查询中的返回结果字段组合是一个索引(或索引组合)，但不是一个主键或唯一索引
-    - range：索引范围扫描
-    - ref：join 语句中被驱动表索引引用的查询
-    - ref_or_null：与 ref 的区别就是在使用索引引用的查询之外再增加一个空值的查询
-    - system：系统表，表中只有一行数据
-    - unique_subquery：子查询中的返回结果字段组合是主键或唯一约束
-  + possible_keys：该查询可以例用的索引，如果没有任何索引可以使用，就会显示成 null
-  + key：MySQL Query Optimizer 从 possible_keys 中所选择使用的索引
-  + key_len：被选中使用索引的索引长度
-  + ref：列出是通过常量(const)，还是某个表的某个字段(如果是join)来过滤(通过 key) 的
-  + rows：Mysql Query Optimizer 通过系统统计收集的统计信息估算出来的结果集记录条数
-  + extra：查询中每一步实现的额外细节信息
-    - distinct：查找 distinct 值，当 musql 找到了第一条匹配的结果时，将停止该值的查询，转为后面的其他值查询
-    - full scan on null keys：子查询中的一种优化方式，主要在遇到无法通过索引访问 null 值的时候使用
-    - impossible where noticed after reading const table：MySQL Query Optimizer 通过收集到的统计信息判断出不可能存在的结果
-    - no tables：query 语句中使用 from dual 或者不包含 from 字句
-    - not exist：在某些连接中，mysql query optimizer 通过改变原有的 query 组成而使用的优化方法，可以部分减少数据访问次数
-    - range checked for each record 
-    - using filesort：包含order by 但是无法通过索引完成排序，只能通过排序算法实现
-    - using index：所需数据只需要在 index 即可获取全部数据，不需要到表中取
-    - using index for group-by 分组字段也在索引中
-    - using temporary：使用临时表，常见于 group by 和 order by 操作
-    - using where：不读取表的所有数据，或不是通过索引可以获取所有需要的数据，则会出现 using where
+- 通过 `explain` 查看执行计划(id 大的先执行，id 相同上面的先执行)，判断查询是否使用到索引，以及是否有全表扫描、filesort
+- 小数据集驱动大数据集，表连接时需要指定连接条件防止出现笛卡尔积，关联列需要建立索引
+- 对于需要排序的字段最好建立索引，防止出现 filesort
+- 对于 in 或者 exist 这种查询可以优化为表关联查询
+- 对于 or 这种查询可以优化为 union 查询
 
 ### 索引优化
 
@@ -88,6 +51,30 @@ select a.*, b.* a join b on a.id = b.id
 
 ```sql
 select * from a, b where a.id >= b.id
+```
+
+排序合并连接的算法：两表关联，先对两个表根据连接列进行排序，将较小的表作为驱动表，然后从驱动表中取出连接列的值到已经排好序的被驱动表中匹配数据，如果匹配上则关联成功
+
+#### 笛卡尔连接
+
+两个表关联没有连接条件的时候会产生笛卡尔积，这种表连接的方式称为笛卡尔连接
+
+```sql
+select a.*, b.* from a, b;
+```
+
+#### 标量子查询
+
+当子查询介于 select 和 from 之间，这种子查询称为标量子查询。
+
+```sql
+select a.*, (select * from b where b.id = a.id) from a;
+```
+
+标量子查询的驱动表为主表，则标量子查询中的表需要对关联列建立索引，否则会导致子查询全表扫描。标量子查询可以改写为外连接，此时如果被驱动表没有创建索引则会使用 hash 连接：
+
+```sql
+select a.*, b.* from a left join b on a.id = b.id
 ```
 
 
