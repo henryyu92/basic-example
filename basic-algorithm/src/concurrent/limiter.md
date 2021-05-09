@@ -27,6 +27,7 @@
 ```
 如上，将 1s 的时间窗口划分为 5 个 200ms 的小窗口，每个小窗口计数阈值为：整个时间窗口阈值/小窗口数。每隔 200 ms 整个窗口向右滑动一个小窗口。
 ```go
+
 ```
 ### 漏桶(Leaky Bucket)算法
 漏桶算法由流量容器、流量入口和出口组成，其中流量出口的流速即为期望的限速值。当突发流量到来时，流量出口的速率小于流量入口的速率，此时超出的流量会被容器缓存起来，如果存储的流量超过桶的容量则超出的流量将会限流处理。
@@ -45,11 +46,13 @@
 ```
 
 ```go
+
 ```
 ### 令牌桶(Token Bucket)算法
 令牌桶设计用于支持突发流量，和漏桶不同的是令牌桶的桶中存放的是令牌，系统以一定的速率向桶中放入令牌，当桶满了之后多余的令牌会被丢弃，当请求到来时先到桶中获取令牌，如果桶中没有令牌则对该请求做限流处理。
 
 ```go
+
 ```
 #### Warm Up
 令牌桶算法是以一定的速率向桶中放入令牌，当系统长期处于低水位的情况下时，桶中就会堆积大量的令牌，当流量突然增加时会直接把系统拉升到高水位可能瞬间把系统压垮。通过 Warm Up（预热/冷启动）方式可以让流量缓慢增加到阈值上限，给冷系统一个预热的时间，避免冷系统被压垮。
@@ -79,6 +82,7 @@
 
 如果限流器令牌数从 maxPermits 到 thresholdPermits 的时间作为预热时间，则可以得到整个预热时间 warmUpPeriod 为梯形的面积 ```warmUpPeriod = 0.5 * (stableInterval + coldInterval) * (maxPermits - thresholdPermits)```
 ```go
+
 ```
 
 #### Guava
@@ -178,9 +182,16 @@ void doSetRate(double permitsPerSecond, double stableIntervalMicros) {
 ```
 构造方法中调用 setRate 初始化了 storedPermits 和 maxPermits；当请求到来时需要调用 acquire 方法获取令牌：
 ```java
+
 ```
 ### 分布式限流算法
+
+https://blog.csdn.net/a314368439/article/details/84026680
+
 ### Ref
+
+
+
 - http://xiaobaoqiu.github.io/blog/2015/07/02/ratelimiter/
 - https://www.cnblogs.com/forezp/p/11407113.html
 - https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/RateLimiter.java
