@@ -1,15 +1,15 @@
 package example.classic.ds.skipList;
 
-import example.leetcode.list.ListNode;
+public class SkipListNode<T> {
 
-/**
- * SkipList 核心数据结构：
- *  - level 表示每个节点的层数
- *  - 每层都是链表结构
- */
-public class SkipListNode {
+    T value;
 
-    private int level;
+    double score;
 
-    private ListNode[] nodes;
+    SkipListNode<T> next;
+
+    public SkipListNode(T value, double score){
+        this.value = value;
+        this.score = score;
+    }
 }

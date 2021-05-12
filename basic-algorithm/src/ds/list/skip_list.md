@@ -2,7 +2,7 @@
 
 跳跃表(skip list) 是一种顺序单向链表，在有序链表基础上增加了多级索引，通过索引实现快速查找，实质是一种可以进行二分查找的有序链表。
 
-![skipList](../skip_list.png)
+![skipList](../../img/skiplist.png)
 
 - 跳跃表由多条分层的链表组成，每条链表中的元素都是有序的
 - 每条链表都有 正无穷 和 负无穷 两个元素分别代表链表的头部和尾部
@@ -10,7 +10,23 @@
 - 跳跃表的高度定义为水平链表的层数
 
 ```java
+public class SkipListNode<T>{
+    private T value;
+    private double score;
+    private SkipListNode down, next;
+}
 
+public class SkipList<T> {
+    private int level;
+    private SkipListNode head;
+    
+    public SkipList(int level){
+        this.level = level;
+        while(level > 0){
+            
+        }
+    }
+}
 ```
 
 ### 查找
@@ -164,3 +180,5 @@ class SkipList{
 ```
 
 https://blog.csdn.net/qpzkobe/article/details/80056807
+
+https://www.cnblogs.com/acfox/p/3688607.html
