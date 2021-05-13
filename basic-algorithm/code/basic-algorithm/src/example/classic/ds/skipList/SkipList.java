@@ -1,9 +1,5 @@
 package example.classic.ds.skipList;
 
-import example.leetcode.list.ListNode;
-import java.awt.HeadlessException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -17,13 +13,17 @@ public class SkipList<T> {
 
   private int level;
 
-  private List<SkipListNode<T>> head;
+  private SkipListNode<T> head;
+
+  private int size;
 
   private Random r = new Random();
 
-  public SkipList(int level){
-    this.level = level;
-    head = new ArrayList<>(level);
+  public SkipList(){
+    this.level = 0;
+    size = 0;
+    head = new SkipListNode<>(null, Integer.MIN_VALUE);
+    head.nextNodes.add(null);
   }
 
   private int getRandomLevel(){
@@ -35,32 +35,72 @@ public class SkipList<T> {
   }
 
   public T get(double score){
-
-    int h = level;
-    SkipListNode<T> curr = head.get(level);
-    while (h-- > 0){
-      curr = findNext(curr, score);
+    SkipListNode<T> node = find(head, score, level);
+    if (node.score != score){
+      return null;
     }
-
-    return curr == null ? null : curr.value;
+    return node.value;
   }
 
+  /**
+   * 添加值需要先找到对应节点的位置，然后哦随机生成 level，最后需要维护每层之间的引用关系
+   */
   public void add(T v, double score){
+    SkipListNode<T> prev = find(head, score, level);
+    // 已经存在值了
+    if (prev.score == score){
+      return;
+    }
+    size++;
 
+    // 随机生成 level
+    int newLevel = getRandomLevel();
+    // head 节点的 level 最高
+    while (level < newLevel){
+      head.nextNodes.add(null);
+      level++;
+    }
+
+    // 从最高层开始构建引用关系
+    SkipListNode<T> newNode = new SkipListNode<>(v, score);
+    SkipListNode<T> current = head;
+    do {
+      current = findNex(current, score, newLevel);
+      newNode.nextNodes.add(0, current.nextNodes.get(newLevel));
+      current.nextNodes.set(newLevel, newNode);
+    }while (newLevel-- > 0);
+  }
+
+  public void delete(double score){
+    SkipListNode<T> prev = find(head, score, level);
+  }
+
+  public int size(){
+    return this.size;
+  }
+
+
+  public SkipListNode<T> find(SkipListNode<T> current, double score, int level){
+    do {
+      current = findNex(current, score, level);
+    }while (level-- > 0);
+    return current;
   }
 
 
   /**
-   * 返回不大于 score 的 SkipListNode
+   * 返回当前层不大于给定值的最大节点
    */
-  public SkipListNode<T> findNext(SkipListNode<T> current, double score){
-    SkipListNode<T> next = current.next;
-    while (next != null){
-      if (next.score > score){
+  public SkipListNode<T> findNex(SkipListNode<T> current, double score, int level){
+
+    SkipListNode<T> nextNode = current.nextNodes.get(level);
+    while (nextNode != null){
+      double nextScore = nextNode.score;
+      if (score >= nextScore){
         break;
       }
-      current = next;
-      next = next.next;
+      current = nextNode;
+      nextNode = current.nextNodes.get(level);
     }
     return current;
   }

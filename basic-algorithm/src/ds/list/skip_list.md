@@ -13,18 +13,26 @@
 public class SkipListNode<T>{
     private T value;
     private double score;
-    private SkipListNode down, next;
+    private List<SkipListNode> nextNodes;
+    
+    public SkipListNode(T value, double score){
+        this.value = value;
+        this.score = score;
+        this.nextNodes = new ArrayList<>();
+    }
 }
 
 public class SkipList<T> {
-    private int level;
     private SkipListNode head;
-    
-    public SkipList(int level){
-        this.level = level;
-        while(level > 0){
-            
-        }
+    private int maxLevel;
+    private int size;
+    private final double PROBABILITY = 0.5;
+
+    public SkipList(){
+        size = 0;
+        maxLevel = 0;
+        head = new SkipListNode(null);
+        head.nextNodes.add(null);
     }
 }
 ```
@@ -35,7 +43,38 @@ public class SkipList<T> {
 
 跳跃表查找时间复杂度为 O(NlgN)
 ```java
+public T get(double score){
+    SkipListNode<T> node = find(head, score, level);
+    if (node.score != score){
+        return null;
+    }
+    return node.value;
+}
 
+public SkipListNode<T> find(SkipListNode<T> current, double score, int level){
+    do {
+        current = findNex(current, score, level);
+    }while (level-- > 0);
+    return current;
+}
+
+
+/**
+ * 返回当前层不大于给定值的最大节点
+ */
+public SkipListNode<T> findNex(SkipListNode<T> current, double score, int level){
+
+    SkipListNode<T> nextNode = current.nextNodes.get(level);
+    while (nextNode != null){
+        double nextScore = nextNode.score;
+        if (score >= nextScore){
+            break;
+        }
+        current = nextNode;
+        nextNode = current.nextNodes.get(level);
+    }
+    return current;
+}
 ```
 
 ### 插入
@@ -43,10 +82,37 @@ public class SkipList<T> {
 跳跃表的插入首先需要按照查找流程找到待插入元素的前驱和后继，然后按照随机算法生成一个高度值作为新节点的层数，最后按照层数和值创建一个节点并插入到跳跃表的多层链表中，插入之后需要调整每层链表的前驱和后继节点的指针，如果节点的层数大于跳跃表的高度则更新跳跃表的高度。
 
 ```java
+/**
+ * 添加值需要先找到对应节点的位置，然后哦随机生成 level，最后需要维护每层之间的引用关系
+ */
+public void add(T v, double score){
+    SkipListNode<T> prev = find(head, score, level);
+    // 已经存在值了
+    if (prev.score == score){
+        return;
+    }
+    size++;
 
+    // 随机生成 level
+    int newLevel = getRandomLevel();
+    // head 节点的 level 最高
+    while (level < newLevel){
+        head.nextNodes.add(null);
+        level++;
+    }
+
+    // 从最高层开始构建引用关系
+    SkipListNode<T> newNode = new SkipListNode<>(v, score);
+    SkipListNode<T> current = head;
+    do {
+        SkipListNode<T> next = findNex(current, score, newLevel);
+        newNode.nextNodes.add(0, current.nextNodes.get(newLevel));
+        current.nextNodes.set(newLevel, newNode);
+    }while (newLevel-- > 0);
+}
 ```
 
-#### 删除
+### 删除
 
 ```java
 

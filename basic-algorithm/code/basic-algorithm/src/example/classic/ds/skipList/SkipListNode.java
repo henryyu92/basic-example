@@ -1,15 +1,19 @@
 package example.classic.ds.skipList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SkipListNode<T> {
 
     T value;
 
     double score;
 
-    SkipListNode<T> next;
+    List<SkipListNode<T>> nextNodes;
 
     public SkipListNode(T value, double score){
         this.value = value;
         this.score = score;
+        nextNodes = new ArrayList<>();
     }
 }
