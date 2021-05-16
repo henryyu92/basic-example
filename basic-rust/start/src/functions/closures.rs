@@ -27,11 +27,24 @@ fn capture_variable(){
     use std::mem;
 
     let color = String::from("green");
+
+    // 闭包借用了捕获的变量
     let print = || println!("`color`: {}", color);
+    print();
+
+    let _reborrow = &color;
+    print();
+
+
 }
 
 
 #[test]
 fn test_closures(){
     closures();
+}
+
+#[test]
+fn test_capture_variable(){
+    capture_variable();
 }
