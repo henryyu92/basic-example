@@ -95,8 +95,7 @@ public class SkipList<T> {
 
     SkipListNode<T> nextNode = current.nextNodes.get(level);
     while (nextNode != null){
-      double nextScore = nextNode.score;
-      if (score >= nextScore){
+      if (score < nextNode.score){
         break;
       }
       current = nextNode;

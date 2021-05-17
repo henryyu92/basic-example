@@ -41,7 +41,7 @@ public class SkipList<T> {
 
 跳跃表的查询是从上往下开始的，从最上层的链表头部开始，如果当前节点后继节点的值小于等于查询的值则沿着这条链向后查询，否则切换到当前节点的下一层链表，然后继续比较当前节点的后继节点的值与带查询的值，重复这个步骤直到找到查询的值或者后继节点为 null 为止。
 
-跳跃表查找时间复杂度为 O(NlgN)
+跳跃表查找时间复杂度为 `O(lgN)`
 ```java
 public T get(double score){
     SkipListNode<T> node = find(head, score, level);
@@ -66,8 +66,7 @@ public SkipListNode<T> findNex(SkipListNode<T> current, double score, int level)
 
     SkipListNode<T> nextNode = current.nextNodes.get(level);
     while (nextNode != null){
-        double nextScore = nextNode.score;
-        if (score >= nextScore){
+        if (score < nextNode.score){
             break;
         }
         current = nextNode;
