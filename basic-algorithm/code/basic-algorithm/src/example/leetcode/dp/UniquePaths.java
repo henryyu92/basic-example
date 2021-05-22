@@ -3,7 +3,7 @@ package example.leetcode.dp;
 /**
  * 从 M * N 的网格左上角移动到右下角，每次只能向下或者向右移动一步，总共有多少种不同的路径
  */
-public class uniquePaths {
+public class UniquePaths {
 
     /**
      * f(i, j) 表示移动到 (i,j) 位置的路径数，则 f(i,j) = f(i-1,j) + f(i, j-1)
