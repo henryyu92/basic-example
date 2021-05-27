@@ -14,5 +14,3 @@ bitIndex = index % 32;
 
 arr[intIndex] = arr[intIndex] | (1 << bitIndex);
 ```
-
-## HyperLogLog
