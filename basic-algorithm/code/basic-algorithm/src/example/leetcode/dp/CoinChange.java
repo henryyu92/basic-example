@@ -4,9 +4,7 @@ import java.util.Arrays;
 
 /**
  * 零钱兑换：给定不同面额的硬币 coins 和总金额 amount,返回凑成总金额所需的最小金币数
- *
- *      
- *
+ * 
  */
 public class CoinChange {
 
@@ -64,7 +62,7 @@ public class CoinChange {
              return;
          }
          for(int i = amount/coins[index]; i >= 0 && count + i < res; i--){
-            bfs(coins, amount - coins[index] * i, count + i, index-1)
+            bfs(coins, amount - coins[index] * i, count + i, index-1);
          }
      }
 }

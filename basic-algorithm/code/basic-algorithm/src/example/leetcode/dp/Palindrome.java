@@ -1,15 +1,18 @@
 package example.leetcode.dp;
 
 /**
- * 最长回文子串
+ * 回文子串问题
  */
-public class LongestPalindrome {
+public class Palindrome {
 
     /**
-     *
+     *  最长回文子串，在给定的字符串中找出最长的回文子串
+     * 
      * 动态规划：
      *
      *      如果 (i, j) 为回文子串，则 (i+1, j-1) 必然为回文子串，并且 s(i) = s(j)
+     * 
+     *      dp[i][j] = dp[i+1][j-1] && s(i) == s(j)
      *
      */
     public String longestPalindrome_dp(String s){
