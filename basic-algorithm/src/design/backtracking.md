@@ -16,6 +16,8 @@ for 选择 in 选择列表:
     路径.remove(选择)
     将该选择再加入选择列表
 ```
+
+### 全排列
 全排列问题：给定数组 arr，输出数组的全排列
 ```java
 public List<List<Integer>> permute(int[] arr){
@@ -47,7 +49,7 @@ public void backtrace(int[] arr, List<Integer> path, List<List<Integer>> result)
 ```
 
 
-### N 皇后问题
+### N 皇后
 
 ```java
 ```

@@ -65,14 +65,25 @@ public class SkipList<T> {
     SkipListNode<T> newNode = new SkipListNode<>(v, score);
     SkipListNode<T> current = head;
     do {
-      current = findNex(current, score, newLevel);
+      current = findNext(current, score, newLevel);
       newNode.nextNodes.add(0, current.nextNodes.get(newLevel));
       current.nextNodes.set(newLevel, newNode);
     }while (newLevel-- > 0);
   }
 
+  /**
+   *  先找到指定位置，删除后需要调整每层之间的引用关系 
+   */
   public void delete(double score){
     SkipListNode<T> prev = find(head, score, level);
+    // 没有找到
+    if(prev.score != score){
+      return;
+    }
+    // 从上层开始重新调整引用关系
+    for(int i = prev.nextNodes.size() - 1; i >= 0; i--){
+      
+    }
   }
 
   public int size(){
@@ -82,7 +93,7 @@ public class SkipList<T> {
 
   public SkipListNode<T> find(SkipListNode<T> current, double score, int level){
     do {
-      current = findNex(current, score, level);
+      current = findNext(current, score, level);
     }while (level-- > 0);
     return current;
   }
@@ -91,7 +102,7 @@ public class SkipList<T> {
   /**
    * 返回当前层不大于给定值的最大节点
    */
-  public SkipListNode<T> findNex(SkipListNode<T> current, double score, int level){
+  public SkipListNode<T> findNext(SkipListNode<T> current, double score, int level){
 
     SkipListNode<T> nextNode = current.nextNodes.get(level);
     while (nextNode != null){

@@ -137,3 +137,5 @@ public int mostEOR(int[] arr){
     return ans;
 }
 ```
+
+https://www.cnblogs.com/cyjb/p/UnionFindSets.html
