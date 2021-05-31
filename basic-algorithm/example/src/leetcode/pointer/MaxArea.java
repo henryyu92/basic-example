@@ -1,4 +1,4 @@
-package example.leetcode.pointer;
+package leetcode.pointer;
 
 /**
  * 盛水最多的容器

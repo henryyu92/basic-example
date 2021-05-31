@@ -1,4 +1,4 @@
-package example.leetcode.dp;
+package leetcode.dp;
 
 /**
  * 从 M * N 的网格左上角移动到右下角，每次只能向下或者向右移动一步，总共有多少种不同的路径

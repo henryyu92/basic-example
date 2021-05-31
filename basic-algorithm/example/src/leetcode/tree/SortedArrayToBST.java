@@ -1,4 +1,4 @@
-package example.leetcode.tree;
+package leetcode.tree;
 
 import java.lang.reflect.Array;
 import java.util.List;

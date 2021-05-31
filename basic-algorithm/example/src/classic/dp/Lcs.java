@@ -1,4 +1,4 @@
-package example.classic.dp;
+package classic.dp;
 
 /**
  * 最长子序列问题：给定序列 X 和 Y 求解最长的子序列 Z

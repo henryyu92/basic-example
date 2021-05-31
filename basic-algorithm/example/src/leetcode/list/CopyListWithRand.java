@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 复制含有随机指针节点的链表

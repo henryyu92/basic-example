@@ -1,4 +1,4 @@
-package example.classic.ds.primitive.string;
+package classic.ds.primitive.string;
 
 public class StringConverter {
 

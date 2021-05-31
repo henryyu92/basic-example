@@ -1,4 +1,4 @@
-package example.classic.ds.tree;
+package classic.ds.tree;
 
 import java.util.*;
 

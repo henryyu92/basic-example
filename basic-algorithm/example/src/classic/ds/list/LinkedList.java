@@ -1,4 +1,4 @@
-package example.classic.ds.list;
+package classic.ds.list;
 
 public class LinkedList<T extends Comparable<T>> {
 

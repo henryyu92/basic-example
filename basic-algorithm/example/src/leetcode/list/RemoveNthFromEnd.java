@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 删除链表的倒数 N 个结点，并返回链表头结点

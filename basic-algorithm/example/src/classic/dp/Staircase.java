@@ -1,4 +1,4 @@
-package example.classic.dp;
+package classic.dp;
 
 /**
  * 爬楼梯问题：

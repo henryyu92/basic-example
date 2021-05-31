@@ -1,4 +1,4 @@
-package example.leetcode.tree;
+package leetcode.tree;
 
 import java.util.HashMap;
 import java.util.Map;

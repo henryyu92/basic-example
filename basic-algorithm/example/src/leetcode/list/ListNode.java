@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 public class ListNode {
 

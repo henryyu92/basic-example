@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 将两个升序链表合并为一个新的升序链表

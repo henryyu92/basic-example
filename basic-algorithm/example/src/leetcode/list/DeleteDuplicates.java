@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  *  给定升序链表头节点 head，删除重复的元素，使得每个元素只出现一次

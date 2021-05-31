@@ -1,4 +1,4 @@
-package example.classic.sort;
+package classic.sort;
 
 /**
  * 归并排序将待排序数据划分为两部分分别排序完成后合并

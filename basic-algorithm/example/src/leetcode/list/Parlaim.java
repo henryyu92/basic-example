@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 问题描述：

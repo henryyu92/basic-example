@@ -1,4 +1,4 @@
-package example.leetcode.dp;
+package leetcode.dp;
 
 import example.leetcode.tree.TreeNode;
 

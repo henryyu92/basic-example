@@ -1,4 +1,4 @@
-package example.classic.divide;
+package classic.divide;
 
 /**
  * 最大利润

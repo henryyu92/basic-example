@@ -1,4 +1,4 @@
-package example.classic.ds.primitive.numeric;
+package classic.ds.primitive.numeric;
 
 /**
  * 获取 [1..x] 之间的素数集合

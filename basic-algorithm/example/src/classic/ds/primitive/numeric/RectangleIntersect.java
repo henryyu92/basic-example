@@ -1,4 +1,4 @@
-package example.classic.ds.primitive.numeric;
+package classic.ds.primitive.numeric;
 
 /**
  * 矩形相交问题：

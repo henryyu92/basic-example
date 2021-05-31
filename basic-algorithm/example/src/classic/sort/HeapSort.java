@@ -1,4 +1,4 @@
-package example.classic.sort;
+package classic.sort;
 
 /**
  * 堆排序构建大根堆之后将堆顶元素和最后一个元素互换之后调整

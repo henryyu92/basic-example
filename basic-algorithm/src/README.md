@@ -1,13 +1,13 @@
 ## 排序
-- [冒泡排序&选择排序&插入排序](./sort/classic_sort.md)
-- [归并排序&快速排序](./sort/merge_quick_sort.md)
-- [堆排序](./sort/heap_sort.md)
-- [桶排序](./sort/bucket_sort.md)
-- [希尔排序](./sort/shell.md)
+- [冒泡排序&选择排序&插入排序](sort/classic_sort.md)
+- [归并排序&快速排序](sort/merge_quick_sort.md)
+- [堆排序](sort/heap_sort.md)
+- [桶排序](sort/bucket_sort.md)
+- [希尔排序](sort/shell.md)
 
 ## 数据结构
-- [链表](./data_structure/linkedlist.md)
-- [栈](./data_structure/stack.md)
+- [链表](ds/list/linkedList.md)
+- [栈](ds/stack.md)
 - [队列](./data_structure/queue.md)
 - [哈希](./data_structure/hash.md)
 - [堆](./ds/heap.md)
@@ -33,11 +33,11 @@
 
 
 ## 算法思想
-- [枚举](./al_design_analysis)
-- [分治](./divide.md)
-- [分治&动态规划](./al_design_analysis)
-- [贪心](./al_design_analysis)
-- [回溯](./analysis/backtrack.md)
+- [枚举](design/enumeration.md)
+- [分治](design/divide.md)
+- [动态规划](design/dp.md)
+- [贪心](design/greedy.md)
+- [回溯](design/backtracking.md)
 
 ## 拓展
 - [二分](./others)

@@ -1,4 +1,4 @@
-package example.classic.ds.heap;
+package classic.ds.heap;
 
 import java.util.Arrays;
 

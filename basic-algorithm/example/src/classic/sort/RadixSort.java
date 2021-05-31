@@ -1,4 +1,4 @@
-package example.classic.sort;
+package classic.sort;
 
 /**
  * 基数排序从数据的最后一位开始排序，然后依次排序前一位直到所有位都已经排序

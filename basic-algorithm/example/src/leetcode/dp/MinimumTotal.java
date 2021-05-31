@@ -1,4 +1,4 @@
-package example.leetcode.dp;
+package leetcode.dp;
 
 import java.util.List;
 

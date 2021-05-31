@@ -1,13 +1,11 @@
-package example.classic.ds.list;
+package classic.ds.list;
 
 /**
  * 链表节点
- * @param <T>
  */
-public class ListNode<T extends Comparable<T>> {
+public class ListNode<T> {
 
     private T value;
-    private ListNode<T> prev;
     private ListNode<T> next;
 
     public ListNode(){}
@@ -22,10 +20,6 @@ public class ListNode<T extends Comparable<T>> {
 
     public void setNext(ListNode<T> next){
         this.next = next;
-    }
-
-    public ListNode<T> prev(){
-        return this.prev;
     }
 
     public T value(){

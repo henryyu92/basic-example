@@ -1,4 +1,4 @@
-package example.classic.ds.primitive.bit;
+package classic.ds.primitive.bit;
 
 /**
  * 位掩码

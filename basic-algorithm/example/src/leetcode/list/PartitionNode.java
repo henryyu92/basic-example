@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 将链表按照一个给定的值划分为左、中、右三部分，要求左部分的节点值小于给定值，中间部分的节点值等于给定值，右边部分的节点值大于给定值

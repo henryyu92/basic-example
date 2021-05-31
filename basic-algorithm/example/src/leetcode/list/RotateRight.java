@@ -1,4 +1,4 @@
-package example.leetcode.list;
+package leetcode.list;
 
 /**
  * 给定链表头节点 head，将链表节点向右移动 K 个位置

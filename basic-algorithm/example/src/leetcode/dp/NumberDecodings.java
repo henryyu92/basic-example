@@ -1,4 +1,4 @@
-package example.leetcode.dp;
+package leetcode.dp;
 
 /**
  *  定义字母 A-Z 的消息影射编码： ‘A’ -> 1,..., 'Z'->26

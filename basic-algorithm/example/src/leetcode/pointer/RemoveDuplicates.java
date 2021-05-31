@@ -1,4 +1,4 @@
-package example.leetcode.pointer;
+package leetcode.pointer;
 
 
 public class RemoveDuplicates {

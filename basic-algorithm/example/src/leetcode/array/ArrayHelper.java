@@ -1,4 +1,4 @@
-package example.leetcode.array;
+package leetcode.array;
 
 public class ArrayHelper {
 

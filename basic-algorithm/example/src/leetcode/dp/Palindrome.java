@@ -1,4 +1,4 @@
-package example.leetcode.dp;
+package leetcode.dp;
 
 /**
  * 回文子串问题

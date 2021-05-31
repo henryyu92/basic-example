@@ -1,4 +1,4 @@
-package example.classic.sort;
+package classic.sort;
 
 /**
  * 快速排序先根据一个值将待排序数据分割为两部分，左部分小于这个值，右边部分大于这个值，然后递归调用这个过程

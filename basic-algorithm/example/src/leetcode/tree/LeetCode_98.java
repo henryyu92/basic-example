@@ -1,4 +1,4 @@
-package example.leetcode.tree;
+package leetcode.tree;
 
 /**
  * @see <a href="https://leetcode-cn.com/problems/validate-binary-search-tree/"/>

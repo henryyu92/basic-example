@@ -1,4 +1,4 @@
-package example.classic.sort;
+package classic.sort;
 
 /**
  * 桶排序已知数据分布，将数据放入对应的桶中，然后遍历桶即可排序

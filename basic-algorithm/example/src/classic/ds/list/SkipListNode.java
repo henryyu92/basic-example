@@ -1,4 +1,4 @@
-package example.classic.ds.skipList;
+package classic.ds.list;
 
 import java.util.ArrayList;
 import java.util.List;
