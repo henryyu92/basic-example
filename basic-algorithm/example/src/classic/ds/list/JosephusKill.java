@@ -5,6 +5,7 @@ package classic.ds.list;
  *
  * 约瑟夫环：N个人围成一圈，从第一个开始报数，第 M个将被杀掉，下一个人接着重新报数，直到最后剩下一个，其余人都将被杀掉。
  *
+ * https://www.cnblogs.com/kkrisen/p/3569281.html#undefined
  *
  * public Node josephusKill(Node node, int m){
  *     if(head == null || head.next == head || m < 1){
@@ -37,7 +38,15 @@ public class JosephusKill {
      * 循环链表解约瑟夫环问题
      *
      */
-//    public int getAlive_duLinkList(ListNode<Integer> root, int m){
-//
-//    }
+    public int getAlive_duLinkList(ListNode<Integer> root, int m){
+        if (root == null){
+            return 0;
+        }
+        CircularLinkedList<Integer> duLinkedList = new CircularLinkedList<>(root);
+        while (duLinkedList.size() > m){
+            Integer remove = duLinkedList.remove(m);
+        }
+
+        return 0;
+    }
 }
