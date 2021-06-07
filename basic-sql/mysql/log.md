@@ -99,8 +99,8 @@ show varaibles like 'datadir';
 - ```binlog-ignore-db```：表示需要忽略哪些库的日志
 - ```log-slave-update```：如果当前数据库是 slave 角色则不会将从 master 获取并执行的二进制日志写入自己的二进制日志中，如果需要写入则需要设置
 - ```binlog_format```：该参数可设置的值有 STATEMENT、ROW 和 MIXED
-  - STATEMENT：二进制日志文件记录的是日志的逻辑 SQL 语句
-  - ROW：记录表的行更改情况
+  - STATEMENT：二进制日志文件记录的是修改日志的逻辑 SQL 语句
+  - ROW：记录表的行更改情况，会记录每行的变化，产生大量的日志
   - MIXED：默认使用 STATEMENT 格式记录二进制日志文件，一些情况下使用 ROW 格式
   
   可以设置 binlog_format 来更改二进制日志写入的格式，默认为 ROW：

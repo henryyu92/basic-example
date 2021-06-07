@@ -60,6 +60,62 @@
 
 ### Sharding jdbc
 
+- 逻辑表：水平拆分的数据表的相同逻辑和数据结构表的总称
+- 真实表：在分片的数据库中真实存在的物理表
+- 数据节点：数据分片的最小单元，由数据源名称和数据表组成
+- 绑定表：分片规则一致的主表和子表，绑定表之间的多表关联查询不会出现笛卡尔积关联
+- 广播表：所有的分片数据源中都存在的表，表结构和表中的数据在每个数据库中均完全一致
+- 分片键：用于分片的数据表字段，如果 sql 中没有分片字段，则会执行全路由，使得性能较差
+
+#### 分片算法
+
+分片算法用于将表中的数据水平拆分，分片算法需要自行实现。`sharding-jdbc` 提供了四种分片算法的接口，分别应用与不同的场景：
+
+- **精确分片算法 (PreciseShardingAlgorithm)**：用于处理使用单一键作为分片键的 `=` 和 `in` 进行分片的场景，需要配合 `StandardShardingStategy` 使用 
+- 范围分片算法(RangeShardingAlgorithm)：用于处理使用单一键作为分片键的 `Between...and` 进行分片的场景，如果没有配置则查询中的 `between...and` 将按照全库路由处理，需要配合 `StandardShardingStrategy` 使用
+- 复合分片算法(ComplexKeysShardingAlgorithm)：用于处理使用多键作为分片键进行分片的场景，包含多个分片键的逻辑较为复杂。需要配合 `ComplexShardingStrategy` 使用
+- Hit 分片算法(HitShardingAlgorithm)：用于处理使用 `Hit` 进行分片的场景，需要配合 `HitShardingStrategy` 使用
+
+#### 分片策略
+
+分片策略包含分片键和分片算法，`sharding-jdbc` 提供了 5 种分片策略
+
+- 标准分片策略(StandardShardingStrategy)：提供对 `=`、`in`、`between...and` 的分片操作支持。`StandardShardingStrategy`只支持单分片键，提供`PreciseShardingAlgorithm`和`RangeShardingAlgorithm`两个分片算法。`PreciseShardingAlgorithm`是必选的，用于处理=和IN的分片。`RangeShardingAlgorithm`是可选的，用于处理BETWEEN AND分片，如果不配置RangeShardingAlgorithm，SQL中的BETWEEN AND将按照全库路由处理。
+- 复合分片策略(ComplexShardingStrategy)：提供对SQL语句中的=, IN和BETWEEN AND的分片操作支持。ComplexShardingStrategy支持多分片键，由于多分片键之间的关系复杂，因此并未进行过多的封装，而是直接将分片键值组合以及分片操作符透传至分片算法，完全由应用开发者实现，提供最大的灵活度。
+- 行表达式分片策略(InlineShardingStrategy)：使用Groovy的表达式，提供对SQL语句中的=和IN的分片操作支持，只支持单分片键。对于简单的分片算法，可以通过简单的配置使用，从而避免繁琐的Java代码开发，如: t_user_$->{u_id % 8} 表示t_user表根据u_id模8，而分成8张表，表名称为t_user_0到t_user_7。
+- Hit 分片策略(HitShardingStrategy)：通过Hint而非SQL解析的方式分片的策略。
+- 不分片策略(NoneShardingStrategy)：不分片的策略。
+
+#### 执行过程
+
+- `sql` 解析：通过解析 sql 语句提取分片键列与值进行分片
+- `sql` 改写：根据解析的结果，采用设置的分片逻辑改写 sql
+- `sql` 路由：根据改写的 `sql` 和分片逻辑确定需要执行语句的库和表。如果设置了分片键则按照分片键进行直接路由(查单表或者绑定表)或者笛卡尔路由(关联查询的表之间没有绑定关系)，如果没有设置分片键则需要全库路由(在每个表上执行查询)
+- `sql` 执行：在指定的库和表上执行 `sql`
+- 结果归并：将多个库和表上执行语句的结果集汇总归并为最终的结果集，归并通常有遍历、排序、分组、分页和聚合 5 中类型
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 https://shardingsphere.apache.org/index_zh.html
